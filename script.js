@@ -1,4 +1,4 @@
-Paste this as your full **`script.js`** replacement:
+
 
 ```javascript
 (() => {
