@@ -1,189 +1,101 @@
+[README.md](https://github.com/user-attachments/files/27111567/README.md)
 # Theorem
 
-Theorem is a static universal learning workspace for students.
+Theorem is a static, mistake-first Algebra 1 tutoring website.
 
-Core promise:
+**Positioning:** Theorem finds the step you missed, fixes the exact skill, then makes you prove you learned it.
 
-> Theorem turns any homework, notes, or study material into a guided tutoring session. You try first. It checks what it can, questions what it can’t, and helps you master the material.
+## Description
 
-## What it does
+Theorem helps middle school and high school students learn by diagnosing the exact mistake pattern in their work instead of simply giving answers. The first live modules are:
 
-Theorem lets students paste or upload `.txt` / `.md` material, then creates a guided study session.
+- Two-step equations
+- Combining like terms
+- Distributive property
 
-Supported session types:
+The site runs entirely in the browser using HTML, CSS, and JavaScript. It has no backend, no login, no paid API, no build step, no external dependencies, no ads, and no tracking.
 
-* **Math exact-check mode**
+## How to use
 
-  * Two-step equations
-  * Combining like terms
-  * Distributive property
-  * Answer checking
-  * Mistake diagnosis
-  * Hint levels
-  * Repair drills
-  * No answer before attempt
+1. Open `index.html` in a browser.
+2. Click **Start Diagnostic** or **Practice Algebra**.
+3. Try a problem before seeing the answer.
+4. Read the diagnosis if the answer is wrong.
+5. Complete the short repair drill.
+6. Prove mastery with a fresh problem.
+7. Visit **Progress** or **Review** to see tracked mistake patterns.
 
-* **Concept tutor mode**
+## How to deploy on GitHub Pages
 
-  * Science
-  * History / Social Studies
-  * English / Reading
-  * Foreign Language
-  * General Study
-  * Summaries
-  * Likely key terms
-  * Flashcards
-  * Quiz prompts
-  * Teach-back checks
-  * Self-check rubrics
+1. Create a new GitHub repository.
+2. Add these files to the root of the repository:
+   - `index.html`
+   - `style.css`
+   - `script.js`
+   - `README.md`
+3. Commit and push the files.
+4. In GitHub, open **Settings → Pages**.
+5. Under **Build and deployment**, choose:
+   - Source: **Deploy from a branch**
+   - Branch: **main**
+   - Folder: **/root**
+6. Save. GitHub will publish the site as a GitHub Pages static site.
 
-* **Code tutor mode**
+## Features
 
-  * What the code appears to do
-  * Important lines
-  * Possible bugs or edge cases
-  * Explain-this-line prompts
-  * Modification challenge
-  * Test case suggestions
+- Premium dark responsive interface
+- Mobile-friendly layout
+- Keyboard-usable controls
+- Accessible labels and visible focus states
+- Diagnostic tutoring loop
+- No answer shown before an attempt
+- Tiered hints
+- Mistake diagnosis instead of generic wrong-answer feedback
+- Short repair drills
+- Fresh mastery problems
+- Local progress with `localStorage`
+- Tracks:
+  - total attempts
+  - total correct
+  - accuracy
+  - current streak
+  - mistake categories
+  - strongest skill
+  - weakest skill
+  - mastered skills
+  - weak skills
+  - recent attempts
+- Review questions generated from weak areas
+- Works on GitHub Pages with no build step
 
-## Honesty rule
+## Mistake categories
 
-Theorem does not use an AI API and does not pretend to perfectly understand all material.
+Theorem tracks these mistake patterns:
 
-For supported Algebra 1 patterns, it can check answers exactly.
+- `skipped_inverse_operation`
+- `wrong_operation`
+- `sign_error`
+- `arithmetic_error`
+- `combined_unlike_terms`
+- `distribution_error`
+- `variable_confusion`
+- `incomplete_solution`
+- `random_or_unclear`
 
-For open-ended subjects, it says things like:
+## Safety and robustness
 
-* “Based on the text you pasted…”
-* “Theorem found these likely key ideas…”
-* “Check this against your class notes.”
-
-It guides active recall instead of pretending to be a perfect grader.
-
-## Files
-
-* `index.html` — app structure
-* `style.css` — warm premium responsive interface
-* `script.js` — learning engines, math checking, progress tracking, navigation
-* `README.md` — project notes
-
-## How to use locally
-
-1. Download or clone the project.
-2. Open `index.html` in a browser.
-3. Paste homework, notes, study material, or code into the Learn Workspace.
-4. Choose a subject or leave it on Auto-detect.
-5. Click **Build learning session**.
-
-No install step is required.
-
-## Deploy on GitHub Pages
-
-1. Create a GitHub repository.
-2. Upload these files to the repository root:
-
-   * `index.html`
-   * `style.css`
-   * `script.js`
-   * `README.md`
-3. Go to **Settings → Pages**.
-4. Under **Build and deployment**, choose:
-
-   * Source: `Deploy from a branch`
-   * Branch: `main`
-   * Folder: `/root`
-5. Save.
-6. Open the GitHub Pages URL.
-
-## Local progress
-
-Theorem saves progress in `localStorage` using:
-
-```text
-theoremProgressV2
-```
-
-Tracked locally:
-
-* learning sessions created
-* subject sessions
-* materials imported
-* supported math problems imported
-* unsupported problems
-* math problems attempted
-* correct answers
-* mistake categories
-* concept quizzes completed
-* flashcards reviewed
-* teach-back attempts
-* weak subjects
-* weak terms
-* recent attempts
-
-No account, backend, cookies, ads, or analytics are used.
-
-## Supported math formats
-
-Examples:
-
-```text
-2x + 5 = 17
-3x - 4 = 11
-5x + 2 = 27
-3x + 2x + 5
-4x + x + 7
-6x - 2x + 9
-3(x + 4)
-2(x + 5)
-5(x - 2)
-```
-
-Accepted equation answers include:
-
-```text
-6
-x = 6
-X=6
-6.0
-```
-
-## Upload support
-
-Currently supported:
-
-* `.txt`
-* `.md`
-
-Not supported yet:
-
-* images
-* PDFs
-* OCR
-* handwriting recognition
-
-If a user uploads an image or PDF, Theorem explains that image and PDF upload is coming later.
-
-## Accessibility and safety
-
-* Keyboard-friendly navigation
-* Visible focus states
-* High-contrast text
-* Labeled inputs
-* Mobile responsive layout
-* No raw user material rendered with `innerHTML`
-* Pasted text is rendered with `textContent`
-* Local-only storage
-* No password or login collection
+- User answers are not rendered as raw HTML.
+- Bad input produces a helpful response instead of crashing.
+- localStorage failures fall back to in-memory progress for the session.
+- Repeated identical submissions do not spam progress.
+- Coming-soon modules are visible but not fake-clickable.
+- No personal data, emails, cookies, or external tracking are collected.
 
 ## Future improvements
 
-* More Algebra topics
-* Geometry and statistics support
-* Better concept extraction
-* Import from PDFs using client-side parsing
-* Optional accounts for cross-device progress
-* Safe future sign-in options:
-
-  * Google sign-in
-  * email magic link
-  * passkeys
+- Add variables-on-both-sides equations.
+- Add slope basics with graph-free and graph-based practice.
+- Add word problem translation.
+- Add a printable teacher summary.
+- Add import/export for local progress.
+- Add more adaptive sequencing based on repeated mistake patterns.
