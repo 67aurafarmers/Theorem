@@ -1163,3 +1163,456 @@ label {
     width: 100%;
   }
 }
+/* =========================================================
+   Theorem Motion Upgrade — Fixed Version
+   Paste at the very bottom of style.css
+========================================================= */
+
+:root {
+  --ease-soft: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-snap: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Whole app enters softly */
+body {
+  animation: theoremPageWake 0.75s var(--ease-soft) both;
+}
+
+/* Works with both possible section class names */
+.app-section.visible,
+.app-section.active-section {
+  animation: theoremSectionRise 0.55s var(--ease-soft) both;
+}
+
+/* Hero also supports both class systems */
+.hero-section.visible,
+.hero-section.active-section {
+  animation: theoremSectionRise 0.55s var(--ease-soft) both;
+}
+
+/* Hero copy has a calm stagger */
+.hero-copy {
+  animation: theoremFloatIn 0.7s var(--ease-soft) both;
+}
+
+.hero-card {
+  animation: theoremFloatIn 0.85s var(--ease-soft) both;
+}
+
+/* Cards breathe upward on hover */
+.glass-card,
+.side-card,
+.tutor-card,
+.module-card,
+.stat-card,
+.review-card,
+.about-card,
+.principle-card {
+  transform: translateY(0) scale(1);
+  transition:
+    transform 0.35s var(--ease-soft),
+    box-shadow 0.35s var(--ease-soft),
+    border-color 0.35s var(--ease-soft),
+    background 0.35s var(--ease-soft);
+}
+
+.glass-card:hover,
+.side-card:hover,
+.tutor-card:hover,
+.module-card:hover,
+.stat-card:hover,
+.review-card:hover,
+.about-card:hover,
+.principle-card:hover {
+  transform: translateY(-3px) scale(1.006);
+  box-shadow: 0 26px 70px rgba(39, 30, 21, 0.105);
+  border-color: rgba(217, 119, 87, 0.18);
+}
+
+/* Navigation pill feels smoother */
+.nav-link {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition:
+    color 0.25s var(--ease-soft),
+    background 0.25s var(--ease-soft),
+    transform 0.25s var(--ease-soft),
+    box-shadow 0.25s var(--ease-soft);
+}
+
+.nav-link.active {
+  box-shadow:
+    0 10px 24px rgba(39, 30, 21, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.78);
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(circle at center, rgba(217, 119, 87, 0.12), transparent 58%);
+  opacity: 0;
+  transform: scale(0.8);
+  transition:
+    opacity 0.28s var(--ease-soft),
+    transform 0.28s var(--ease-soft);
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+  opacity: 1;
+  transform: scale(1.15);
+}
+
+/* Buttons get a smooth glow and press feel */
+.btn {
+  position: relative;
+  overflow: hidden;
+  transform: translateY(0) scale(1);
+  transition:
+    transform 0.24s var(--ease-soft),
+    box-shadow 0.28s var(--ease-soft),
+    background 0.28s var(--ease-soft),
+    border-color 0.28s var(--ease-soft);
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.012);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(0) scale(0.985);
+}
+
+.btn-primary::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -140%;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background: linear-gradient(
+    110deg,
+    transparent,
+    rgba(255, 255, 255, 0.34),
+    transparent
+  );
+  transform: skewX(-18deg);
+}
+
+.btn-primary:hover::before {
+  animation: theoremButtonShine 0.85s var(--ease-soft);
+}
+
+/* Brand mark has a subtle living pulse */
+.brand-mark {
+  position: relative;
+  animation: theoremBrandPulse 4.5s ease-in-out infinite;
+}
+
+.brand-mark::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 18px;
+  background: rgba(217, 119, 87, 0.18);
+  z-index: -1;
+  opacity: 0;
+  transform: scale(0.86);
+  animation: theoremSoftHalo 4.5s ease-in-out infinite;
+}
+
+/* Avoid transform conflict with card hover by animating only the hero wrapper */
+.hero-card {
+  will-change: transform;
+}
+
+/* Equation preview feels like a living focus card */
+.equation-preview,
+.problem-display {
+  transition:
+    transform 0.35s var(--ease-soft),
+    letter-spacing 0.35s var(--ease-soft),
+    background 0.35s var(--ease-soft);
+}
+
+.equation-preview:hover,
+.problem-stage:hover .problem-display {
+  transform: scale(1.018);
+  letter-spacing: -0.055em;
+}
+
+/* Inputs feel smoother and more focused */
+.answer-row input,
+textarea,
+input {
+  transition:
+    border-color 0.25s var(--ease-soft),
+    box-shadow 0.25s var(--ease-soft),
+    background 0.25s var(--ease-soft),
+    transform 0.25s var(--ease-soft);
+}
+
+.answer-row input:focus,
+textarea:focus,
+input:focus {
+  transform: translateY(-1px);
+  box-shadow:
+    0 0 0 4px rgba(217, 119, 87, 0.11),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+/* Feedback enters gently instead of popping */
+.feedback-panel:not(.hidden) {
+  animation: theoremFeedbackIn 0.42s var(--ease-soft) both;
+}
+
+/* Correct feedback gives a quiet success pulse */
+.feedback-panel.correct {
+  animation:
+    theoremFeedbackIn 0.42s var(--ease-soft) both,
+    theoremCorrectPulse 0.75s var(--ease-soft) 0.08s both;
+}
+
+/* Repair feedback feels like a soft warning, not punishment */
+.feedback-panel.repair-needed {
+  animation:
+    theoremFeedbackIn 0.42s var(--ease-soft) both,
+    theoremRepairGlow 0.8s var(--ease-soft) 0.08s both;
+}
+
+/* Queue, modules, dashboard cards get staggered arrival */
+.skill-button,
+.module-card,
+.stat-card,
+.review-card,
+.principle-card {
+  animation: theoremSmallRise 0.48s var(--ease-soft) both;
+}
+
+.skill-button:nth-child(1),
+.module-card:nth-child(1),
+.stat-card:nth-child(1),
+.review-card:nth-child(1),
+.principle-card:nth-child(1) {
+  animation-delay: 0.03s;
+}
+
+.skill-button:nth-child(2),
+.module-card:nth-child(2),
+.stat-card:nth-child(2),
+.review-card:nth-child(2),
+.principle-card:nth-child(2) {
+  animation-delay: 0.07s;
+}
+
+.skill-button:nth-child(3),
+.module-card:nth-child(3),
+.stat-card:nth-child(3),
+.review-card:nth-child(3),
+.principle-card:nth-child(3) {
+  animation-delay: 0.11s;
+}
+
+.skill-button:nth-child(4),
+.module-card:nth-child(4),
+.stat-card:nth-child(4) {
+  animation-delay: 0.15s;
+}
+
+/* Progress bars fill smoothly */
+.bar span {
+  transition: width 0.8s var(--ease-soft);
+}
+
+/* Soft animated ambient background */
+body::after {
+  content: "";
+  position: fixed;
+  inset: auto -12rem -16rem auto;
+  width: 34rem;
+  height: 34rem;
+  z-index: -2;
+  pointer-events: none;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(217, 119, 87, 0.13), transparent 68%);
+  filter: blur(12px);
+  animation: theoremAmbientDrift 12s ease-in-out infinite alternate;
+}
+
+/* Keyframes */
+
+@keyframes theoremPageWake {
+  from {
+    opacity: 0;
+    filter: blur(8px);
+  }
+
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+@keyframes theoremSectionRise {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.992);
+    filter: blur(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes theoremFloatIn {
+  from {
+    opacity: 0;
+    transform: translateY(22px) scale(0.985);
+    filter: blur(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes theoremSmallRise {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.992);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes theoremFeedbackIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+    filter: blur(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes theoremCorrectPulse {
+  0% {
+    box-shadow: 0 0 0 rgba(63, 122, 77, 0);
+  }
+
+  45% {
+    box-shadow: 0 0 0 7px rgba(63, 122, 77, 0.075);
+  }
+
+  100% {
+    box-shadow: 0 0 0 rgba(63, 122, 77, 0);
+  }
+}
+
+@keyframes theoremRepairGlow {
+  0% {
+    box-shadow: 0 0 0 rgba(165, 108, 34, 0);
+  }
+
+  45% {
+    box-shadow: 0 0 0 7px rgba(165, 108, 34, 0.075);
+  }
+
+  100% {
+    box-shadow: 0 0 0 rgba(165, 108, 34, 0);
+  }
+}
+
+@keyframes theoremButtonShine {
+  from {
+    left: -140%;
+  }
+
+  to {
+    left: 140%;
+  }
+}
+
+@keyframes theoremBrandPulse {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+
+  50% {
+    transform: translateY(-1px) scale(1.035);
+  }
+}
+
+@keyframes theoremSoftHalo {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.86);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes theoremAmbientDrift {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.65;
+  }
+
+  to {
+    transform: translate3d(-4rem, -2rem, 0) scale(1.12);
+    opacity: 0.95;
+  }
+}
+
+/* Respect accessibility */
+@media (prefers-reduced-motion: reduce) {
+  body,
+  body::after,
+  .app-section.visible,
+  .app-section.active-section,
+  .hero-section.visible,
+  .hero-section.active-section,
+  .hero-copy,
+  .hero-card,
+  .brand-mark,
+  .brand-mark::after,
+  .feedback-panel,
+  .feedback-panel.correct,
+  .feedback-panel.repair-needed,
+  .skill-button,
+  .module-card,
+  .stat-card,
+  .review-card,
+  .principle-card {
+    animation: none !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
