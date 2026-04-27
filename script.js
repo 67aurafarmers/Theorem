@@ -2091,5 +2091,3 @@
     node.append(heading(title, 3), textP(body));
     return node;
   }
-})();
-```
