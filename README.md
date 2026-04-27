@@ -2,40 +2,48 @@
 
 Theorem is a static universal learning workspace for students.
 
-**Core promise:** Theorem turns homework, notes, study material, and code into a guided tutoring session. You try first. It checks what it can, questions what it cannot, and helps you master the material.
+**Core promise:** Upload or paste your material. Theorem finds the best way to teach it.
 
-## Description
+Theorem turns homework, notes, study material, worksheets, textbook sections, and code into guided learning sessions. It auto-detects the subject, chooses a study strategy, and creates active practice.
 
-Theorem helps students turn passive school material into active learning.
+## Current Version
 
-It supports:
+This version is fully static and GitHub Pages-compatible.
 
-- pasted homework
-- pasted notes
-- worksheets
-- textbook sections
-- study guides
-- code snippets
-- `.txt` uploads
-- `.md` uploads
+It uses:
 
-Theorem runs entirely in the browser using HTML, CSS, and JavaScript. It has no backend, no login, no paid API, no build step, no external dependencies, no ads, and no tracking.
+- HTML
+- CSS
+- JavaScript
+- `localStorage`
 
-## Learning modes
+It does not use:
 
-### 1. Math exact-check mode
+- a backend
+- a database
+- a paid API
+- an exposed API key
+- external dependencies
+- fake login
+- ads
+- tracking
 
-For supported Algebra 1 problems, Theorem can check answers and diagnose likely mistake patterns.
+## Main Flow
 
-Supported math formats include:
+1. Open Theorem.
+2. Paste homework, notes, study material, or code.
+3. Or upload a `.txt` / `.md` file.
+4. Click **Build my learning session**.
+5. Theorem auto-detects the subject.
+6. Theorem chooses the best teaching strategy it can.
+7. Theorem creates a guided learning session.
+8. Progress saves locally in the browser.
+
+There is no manual subject dropdown.
+
+## Auto-Teaching Strategy Engine
+
+Theorem uses a local function:
 
 ```text
-2x + 5 = 17
-3x - 4 = 11
-5x + 2 = 27
-3x + 2x + 5
-4x + x + 7
-6x - 2x + 9
-3(x + 4)
-2(x + 5)
-5(x - 2)
+chooseTeachingStrategy(text, detectedSubject)
