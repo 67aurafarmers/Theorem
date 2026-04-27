@@ -29,12 +29,12 @@
 
   const strategyLabels = {
     exact_math_tutor: "Exact Checking + Step Tutoring",
-    memorization_plus_analysis: "Memorization + Analysis",
-    process_and_check: "Process Breakdown + Recall",
-    reading_analysis: "Reading Analysis + Evidence Practice",
-    code_understanding: "Code Understanding + Testing",
-    language_recall: "Vocabulary + Translation Practice",
-    general_active_recall: "Active Recall Study Session"
+    memorization_plus_analysis: "Memory + Analysis",
+    process_and_check: "Process + Recall",
+    reading_analysis: "Reading + Evidence",
+    code_understanding: "Code + Testing",
+    language_recall: "Language Recall",
+    general_active_recall: "Active Recall"
   };
 
   const skillLabels = {
@@ -61,10 +61,39 @@
     currentIndex: 0,
     practiceSkill: "two_step_equations",
     practiceProblem: null,
-    practiceAttemptSaved: false
+    practiceAttemptSaved: false,
+    activeHeroCard: 0
   };
 
   const els = {};
+
+  const heroShowcase = [
+    {
+      subject: "History",
+      title: "Cause, effect, and memory",
+      detail: "Flashcards, timelines, creative tests, and short answers."
+    },
+    {
+      subject: "Science",
+      title: "Processes become practice",
+      detail: "Key terms, process maps, quizzes, and teach-back checks."
+    },
+    {
+      subject: "Math",
+      title: "Exact checks when possible",
+      detail: "Hints, answer checking, mistake diagnosis, and repair drills."
+    },
+    {
+      subject: "Coding",
+      title: "Understand the code path",
+      detail: "Line explanations, edge cases, tests, and modification challenges."
+    },
+    {
+      subject: "English",
+      title: "Read with evidence",
+      detail: "Main idea, claim, evidence, vocabulary, and teach-back prompts."
+    }
+  ];
 
   const problemBank = {
     two_step_equations: [
@@ -118,6 +147,8 @@
 
     if (!loadingScreen || !phrase) return;
 
+    loadingScreen.classList.remove("hide");
+
     const phrases = [
       "Reading the material…",
       "Detecting the subject…",
@@ -130,13 +161,13 @@
     const phraseTimer = window.setInterval(() => {
       index = (index + 1) % phrases.length;
       phrase.textContent = phrases[index];
-    }, 350);
+    }, 430);
 
     window.setTimeout(() => {
       window.clearInterval(phraseTimer);
       loadingScreen.classList.add("hide");
       document.body.classList.add("loaded");
-    }, 1500);
+    }, 2000);
   }
 
   function init() {
@@ -145,6 +176,8 @@
     bindLearnWorkspace();
     bindPractice();
     bindProgress();
+    bindCinematicUi();
+    renderHeroShowcase();
     renderProgressDashboard();
     renderReview();
   }
@@ -180,6 +213,114 @@
     els.resetProgressBtn = document.querySelector("#resetProgressBtn");
 
     els.reviewGrid = document.querySelector("#reviewGrid") || document.querySelector("#reviewDashboard");
+
+    els.heroShowcase = document.querySelector("#heroShowcase");
+    els.heroShowcaseSubject = document.querySelector("#heroShowcaseSubject");
+    els.heroShowcaseTitle = document.querySelector("#heroShowcaseTitle");
+    els.heroShowcaseDetail = document.querySelector("#heroShowcaseDetail");
+    els.heroShowcaseDots = document.querySelector("#heroShowcaseDots");
+  }
+
+  function bindCinematicUi() {
+    document.body.classList.add("cinematic-ready");
+
+    window.addEventListener("pointermove", (event) => {
+      document.documentElement.style.setProperty("--cursor-x", `${event.clientX}px`);
+      document.documentElement.style.setProperty("--cursor-y", `${event.clientY}px`);
+    });
+
+    const animatedItems = Array.from(
+      document.querySelectorAll(
+        ".glass-card, .module-card, .workspace-panel, .stat-card, .review-card, .principle-card, .hero-copy, .hero-card"
+      )
+    );
+
+    animatedItems.forEach((item) => item.classList.add("reveal-item"));
+
+    if ("IntersectionObserver" in window) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("is-visible");
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.12 }
+      );
+
+      animatedItems.forEach((item) => observer.observe(item));
+    } else {
+      animatedItems.forEach((item) => item.classList.add("is-visible"));
+    }
+
+    document.querySelectorAll(".btn, .nav-link, .brand-button").forEach((button) => {
+      button.addEventListener("pointermove", (event) => {
+        const rect = button.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        button.style.setProperty("--button-x", `${x}px`);
+        button.style.setProperty("--button-y", `${y}px`);
+      });
+
+      button.addEventListener("pointerleave", () => {
+        button.style.removeProperty("--button-x");
+        button.style.removeProperty("--button-y");
+      });
+    });
+  }
+
+  function renderHeroShowcase() {
+    const hasDedicatedHero =
+      els.heroShowcaseSubject &&
+      els.heroShowcaseTitle &&
+      els.heroShowcaseDetail;
+
+    if (!hasDedicatedHero) return;
+
+    updateHeroShowcase();
+
+    if (els.heroShowcaseDots && !els.heroShowcaseDots.children.length) {
+      heroShowcase.forEach((item, index) => {
+        const dot = buttonEl(item.subject, "showcase-dot", () => {
+          state.activeHeroCard = index;
+          updateHeroShowcase();
+        });
+
+        els.heroShowcaseDots.append(dot);
+      });
+    }
+
+    window.setInterval(() => {
+      state.activeHeroCard = (state.activeHeroCard + 1) % heroShowcase.length;
+      updateHeroShowcase();
+    }, 2800);
+  }
+
+  function updateHeroShowcase() {
+    const item = heroShowcase[state.activeHeroCard];
+
+    if (!item || !els.heroShowcaseSubject || !els.heroShowcaseTitle || !els.heroShowcaseDetail) return;
+
+    const parent = els.heroShowcase || els.heroShowcaseTitle.closest(".glass-card");
+
+    if (parent) {
+      parent.classList.remove("showcase-pop");
+      window.requestAnimationFrame(() => {
+        parent.classList.add("showcase-pop");
+      });
+    }
+
+    els.heroShowcaseSubject.textContent = item.subject;
+    els.heroShowcaseTitle.textContent = item.title;
+    els.heroShowcaseDetail.textContent = item.detail;
+
+    if (els.heroShowcaseDots) {
+      Array.from(els.heroShowcaseDots.children).forEach((dot, index) => {
+        dot.classList.toggle("active", index === state.activeHeroCard);
+      });
+    }
   }
 
   function bindNavigation() {
@@ -226,8 +367,12 @@
     if (els.navLinks) els.navLinks.classList.remove("open");
     if (els.navToggle) els.navToggle.setAttribute("aria-expanded", "false");
 
+    document.body.dataset.activeSection = name;
+
     if (name === "progress") renderProgressDashboard();
     if (name === "review") renderReview();
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function bindLearnWorkspace() {
@@ -572,7 +717,7 @@
     if (!els.detectedSummary) return;
 
     els.detectedSummary.append(
-      statPill("Detected subject", labelSubject(session.subject)),
+      statPill("Subject", labelSubject(session.subject)),
       statPill("Strategy", strategyLabels[session.strategy.strategy] || session.strategy.strategy)
     );
 
