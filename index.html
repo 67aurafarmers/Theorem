@@ -5,14 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta
     name="description"
-    content="Theorem turns homework, notes, study material, and code into a guided learning session."
+    content="Theorem turns notes, homework, study guides, worksheets, textbook sections, and code into the right study path."
   />
-  <title>Theorem — Universal Learning Workspace</title>
+  <title>Theorem — Universal Study Workspace</title>
   <link rel="stylesheet" href="style.css" />
   <script src="script.js" defer></script>
 </head>
 
 <body>
+  <div id="loadingScreen" class="loading-screen" aria-live="polite">
+    <div class="loading-card">
+      <div class="loading-logo">
+        <span class="loading-mark">∴</span>
+        <span>Theorem</span>
+      </div>
+
+      <p class="loading-kicker">Universal study workspace</p>
+      <h2>Building your study path…</h2>
+      <p id="loadingPhrase" class="loading-phrase">Reading the material…</p>
+
+      <div class="loading-bar" aria-hidden="true">
+        <span></span>
+      </div>
+    </div>
+  </div>
+
   <a class="skip-link" href="#main">Skip to content</a>
 
   <header class="site-header">
@@ -56,54 +73,85 @@
     >
       <div class="hero-grid">
         <div class="hero-copy">
-          <p class="eyebrow">Universal learning workspace</p>
+          <p class="eyebrow">Universal study workspace</p>
           <h1 id="home-title">Theorem</h1>
-          <p class="hero-lede">Upload or paste your material. Theorem finds the best way to teach it.</p>
+          <p class="hero-lede">Upload anything you need to learn.</p>
           <p class="hero-subtext">
-            Paste homework, notes, worksheets, textbook sections, study guides, or code.
-            Theorem auto-detects the subject, chooses a tutoring strategy, and turns your
-            material into active practice.
+            Theorem turns notes, homework, study guides, worksheets, textbook sections,
+            and code into the right study path for the material.
           </p>
 
           <div class="hero-actions">
             <button class="btn btn-primary" type="button" data-section-target="learn">
-              Build My Learning Session
+              Build my study session
             </button>
-            <button class="btn btn-secondary" type="button" data-section-target="practice">
-              Practice Algebra
+            <button class="btn btn-secondary" type="button" data-section-target="about">
+              See how it works
             </button>
             <button class="btn btn-ghost" type="button" data-section-target="progress">
-              View Progress
+              View progress
             </button>
           </div>
 
           <div class="trust-row" aria-label="Theorem promises">
-            <span>No login</span>
-            <span>No backend</span>
-            <span>No subject dropdown</span>
-            <span>Local progress only</span>
+            <span>Auto-detects subject</span>
+            <span>Chooses study mode</span>
+            <span>Turns notes into practice</span>
+            <span>Progress saved locally</span>
           </div>
         </div>
 
         <div class="hero-card">
-          <article class="glass-card">
-            <p class="preview-label">Auto-teaching workspace</p>
+          <article class="glass-card universal-preview-card">
+            <p class="preview-label">Theorem builds the path.</p>
 
-            <div class="equation-preview" aria-label="Example material">
-              2x + 5 = 17
+            <div class="pipeline-list" aria-label="Theorem study pipeline">
+              <div class="pipeline-step">
+                <span>01</span>
+                <strong>Detect subject</strong>
+              </div>
+              <div class="pipeline-step">
+                <span>02</span>
+                <strong>Choose strategy</strong>
+              </div>
+              <div class="pipeline-step">
+                <span>03</span>
+                <strong>Generate study tools</strong>
+              </div>
+              <div class="pipeline-step">
+                <span>04</span>
+                <strong>Review weak spots</strong>
+              </div>
             </div>
 
-            <div class="mini-panel">
-              <strong>Exact when possible.</strong>
-              <p>For Algebra 1, Theorem checks answers and diagnoses likely mistakes.</p>
+            <div class="tool-chip-row" aria-label="Study tools">
+              <span>Flashcards</span>
+              <span>Creative test</span>
+              <span>Step-by-step tutor</span>
+              <span>Teach-back</span>
+              <span>Review plan</span>
             </div>
 
-            <div class="mini-panel repair">
-              <strong>Honest when open-ended.</strong>
-              <p>
-                For science, history, English, language, and coding, it builds active
-                recall tools and self-checks based on the material you pasted.
-              </p>
+            <div class="subject-card-grid">
+              <article class="subject-example-card">
+                <strong>History</strong>
+                <p>Flashcards + cause/effect + creative thinking</p>
+              </article>
+
+              <article class="subject-example-card">
+                <strong>Science</strong>
+                <p>Processes + quiz + teach-back</p>
+              </article>
+
+              <article class="subject-example-card">
+                <strong>Math</strong>
+                <p>Exact check + mistake repair</p>
+              </article>
+
+              <article class="subject-example-card">
+                <strong>Coding</strong>
+                <p>Explain code + edge cases + test ideas</p>
+              </article>
             </div>
           </article>
         </div>
@@ -113,10 +161,10 @@
     <section class="app-section" id="section-learn" aria-labelledby="learn-title">
       <div class="section-heading">
         <p class="eyebrow">Learn Workspace</p>
-        <h2 id="learn-title">Paste material. Theorem chooses the best study mode.</h2>
+        <h2 id="learn-title">Paste material. Theorem chooses the study path.</h2>
         <p>
-          No setup. No subject dropdown. Theorem detects the material, chooses a strategy,
-          and generates a learning session. Check open-ended results against your class notes.
+          Paste notes, homework, study guides, textbook sections, worksheets, or code.
+          Theorem detects the subject and builds the best learning mode it can.
         </p>
       </div>
 
@@ -124,15 +172,15 @@
         <div class="input-header">
           <div>
             <label class="prompt-label" for="materialInput">Your material</label>
-            <h3>Build a learning session</h3>
+            <h3>Build a study session</h3>
             <p class="muted">
-              Paste homework, notes, study material, worksheets, textbook sections, or code.
+              Paste any study material. Theorem will auto-detect the subject and choose a path.
             </p>
           </div>
 
           <div class="future-card">
             <strong>Sign in coming later</strong>
-            <p>Save progress across devices in a future version.</p>
+            <p>Future versions may save progress across devices.</p>
             <button class="btn btn-ghost" type="button" disabled>
               Continue with Google
             </button>
@@ -142,14 +190,14 @@
         <textarea
           id="materialInput"
           spellcheck="true"
-          placeholder="Paste homework, notes, study material, or code here.
+          placeholder="Paste notes, homework, study guides, worksheets, textbook sections, or code here.
 
 Examples:
-1. Solve: 2x + 5 = 17
+The American Revolution was caused by taxation, lack of representation, and colonial resistance.
 
 Photosynthesis uses sunlight, carbon dioxide, and water to produce glucose and oxygen.
 
-The American Revolution was caused by taxation, lack of representation, and colonial resistance.
+Solve: 2x + 5 = 17
 
 function add(a, b) {
   return a + b;
@@ -168,15 +216,15 @@ function add(a, b) {
           </div>
 
           <button class="btn btn-primary" id="buildSessionBtn" type="button">
-            Build my learning session
+            Build my study session
           </button>
         </div>
 
         <p class="helper-message" id="uploadMessage" role="status" aria-live="polite"></p>
 
         <p class="learning-note">
-          Theorem is built to tutor, not copy answers. For exact math, you try first.
-          For open-ended subjects, Theorem guides study without pretending to be a perfect grader.
+          Theorem is built to help you study, not copy answers. Exact math is checked directly.
+          Open-ended subjects use guided self-checks you should compare with your class notes.
         </p>
       </div>
 
@@ -209,11 +257,11 @@ function add(a, b) {
 
     <section class="app-section" id="section-practice" aria-labelledby="practice-title">
       <div class="section-heading">
-        <p class="eyebrow">Algebra Practice</p>
-        <h2 id="practice-title">Sharpen exact skills.</h2>
+        <p class="eyebrow">Practice</p>
+        <h2 id="practice-title">Sharpen supported exact skills.</h2>
         <p>
-          Choose a supported Algebra 1 skill. Theorem checks your answer, diagnoses
-          mistakes, and gives a short repair drill.
+          Algebra is one supported study mode. Choose a skill to practice with exact checks,
+          hints, mistake diagnosis, and repair drills.
         </p>
       </div>
 
@@ -295,7 +343,7 @@ function add(a, b) {
         <h2 id="progress-title">Saved locally for now.</h2>
         <p>
           Your progress is stored in this browser with localStorage. There is no account,
-          no backend, and no password collection in this version.
+          backend, or password collection in this version.
         </p>
       </div>
 
@@ -316,7 +364,7 @@ function add(a, b) {
         <p class="eyebrow">Review</p>
         <h2 id="review-title">Return to the weak spots.</h2>
         <p>
-          Theorem builds review from missed math skills, weak terms, quiz checks,
+          Theorem builds review from missed exact-skill checks, weak terms, quiz checks,
           and incomplete teach-back practice.
         </p>
       </div>
@@ -327,39 +375,38 @@ function add(a, b) {
     <section class="app-section" id="section-about" aria-labelledby="about-title">
       <div class="about-shell">
         <p class="eyebrow">About</p>
-        <h2 id="about-title">A guided learning workspace.</h2>
+        <h2 id="about-title">A universal study workspace.</h2>
 
         <article class="about-card">
           <p>
-            Theorem helps students learn by turning passive material into active practice.
-            For supported Algebra 1 problems, it checks answers and diagnoses likely mistake
-            patterns. For open-ended subjects, it stays honest: it summarizes, extracts
-            likely key ideas, builds flashcards, asks quiz questions, and helps students
-            self-check their explanations.
+            Theorem helps students turn passive material into active practice. It detects
+            the subject, chooses a study strategy, and creates tools like flashcards,
+            cause-and-effect prompts, quizzes, teach-back checks, code explanations,
+            and exact math tutoring when the format is supported.
           </p>
           <p>
-            This version is static, private by design, and works on GitHub Pages. No login,
-            no backend, no ads, no API key, and no paid service.
+            This version is static, private by design, and works on GitHub Pages.
+            No login, no backend, no ads, no API key, and no paid service.
           </p>
         </article>
 
         <div class="principles-grid">
           <article class="principle-card">
             <span>01</span>
-            <h3>Auto-detect</h3>
-            <p>Theorem chooses a study method based on the material you paste.</p>
+            <h3>Detect</h3>
+            <p>Theorem reads the material and estimates the subject.</p>
           </article>
 
           <article class="principle-card">
             <span>02</span>
-            <h3>Try first</h3>
-            <p>Math answers and worked steps appear only after an attempt.</p>
+            <h3>Choose</h3>
+            <p>Theorem chooses a study mode based on what you pasted.</p>
           </article>
 
           <article class="principle-card">
             <span>03</span>
-            <h3>Be honest</h3>
-            <p>Open-ended material gets guided self-checks, not fake perfect grading.</p>
+            <h3>Practice</h3>
+            <p>Theorem turns material into recall, explanation, review, or exact checks.</p>
           </article>
         </div>
       </div>
