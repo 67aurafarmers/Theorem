@@ -3,27 +3,32 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Theorem is a mistake-first Algebra 1 tutor that diagnoses the exact step students missed." />
+
   <title>Theorem — Mistake-First Algebra Tutor</title>
+  <meta
+    name="description"
+    content="Theorem is a mistake-first Algebra 1 tutor that finds the step you missed and helps you fix it."
+  />
+
   <link rel="stylesheet" href="style.css" />
   <script src="script.js" defer></script>
 </head>
+
 <body>
   <a class="skip-link" href="#main">Skip to main content</a>
 
-  <header class="site-header" aria-label="Main navigation">
-    <nav class="nav-shell">
-      <button class="brand nav-jump" data-target="landing" aria-label="Go to Theorem home">
-        <span class="brand-mark" aria-hidden="true">∴</span>
+  <header class="site-header">
+    <nav class="nav-shell" aria-label="Main navigation">
+      <button class="brand nav-jump" data-target="landing" type="button">
+        <span class="brand-mark">∴</span>
         <span>Theorem</span>
       </button>
 
-      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="mainNav">
-        <span class="sr-only">Toggle navigation</span>
-        <span aria-hidden="true"></span>
+      <button class="nav-toggle" id="navToggle" type="button" aria-label="Toggle menu">
+        ☰
       </button>
 
-      <div class="nav-links" id="mainNav">
+      <div class="nav-links" id="navLinks">
         <button class="nav-link active" data-target="landing" type="button">Home</button>
         <button class="nav-link" data-target="tutor" type="button">Tutor</button>
         <button class="nav-link" data-target="practice" type="button">Practice</button>
@@ -35,79 +40,68 @@
   </header>
 
   <main id="main">
-    <section id="landing" class="app-section visible hero-section" aria-labelledby="landingTitle">
-      <div class="ambient-orb orb-one" aria-hidden="true"></div>
-      <div class="ambient-orb orb-two" aria-hidden="true"></div>
-
+    <section id="landing" class="app-section visible hero-section">
       <div class="hero-grid">
         <div class="hero-copy">
           <p class="eyebrow">Algebra 1 · Mistake-first tutoring</p>
-          <h1 id="landingTitle">Find the step you missed. Master the idea behind it.</h1>
+          <h1>Find the step you missed. Master the idea behind it.</h1>
           <p class="hero-lede">
             Theorem does not just tell you the answer. It finds the mistake pattern,
             gives a tiny fix, and tests you again.
           </p>
 
-          <div class="hero-actions" aria-label="Primary actions">
+          <div class="hero-actions">
             <button class="btn btn-primary nav-jump" data-target="tutor" type="button">Start Diagnostic</button>
             <button class="btn btn-secondary nav-jump" data-target="practice" type="button">Practice Algebra</button>
             <button class="btn btn-ghost nav-jump" data-target="progress" type="button">View Progress</button>
           </div>
 
-          <div class="trust-row" aria-label="Theorem product laws">
+          <div class="trust-row">
             <span>No answer before attempt</span>
             <span>Short repair drills</span>
-            <span>Local progress only</span>
+            <span>Progress saved locally</span>
           </div>
         </div>
 
-        <aside class="hero-card" aria-label="Theorem learning loop preview">
-          <div class="glass-card diagnostic-preview">
-            <div class="preview-topline">
-              <span class="status-dot" aria-hidden="true"></span>
-              <span>Live diagnostic</span>
-            </div>
-            <div class="equation-orbit" aria-hidden="true">
-              <span>2x + 5 = 17</span>
-            </div>
+        <aside class="hero-card">
+          <div class="glass-card">
+            <p class="preview-label">Live diagnostic preview</p>
+            <div class="equation-preview">2x + 5 = 17</div>
+
             <div class="mini-panel">
-              <p class="mini-label">Likely break</p>
+              <strong>Likely break</strong>
               <p>You reached the middle step, but x is still multiplied by 2.</p>
             </div>
+
             <div class="mini-panel repair">
-              <p class="mini-label">Tiny fix</p>
+              <strong>Tiny fix</strong>
               <p>Undo multiplication by dividing both sides by 2.</p>
             </div>
-            <div class="mastery-chip">Then prove it with a fresh problem →</div>
           </div>
         </aside>
       </div>
     </section>
 
-    <section id="tutor" class="app-section tutor-section" aria-labelledby="tutorTitle">
+    <section id="tutor" class="app-section">
       <div class="section-heading">
         <p class="eyebrow">Diagnostic Tutor</p>
-        <h2 id="tutorTitle">Theorem finds the exact mistake pattern.</h2>
-        <p>Start with Algebra 1. The first live module is Two-Step Equations.</p>
+        <h2>Theorem finds the exact mistake pattern.</h2>
+        <p>Start with Algebra 1. Choose a module, answer a problem, and get targeted repair.</p>
       </div>
 
       <div class="workspace-grid">
         <aside class="side-card">
           <h3>Skill target</h3>
-          <p class="muted">Choose a working module. Coming-soon skills stay visible but inactive.</p>
-
-          <div class="skill-list" id="skillList" aria-label="Available practice skills"></div>
+          <p class="muted">Choose a working module.</p>
+          <div id="skillList" class="skill-list"></div>
 
           <div class="law-card">
-            <span class="law-icon" aria-hidden="true">⚑</span>
-            <div>
-              <strong>No answer before attempt.</strong>
-              <p>Theorem gives hints first, then diagnoses after you try.</p>
-            </div>
+            <strong>No answer before attempt.</strong>
+            <p>Theorem gives hints first, then diagnoses after you try.</p>
           </div>
         </aside>
 
-        <article class="tutor-card" aria-live="polite">
+        <article class="tutor-card">
           <div class="problem-header">
             <div>
               <p class="micro-label" id="currentTopic">Algebra 1</p>
@@ -125,85 +119,85 @@
           <form id="answerForm" class="answer-form" novalidate>
             <label for="answerInput">Your answer</label>
             <div class="answer-row">
-              <input id="answerInput" name="answer" autocomplete="off" inputmode="text" placeholder="Example: x = 6" />
+              <input id="answerInput" name="answer" autocomplete="off" placeholder="Example: x = 6" />
               <button class="btn btn-primary" id="submitAnswer" type="submit">Check</button>
             </div>
           </form>
 
           <div class="hint-zone">
             <button class="btn btn-ghost" id="hintButton" type="button">Show hint</button>
-            <p class="hint-text" id="hintText" aria-live="polite"></p>
+            <p id="hintText" class="hint-text" aria-live="polite"></p>
           </div>
 
-          <div class="feedback-panel hidden" id="feedbackPanel" aria-live="polite"></div>
+          <div id="feedbackPanel" class="feedback-panel hidden" aria-live="polite"></div>
         </article>
       </div>
     </section>
 
-    <section id="practice" class="app-section" aria-labelledby="practiceTitle">
+    <section id="practice" class="app-section">
       <div class="section-heading">
         <p class="eyebrow">Practice Algebra</p>
-        <h2 id="practiceTitle">Choose the skill Theorem should diagnose.</h2>
-        <p>Three modules are fully functional now. More can be added without changing the core app.</p>
+        <h2>Choose the skill Theorem should diagnose.</h2>
+        <p>Three modules are active. More can be added later.</p>
       </div>
 
-      <div class="module-grid" id="practiceModules"></div>
+      <div id="practiceModules" class="module-grid"></div>
     </section>
 
-    <section id="progress" class="app-section" aria-labelledby="progressTitle">
+    <section id="progress" class="app-section">
       <div class="section-heading">
         <p class="eyebrow">Progress</p>
-        <h2 id="progressTitle">Track mistake patterns, not just scores.</h2>
-        <p>Your data stays in this browser through localStorage. No login, no backend, no tracking.</p>
+        <h2>Track mistake patterns, not just scores.</h2>
+        <p>Your data stays in this browser. No login. No backend. No tracking.</p>
       </div>
 
       <div id="progressDashboard" class="dashboard"></div>
     </section>
 
-    <section id="review" class="app-section" aria-labelledby="reviewTitle">
+    <section id="review" class="app-section">
       <div class="section-heading">
         <p class="eyebrow">Review</p>
-        <h2 id="reviewTitle">Theorem brings weak skills back later.</h2>
-        <p>Review questions are generated from the mistakes you have actually made.</p>
+        <h2>Theorem brings weak skills back later.</h2>
+        <p>Review questions are generated from your weakest areas.</p>
       </div>
 
       <div id="reviewDashboard" class="review-grid"></div>
     </section>
 
-    <section id="about" class="app-section" aria-labelledby="aboutTitle">
+    <section id="about" class="app-section">
       <div class="about-shell">
         <div class="section-heading left-align">
           <p class="eyebrow">About Theorem</p>
-          <h2 id="aboutTitle">A mistake-first tutor for Algebra 1.</h2>
+          <h2>A mistake-first tutor for Algebra 1.</h2>
         </div>
 
         <div class="about-card glass-card">
           <p>
-            Theorem is a mistake-first tutor. It helps students understand why an answer went wrong
-            instead of just giving the answer.
+            Theorem helps students understand why an answer went wrong instead of only showing the answer.
           </p>
           <p>
-            Theorem’s core loop is simple: try a problem, get a diagnosis, repair the exact skill,
-            then prove mastery with a fresh problem. The interface is calm on purpose because
-            students learn better when feedback feels clear instead of punishing.
+            The core loop is simple: try a problem, get a diagnosis, repair the exact skill,
+            then prove mastery with a fresh problem.
           </p>
         </div>
 
-        <div class="principles-grid" aria-label="Theorem principles">
+        <div class="principles-grid">
           <div class="principle-card">
             <span>01</span>
             <h3>Diagnose the break.</h3>
-            <p>Wrong answers are classified into mistake patterns like sign errors, skipped operations, or distribution mistakes.</p>
+            <p>Wrong answers become mistake patterns, not just red X’s.</p>
           </div>
+
           <div class="principle-card">
             <span>02</span>
             <h3>Repair quickly.</h3>
-            <p>Each repair is shorter than a lesson and focuses on the missing move.</p>
+            <p>Every fix is short, clear, and focused on the missing move.</p>
           </div>
+
           <div class="principle-card">
             <span>03</span>
             <h3>Prove mastery.</h3>
-            <p>A fresh problem confirms the student learned the idea, not just the answer.</p>
+            <p>A new problem confirms the student learned the idea.</p>
           </div>
         </div>
       </div>
