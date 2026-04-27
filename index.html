@@ -58,16 +58,16 @@
         <div class="hero-copy">
           <p class="eyebrow">Universal learning workspace</p>
           <h1 id="home-title">Theorem</h1>
-          <p class="hero-lede">Paste your homework. Find the step you missed.</p>
+          <p class="hero-lede">Upload or paste your material. Theorem finds the best way to teach it.</p>
           <p class="hero-subtext">
-            Theorem turns homework, notes, worksheets, textbook sections, study guides,
-            and code into a guided tutoring session. You try first. It checks what it can,
-            questions what it cannot, and helps you master the material.
+            Paste homework, notes, worksheets, textbook sections, study guides, or code.
+            Theorem auto-detects the subject, chooses a tutoring strategy, and turns your
+            material into active practice.
           </p>
 
           <div class="hero-actions">
             <button class="btn btn-primary" type="button" data-section-target="learn">
-              Start Learning
+              Build My Learning Session
             </button>
             <button class="btn btn-secondary" type="button" data-section-target="practice">
               Practice Algebra
@@ -80,14 +80,14 @@
           <div class="trust-row" aria-label="Theorem promises">
             <span>No login</span>
             <span>No backend</span>
-            <span>You try first</span>
+            <span>No subject dropdown</span>
             <span>Local progress only</span>
           </div>
         </div>
 
         <div class="hero-card">
           <article class="glass-card">
-            <p class="preview-label">Study cockpit</p>
+            <p class="preview-label">Auto-teaching workspace</p>
 
             <div class="equation-preview" aria-label="Example material">
               2x + 5 = 17
@@ -101,8 +101,8 @@
             <div class="mini-panel repair">
               <strong>Honest when open-ended.</strong>
               <p>
-                For notes, history, science, English, and code, it builds active recall
-                tools and self-checks.
+                For science, history, English, language, and coding, it builds active
+                recall tools and self-checks based on the material you pasted.
               </p>
             </div>
           </article>
@@ -113,18 +113,17 @@
     <section class="app-section" id="section-learn" aria-labelledby="learn-title">
       <div class="section-heading">
         <p class="eyebrow">Learn Workspace</p>
-        <h2 id="learn-title">Paste homework, notes, or code. Learn actively.</h2>
+        <h2 id="learn-title">Paste material. Theorem chooses the best study mode.</h2>
         <p>
-          Theorem turns your material into a guided session. For exact math, it checks
-          your answer. For open-ended material, it creates summaries, flashcards, quizzes,
-          and teach-back prompts without pretending to be perfect.
+          No setup. No subject dropdown. Theorem detects the material, chooses a strategy,
+          and generates a learning session. Check open-ended results against your class notes.
         </p>
       </div>
 
       <div class="learn-input-card glass-card" id="learnInputCard">
         <div class="input-header">
           <div>
-            <label class="prompt-label" for="materialInput">Learning material</label>
+            <label class="prompt-label" for="materialInput">Your material</label>
             <h3>Build a learning session</h3>
             <p class="muted">
               Paste homework, notes, study material, worksheets, textbook sections, or code.
@@ -133,7 +132,10 @@
 
           <div class="future-card">
             <strong>Sign in coming later</strong>
-            <p>Future safe options: Google sign-in, email magic link, and passkeys.</p>
+            <p>Save progress across devices in a future version.</p>
+            <button class="btn btn-ghost" type="button" disabled>
+              Continue with Google
+            </button>
           </div>
         </div>
 
@@ -156,20 +158,6 @@ function add(a, b) {
         ></textarea>
 
         <div class="session-controls">
-          <div class="field">
-            <label for="subjectSelect">Subject</label>
-            <select id="subjectSelect">
-              <option value="auto">Auto-detect</option>
-              <option value="math">Math</option>
-              <option value="science">Science</option>
-              <option value="english">English / Reading</option>
-              <option value="history">History / Social Studies</option>
-              <option value="coding">Coding</option>
-              <option value="language">Foreign Language</option>
-              <option value="general">General Study</option>
-            </select>
-          </div>
-
           <div class="field file-field">
             <label for="materialFile">Upload .txt or .md</label>
             <input
@@ -180,22 +168,23 @@ function add(a, b) {
           </div>
 
           <button class="btn btn-primary" id="buildSessionBtn" type="button">
-            Build learning session
+            Build my learning session
           </button>
         </div>
 
         <p class="helper-message" id="uploadMessage" role="status" aria-live="polite"></p>
 
         <p class="learning-note">
-          Theorem is built to tutor, not copy answers. You try first. Then it helps.
+          Theorem is built to tutor, not copy answers. For exact math, you try first.
+          For open-ended subjects, Theorem guides study without pretending to be a perfect grader.
         </p>
       </div>
 
       <div class="learn-workspace hidden" id="learnWorkspace" aria-live="polite">
         <aside class="workspace-panel outline-panel">
           <div class="panel-heading">
-            <p class="micro-label">Outline</p>
-            <h3>Detected material</h3>
+            <p class="micro-label">Auto-detected</p>
+            <h3>Session outline</h3>
           </div>
 
           <div id="detectedSummary" class="detected-summary"></div>
@@ -203,14 +192,14 @@ function add(a, b) {
           <div id="unsupportedList" class="unsupported-list"></div>
         </aside>
 
-        <section class="workspace-panel tutor-workspace-card" aria-labelledby="currentTutorTitle">
+        <section class="workspace-panel tutor-workspace-card" aria-label="Current tutor card">
           <div id="currentTutorCard"></div>
         </section>
 
         <aside class="workspace-panel tools-panel">
           <div class="panel-heading">
-            <p class="micro-label">Tools</p>
-            <h3>Study actions</h3>
+            <p class="micro-label">Strategy</p>
+            <h3>Learning tools</h3>
           </div>
 
           <div id="studyTools"></div>
@@ -220,7 +209,7 @@ function add(a, b) {
 
     <section class="app-section" id="section-practice" aria-labelledby="practice-title">
       <div class="section-heading">
-        <p class="eyebrow">Algebra practice</p>
+        <p class="eyebrow">Algebra Practice</p>
         <h2 id="practice-title">Sharpen exact skills.</h2>
         <p>
           Choose a supported Algebra 1 skill. Theorem checks your answer, diagnoses
@@ -303,10 +292,10 @@ function add(a, b) {
     <section class="app-section" id="section-progress" aria-labelledby="progress-title">
       <div class="section-heading">
         <p class="eyebrow">Progress</p>
-        <h2 id="progress-title">What Theorem sees locally.</h2>
+        <h2 id="progress-title">Saved locally for now.</h2>
         <p>
-          Your progress is stored in this browser with localStorage. There is no account
-          and no server in this version.
+          Your progress is stored in this browser with localStorage. There is no account,
+          no backend, and no password collection in this version.
         </p>
       </div>
 
@@ -327,8 +316,8 @@ function add(a, b) {
         <p class="eyebrow">Review</p>
         <h2 id="review-title">Return to the weak spots.</h2>
         <p>
-          Theorem builds review from missed math skills, weak terms, low-confidence cards,
-          and incomplete teach-back checks.
+          Theorem builds review from missed math skills, weak terms, quiz checks,
+          and incomplete teach-back practice.
         </p>
       </div>
 
@@ -338,7 +327,7 @@ function add(a, b) {
     <section class="app-section" id="section-about" aria-labelledby="about-title">
       <div class="about-shell">
         <p class="eyebrow">About</p>
-        <h2 id="about-title">A mistake-first learning workspace.</h2>
+        <h2 id="about-title">A guided learning workspace.</h2>
 
         <article class="about-card">
           <p>
@@ -349,28 +338,28 @@ function add(a, b) {
             self-check their explanations.
           </p>
           <p>
-            Theorem is static, private by design, and works on GitHub Pages. No login,
-            no backend, no ads, and no paid API.
+            This version is static, private by design, and works on GitHub Pages. No login,
+            no backend, no ads, no API key, and no paid service.
           </p>
         </article>
 
         <div class="principles-grid">
           <article class="principle-card">
             <span>01</span>
+            <h3>Auto-detect</h3>
+            <p>Theorem chooses a study method based on the material you paste.</p>
+          </article>
+
+          <article class="principle-card">
+            <span>02</span>
             <h3>Try first</h3>
             <p>Math answers and worked steps appear only after an attempt.</p>
           </article>
 
           <article class="principle-card">
-            <span>02</span>
+            <span>03</span>
             <h3>Be honest</h3>
             <p>Open-ended material gets guided self-checks, not fake perfect grading.</p>
-          </article>
-
-          <article class="principle-card">
-            <span>03</span>
-            <h3>Master the idea</h3>
-            <p>Every session ends with a next action: solve, recall, explain, or review.</p>
           </article>
         </div>
       </div>
