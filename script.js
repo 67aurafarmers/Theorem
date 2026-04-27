@@ -1,10 +1,11 @@
 
-
 ```javascript
 (() => {
   "use strict";
 
   const STORAGE_KEY = "theoremProgressV2";
+
+  const SUBJECTS = ["math", "science", "english", "history", "coding", "language", "general"];
 
   const MISTAKE_TYPES = [
     "skipped_inverse_operation",
@@ -17,8 +18,6 @@
     "incomplete_solution",
     "random_or_unclear"
   ];
-
-  const SUBJECTS = ["math", "science", "english", "history", "coding", "language", "general"];
 
   const subjectLabels = {
     math: "Math",
@@ -123,10 +122,13 @@
   }
 
   function cacheElements() {
-    els.navToggle = document.querySelector("#navToggle");
-    els.navLinks = document.querySelector("#navLinks");
+    els.navToggle = document.querySelector("#navToggle") || document.querySelector(".nav-toggle");
+    els.navLinks = document.querySelector("#navLinks") || document.querySelector("#mainNav") || document.querySelector(".nav-links");
     els.sections = Array.from(document.querySelectorAll(".app-section"));
-    els.navButtons = Array.from(document.querySelectorAll("[data-section-target]"));
+
+    els.navButtons = Array.from(
+      document.querySelectorAll("[data-section-target], [data-target]")
+    );
 
     els.materialInput = document.querySelector("#materialInput");
     els.materialFile = document.querySelector("#materialFile");
@@ -149,7 +151,7 @@
     els.refreshProgressBtn = document.querySelector("#refreshProgressBtn");
     els.resetProgressBtn = document.querySelector("#resetProgressBtn");
 
-    els.reviewGrid = document.querySelector("#reviewGrid");
+    els.reviewGrid = document.querySelector("#reviewGrid") || document.querySelector("#reviewDashboard");
   }
 
   function bindNavigation() {
@@ -162,20 +164,35 @@
 
     els.navButtons.forEach((button) => {
       button.addEventListener("click", () => {
-        showSection(button.dataset.sectionTarget);
+        const target = button.dataset.sectionTarget || button.dataset.target;
+        showSection(normalizeSectionName(target));
       });
     });
+  }
+
+  function normalizeSectionName(name) {
+    const map = {
+      landing: "home",
+      tutor: "learn"
+    };
+
+    return map[name] || name;
   }
 
   function showSection(name) {
     if (!name) return;
 
     els.sections.forEach((section) => {
-      section.classList.toggle("active-section", section.id === `section-${name}`);
+      const matchesNew = section.id === `section-${name}`;
+      const matchesOld = section.id === name;
+
+      section.classList.toggle("active-section", matchesNew || matchesOld);
+      section.classList.toggle("visible", matchesNew || matchesOld);
     });
 
     document.querySelectorAll(".nav-link").forEach((button) => {
-      button.classList.toggle("active", button.dataset.sectionTarget === name);
+      const target = normalizeSectionName(button.dataset.sectionTarget || button.dataset.target);
+      button.classList.toggle("active", target === name);
     });
 
     if (els.navLinks) els.navLinks.classList.remove("open");
@@ -215,7 +232,7 @@
     const reader = new FileReader();
 
     reader.onload = () => {
-      els.materialInput.value = String(reader.result || "");
+      if (els.materialInput) els.materialInput.value = String(reader.result || "");
       setStatus(`Loaded ${file.name}.`);
     };
 
@@ -227,7 +244,7 @@
   }
 
   function buildLearningSession() {
-    const text = (els.materialInput?.value || "").trim();
+    const text = (els.materialInput && els.materialInput.value ? els.materialInput.value : "").trim();
 
     if (!text) {
       setStatus("Paste homework, notes, study material, or code first.");
@@ -470,12 +487,6 @@
   function buildConceptSession(text, strategy) {
     const sentences = splitSentences(text);
     const terms = extractTerms(text, strategy.subject);
-    const flashcards = makeFlashcards(text, terms, strategy.subject);
-    const quiz = makeConceptQuiz(sentences, terms, strategy.subject);
-    const causeEffect = makeCauseEffect(text, strategy.subject);
-    const timeline = makeTimeline(text);
-    const creative = makeCreativePrompts(text, strategy.subject, terms);
-    const shortAnswer = makeShortAnswerPrompts(strategy.subject, terms);
 
     return {
       type: "concept",
@@ -486,12 +497,12 @@
       sentences,
       terms,
       summary: summarizeText(sentences),
-      flashcards,
-      quiz,
-      causeEffect,
-      timeline,
-      creative,
-      shortAnswer,
+      flashcards: makeFlashcards(text, terms, strategy.subject),
+      quiz: makeConceptQuiz(sentences, terms, strategy.subject),
+      causeEffect: makeCauseEffect(text, strategy.subject),
+      timeline: makeTimeline(text),
+      creative: makeCreativePrompts(strategy.subject, terms),
+      shortAnswer: makeShortAnswerPrompts(strategy.subject),
       teachBack: terms.slice(0, 6)
     };
   }
@@ -502,8 +513,6 @@
       .map((line, index) => ({ number: index + 1, text: line }))
       .filter((line) => line.text.trim());
 
-    const terms = extractCodeTerms(text);
-
     return {
       type: "code",
       subject: strategy.subject,
@@ -511,7 +520,7 @@
       title: "Coding tutor session",
       text,
       lines,
-      terms,
+      terms: extractCodeTerms(text),
       summary: summarizeCode(text),
       challenge: makeCodeChallenge(text)
     };
@@ -532,6 +541,7 @@
 
   function renderDetectedSummary(session) {
     clear(els.detectedSummary);
+    if (!els.detectedSummary) return;
 
     els.detectedSummary.append(
       statPill("Detected subject", labelSubject(session.subject)),
@@ -550,6 +560,7 @@
 
   function renderOutline(session) {
     clear(els.outlineList);
+    if (!els.outlineList) return;
 
     if (session.type === "math") {
       session.items.forEach((item, index) => {
@@ -562,7 +573,6 @@
 
         button.classList.toggle("active", state.currentIndex === index);
         button.disabled = !item.supported;
-
         els.outlineList.append(button);
       });
 
@@ -607,6 +617,7 @@
 
   function renderUnsupported(session) {
     clear(els.unsupportedList);
+    if (!els.unsupportedList) return;
 
     if (session.type !== "math" || !session.unsupported.length) return;
 
@@ -624,6 +635,7 @@
 
   function renderCurrentTutorCard(session) {
     clear(els.currentTutorCard);
+    if (!els.currentTutorCard) return;
 
     if (session.type === "math") {
       renderMathTutor(session);
@@ -681,7 +693,7 @@
       return;
     }
 
-    if (current === "Key Terms" || current === "Key ideas" || current === "Main Idea") {
+    if (current === "Key Terms" || current === "Main Idea") {
       els.currentTutorCard.append(
         heading(current, 3),
         textP("Theorem found these likely key ideas. Check them against your class notes.", "muted"),
@@ -731,7 +743,14 @@
       return;
     }
 
-    if (current === "Short Answer" || current === "Evidence Practice" || current === "Translation Practice" || current === "Sentence Building" || current === "Recall Test" || current === "Quiz") {
+    if (
+      current === "Short Answer" ||
+      current === "Evidence Practice" ||
+      current === "Translation Practice" ||
+      current === "Sentence Building" ||
+      current === "Recall Test" ||
+      current === "Quiz"
+    ) {
       renderQuizLike(session, current);
       return;
     }
@@ -750,12 +769,7 @@
         buttonSetDone(reviewed, "Reviewed");
       });
 
-      item.append(
-        strong(`Card ${index + 1}: ${card.front}`),
-        textP(card.back),
-        reviewed
-      );
-
+      item.append(strong(`Card ${index + 1}: ${card.front}`), textP(card.back), reviewed);
       box.append(item);
     });
 
@@ -862,10 +876,7 @@
 
     if (index === 1) {
       const items = session.lines.slice(0, 12).map((line) => `Line ${line.number}: ${line.text.trim()}`);
-      els.currentTutorCard.append(
-        heading("Important lines", 3),
-        list(items, "line-list")
-      );
+      els.currentTutorCard.append(heading("Important lines", 3), list(items, "line-list"));
       return;
     }
 
@@ -884,7 +895,7 @@
     }
 
     if (index === 3) {
-      const line = session.lines[0]?.text.trim() || "the first line";
+      const line = session.lines[0] ? session.lines[0].text.trim() : "the first line";
       const input = document.createElement("textarea");
       input.placeholder = `Explain this line: ${line}`;
 
@@ -894,12 +905,7 @@
         buttonSetDone(check, "Saved");
       });
 
-      els.currentTutorCard.append(
-        heading("Explain this line", 3),
-        textP(line),
-        input,
-        div("actions", [check])
-      );
+      els.currentTutorCard.append(heading("Explain this line", 3), textP(line), input, div("actions", [check]));
       return;
     }
 
@@ -912,6 +918,7 @@
 
   function renderStudyTools(session) {
     clear(els.studyTools);
+    if (!els.studyTools) return;
 
     const tools = div("tool-list");
 
@@ -992,10 +999,7 @@
     const wrapper = document.createElement("article");
 
     const title = div("problem-header");
-    title.append(
-      heading(problem.skillLabel, 3),
-      span(problem.topic, "problem-pill")
-    );
+    title.append(heading(problem.skillLabel, 3), span(problem.topic, "problem-pill"));
 
     const stage = div("problem-stage");
     stage.append(
@@ -1162,11 +1166,7 @@
 
     const parsed = parseLinearExpression(input);
 
-    if (
-      parsed &&
-      parsed.x === problem.correctAnswer.x &&
-      parsed.c === problem.correctAnswer.c
-    ) {
+    if (parsed && parsed.x === problem.correctAnswer.x && parsed.c === problem.correctAnswer.c) {
       return { correct: true };
     }
 
@@ -1224,7 +1224,7 @@
           message = "The constant is right, but the x coefficient is off.";
           why = "The like terms were combined with a calculation error.";
           fix = "Add or subtract only the coefficients in front of x.";
-        } else if (expression.x !== problem.correctAnswer.x || expression.c !== problem.correctAnswer.c) {
+        } else {
           mistakeType = "combined_unlike_terms";
           message = "It looks like x terms and constants were combined together.";
           why = "Terms with x and terms without x are unlike terms.";
@@ -1238,11 +1238,6 @@
           message = "You distributed to x but not to the second term.";
           why = "The outside number multiplies every term inside parentheses.";
           fix = `Multiply ${problem.coefficient} by ${problem.insideConstant} too.`;
-        } else if (expression.x === 1 && expression.c === problem.correctAnswer.c) {
-          mistakeType = "variable_confusion";
-          message = "The constant was multiplied, but the x coefficient was lost.";
-          why = `${problem.coefficient} times x becomes ${problem.coefficient}x.`;
-          fix = "Keep the coefficient attached to x.";
         } else {
           mistakeType = "distribution_error";
           message = "The distribution pattern is off.";
@@ -1263,23 +1258,20 @@
   }
 
   function detectMathProblem(raw) {
-    const text = raw.replace(/^\s*(solve|simplify)\s*:?\s*/i, "").trim();
+    const text = String(raw || "").replace(/^\s*(solve|simplify)\s*:?\s*/i, "").trim();
 
     const equation = text.match(/^([+-]?\d*)x\s*([+-])\s*(\d+)\s*=\s*([+-]?\d+)$/i);
-
     if (equation) {
       const coefficient = parseCoefficient(equation[1]);
       return makeTwoStep(text, coefficient, equation[2], Number(equation[3]), Number(equation[4]));
     }
 
     const distribute = text.match(/^([+-]?\d+)\s*\(\s*x\s*([+-])\s*(\d+)\s*\)$/i);
-
     if (distribute) {
       return makeDistribute(text, Number(distribute[1]), distribute[2], Number(distribute[3]));
     }
 
     const combined = text.match(/^([+-]?\d*)x\s*([+-])\s*([+-]?\d*)x\s*([+-])\s*(\d+)$/i);
-
     if (combined) {
       const a = parseCoefficient(combined[1]);
       const b = parseCoefficient(combined[3]);
@@ -1294,8 +1286,8 @@
     const middleValue = sign === "+" ? right - constant : right + constant;
     const correct = middleValue / coefficient;
     const wrongInverseValue = sign === "+" ? (right + constant) / coefficient : (right - constant) / coefficient;
-
-    const repairDisplay = `${coefficient + 1}x + ${constant} = ${formatNumber((coefficient + 1) * (correct + 1) + constant)}`;
+    const repairRight = (coefficient + 1) * (correct + 1) + constant;
+    const repairDisplay = `${coefficient + 1}x + ${constant} = ${formatNumber(repairRight)}`;
 
     return {
       id: `eq-${display}`,
@@ -1314,18 +1306,14 @@
       wrongInverseValue,
       correctAnswer: correct,
       correctMessage: `x = ${formatNumber(correct)} works because substituting it back makes both sides equal.`,
-      steps: [
-        display,
-        `${coefficient}x = ${formatNumber(middleValue)}`,
-        `x = ${formatNumber(correct)}`
-      ],
+      steps: [display, `${coefficient}x = ${formatNumber(middleValue)}`, `x = ${formatNumber(correct)}`],
       hints: [
         "Undo the operation farthest from x first.",
         sign === "+" ? `Start by subtracting ${constant} from both sides.` : `Start by adding ${constant} to both sides.`,
         `You should get ${coefficient}x = ${formatNumber(middleValue)} before dividing.`
       ],
       repairDrill: withRepair
-        ? makeTwoStep(repairDisplay, coefficient + 1, "+", constant, (coefficient + 1) * (correct + 1) + constant, false)
+        ? makeTwoStep(repairDisplay, coefficient + 1, "+", constant, repairRight, false)
         : null
     };
   }
@@ -1345,11 +1333,7 @@
       answerPlaceholder: "Example: 5x + 5",
       correctAnswer: { x, c },
       correctMessage: `The x terms combine to ${formatTerm(x, "x")}, and the constant stays ${formatSigned(c)}.`,
-      steps: [
-        display,
-        `${a}x ${b < 0 ? "-" : "+"} ${Math.abs(b)}x ${formatSigned(c)}`,
-        formatExpression(x, c)
-      ],
+      steps: [display, `${a}x ${b < 0 ? "-" : "+"} ${Math.abs(b)}x ${formatSigned(c)}`, formatExpression(x, c)],
       hints: [
         "Like terms have the same variable part.",
         "Combine only the x coefficients first.",
@@ -1378,11 +1362,7 @@
       insideConstant,
       correctAnswer: { x: coefficient, c },
       correctMessage: `${coefficient} multiplies both x and ${insideConstant}.`,
-      steps: [
-        display,
-        `${coefficient} · x ${sign} ${coefficient} · ${insideConstant}`,
-        formatExpression(coefficient, c)
-      ],
+      steps: [display, `${coefficient} · x ${sign} ${coefficient} · ${insideConstant}`, formatExpression(coefficient, c)],
       hints: [
         "The outside number multiplies every term inside parentheses.",
         `First multiply ${coefficient} by x.`,
@@ -1395,7 +1375,7 @@
   }
 
   function splitMaterial(text) {
-    return text
+    return String(text)
       .replace(/\r/g, "")
       .split(/\n|;|(?=\s*\d+\.\s+)|(?=\s*[-•*]\s+)/)
       .map((line) => line.replace(/^\s*(\d+\.|[-•*])\s*/, "").trim())
@@ -1403,9 +1383,9 @@
   }
 
   function splitSentences(text) {
-    return text
+    return String(text)
       .replace(/\s+/g, " ")
-      .split(/(?<=[.!?])\s+/)
+      .split(/[.!?]+/)
       .map((sentence) => sentence.trim())
       .filter((sentence) => sentence.length > 8)
       .slice(0, 16);
@@ -1420,35 +1400,12 @@
   }
 
   function extractTerms(text, subject) {
-    const lower = text.toLowerCase();
+    const lower = String(text).toLowerCase();
 
     const stop = new Set([
-      "the",
-      "and",
-      "that",
-      "with",
-      "from",
-      "this",
-      "into",
-      "were",
-      "was",
-      "are",
-      "for",
-      "you",
-      "your",
-      "use",
-      "uses",
-      "have",
-      "has",
-      "not",
-      "but",
-      "can",
-      "will",
-      "they",
-      "their",
-      "about",
-      "because",
-      "process"
+      "the", "and", "that", "with", "from", "this", "into", "were", "was", "are",
+      "for", "you", "your", "use", "uses", "have", "has", "not", "but", "can",
+      "will", "they", "their", "about", "because", "process"
     ]);
 
     const words = lower.match(/\b[a-z][a-z]{3,}\b/g) || [];
@@ -1464,7 +1421,7 @@
       .map(([word]) => word);
 
     const capitalized = Array.from(
-      new Set((text.match(/\b[A-Z][a-z]{3,}(?:\s+[A-Z][a-z]{3,})?\b/g) || []).slice(0, 8))
+      new Set((String(text).match(/\b[A-Z][a-z]{3,}(?:\s+[A-Z][a-z]{3,})?\b/g) || []).slice(0, 8))
     );
 
     const subjectTerms = {
@@ -1475,9 +1432,7 @@
       general: []
     }[subject] || [];
 
-    return Array.from(
-      new Set([...subjectTerms.filter((term) => lower.includes(term)), ...capitalized, ...repeated])
-    ).slice(0, 12);
+    return Array.from(new Set([...subjectTerms.filter((term) => lower.includes(term)), ...capitalized, ...repeated])).slice(0, 12);
   }
 
   function makeFlashcards(text, terms, subject) {
@@ -1486,7 +1441,6 @@
 
     sentences.forEach((sentence) => {
       const definition = sentence.match(/^(.+?)\s+(is|are|means|refers to)\s+(.+)$/i);
-
       if (definition && cards.length < 5) {
         cards.push({
           front: `What is ${definition[1].trim()}?`,
@@ -1495,7 +1449,7 @@
       }
     });
 
-    if (subject === "history" && text.toLowerCase().includes("american revolution")) {
+    if (subject === "history" && String(text).toLowerCase().includes("american revolution")) {
       cards.push(
         {
           front: "What was one cause of the American Revolution?",
@@ -1519,12 +1473,7 @@
 
     return cards.length
       ? cards.slice(0, 8)
-      : [
-          {
-            front: "What is the main idea?",
-            back: "Use your notes to explain the most important point in one sentence."
-          }
-        ];
+      : [{ front: "What is the main idea?", back: "Use your notes to explain the most important point in one sentence." }];
   }
 
   function makeConceptQuiz(sentences, terms, subject) {
@@ -1565,7 +1514,7 @@
   }
 
   function makeCauseEffect(text, subject) {
-    const lower = text.toLowerCase();
+    const lower = String(text).toLowerCase();
     const results = [];
 
     if (subject === "history" && lower.includes("taxation")) {
@@ -1594,9 +1543,7 @@
     const sentences = splitSentences(text);
     const dated = sentences.filter((sentence) => /\b\d{3,4}\b|war|revolution|treaty|president|empire|colony|colonial/i.test(sentence));
 
-    if (dated.length) {
-      return dated.slice(0, 8);
-    }
+    if (dated.length) return dated.slice(0, 8);
 
     return [
       "Find the first event or idea in the material.",
@@ -1605,7 +1552,7 @@
     ];
   }
 
-  function makeCreativePrompts(text, subject, terms) {
+  function makeCreativePrompts(subject, terms) {
     if (subject === "history") {
       return [
         "Explain why people at the time may have believed this was unfair or necessary.",
@@ -1622,14 +1569,6 @@
       ];
     }
 
-    if (subject === "english") {
-      return [
-        "Explain how a character, claim, or theme changes the meaning.",
-        "Choose one piece of evidence and explain why it matters.",
-        "Write a stronger version of the main claim."
-      ];
-    }
-
     return [
       `Explain why ${terms[0] || "the main idea"} matters.`,
       "Create your own example.",
@@ -1637,7 +1576,7 @@
     ];
   }
 
-  function makeShortAnswerPrompts(subject, terms) {
+  function makeShortAnswerPrompts(subject) {
     if (subject === "history") {
       return [
         "Name two causes from the material and explain one.",
@@ -1651,22 +1590,6 @@
         "Name the inputs and outputs of the process.",
         "Explain one cause-and-effect relationship.",
         "Define one key term and use it in an example."
-      ];
-    }
-
-    if (subject === "english") {
-      return [
-        "State the main idea in one sentence.",
-        "Give one piece of evidence and explain it.",
-        "Write a claim using one key term."
-      ];
-    }
-
-    if (subject === "language") {
-      return [
-        "Translate one vocabulary word.",
-        "Write one sentence using a key word.",
-        "Recall three terms without looking."
       ];
     }
 
@@ -1687,7 +1610,6 @@
 
   function checkTerms(answer, required) {
     const lower = String(answer || "").toLowerCase();
-
     const missing = required.filter((term) => !lower.includes(String(term).toLowerCase()));
 
     if (!String(answer || "").trim()) {
@@ -1724,17 +1646,17 @@
   }
 
   function summarizeCode(text) {
-    const functionMatch = text.match(/function\s+([a-zA-Z_$][\w$]*)/);
+    const functionMatch = String(text).match(/function\s+([a-zA-Z_$][\w$]*)/);
     if (functionMatch) {
       return `This appears to define a function named ${functionMatch[1]}. Look at its parameters, return value, and edge cases.`;
     }
 
-    const pythonMatch = text.match(/def\s+([a-zA-Z_]\w*)/);
+    const pythonMatch = String(text).match(/def\s+([a-zA-Z_]\w*)/);
     if (pythonMatch) {
       return `This appears to define a Python function named ${pythonMatch[1]}. Check inputs, branches, and return values.`;
     }
 
-    const classMatch = text.match(/class\s+([a-zA-Z_$][\w$]*)/);
+    const classMatch = String(text).match(/class\s+([a-zA-Z_$][\w$]*)/);
     if (classMatch) {
       return `This appears to define a class named ${classMatch[1]}. Check its fields and methods.`;
     }
@@ -1760,9 +1682,8 @@
     clear(els.progressDashboard);
 
     const progress = state.progress;
-
     const subjects = Object.entries(progress.subjectSessions).sort((a, b) => b[1] - a[1]);
-    const mostStudied = subjects[0]?.[1] > 0 ? subjects[0][0] : "None yet";
+    const mostStudied = subjects[0] && subjects[0][1] > 0 ? subjects[0][0] : "None yet";
 
     const weakestSkill =
       Object.entries(progress.skills)
@@ -1814,9 +1735,7 @@
       progress.teachBackAttempts;
 
     if (!hasProgress) {
-      els.reviewGrid.append(
-        reviewCard("Complete a learning session first.", "Paste notes, code, or Algebra 1 problems in the Learn Workspace.")
-      );
+      els.reviewGrid.append(reviewCard("Complete a learning session first.", "Paste notes, code, or Algebra 1 problems in the Learn Workspace."));
       return;
     }
 
@@ -1826,30 +1745,22 @@
       .slice(0, 3);
 
     mistakes.forEach(([type, count]) => {
-      els.reviewGrid.append(
-        reviewCard(readableMistake(type), `${count} time(s). Try a repair drill in Practice.`)
-      );
+      els.reviewGrid.append(reviewCard(readableMistake(type), `${count} time(s). Try a repair drill in Practice.`));
     });
 
     progress.weakTerms.slice(0, 6).forEach((term) => {
-      els.reviewGrid.append(
-        reviewCard(`Review term: ${term}`, "Explain it out loud, then compare against your notes.")
-      );
+      els.reviewGrid.append(reviewCard(`Review term: ${term}`, "Explain it out loud, then compare against your notes."));
     });
 
     Object.entries(progress.weakSubjects)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 3)
       .forEach(([subject]) => {
-        els.reviewGrid.append(
-          reviewCard(`Weak subject: ${labelSubject(subject)}`, "Build a new session and use teach-back mode.")
-        );
+        els.reviewGrid.append(reviewCard(`Weak subject: ${labelSubject(subject)}`, "Build a new session and use teach-back mode."));
       });
 
     if (!els.reviewGrid.children.length) {
-      els.reviewGrid.append(
-        reviewCard("Review is ready.", "Keep using Learn Workspace and Theorem will build more specific review.")
-      );
+      els.reviewGrid.append(reviewCard("Review is ready.", "Keep using Learn Workspace and Theorem will build more specific review."));
     }
   }
 
@@ -1857,7 +1768,7 @@
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state.progress));
     } catch {
-      /* If localStorage fails, session progress still works in memory. */
+      /* Keep progress in memory if localStorage fails. */
     }
   }
 
@@ -1921,13 +1832,8 @@
   }
 
   function parseNumericAnswer(input) {
-    const cleaned = String(input)
-      .trim()
-      .toLowerCase()
-      .replace(/\s+/g, "");
-
+    const cleaned = String(input).trim().toLowerCase().replace(/\s+/g, "");
     const match = cleaned.match(/^(?:x=)?([+-]?\d+(?:\.\d+)?)$/);
-
     return match ? Number(match[1]) : null;
   }
 
@@ -1941,7 +1847,6 @@
     if (!text) return null;
 
     const parts = text.split("+").filter(Boolean);
-
     let x = 0;
     let c = 0;
 
@@ -1990,9 +1895,7 @@
   }
 
   function recommendNext(progress, weakestSkill, commonMistake) {
-    if (!progress.sessions) {
-      return "Start with the Learn Workspace.";
-    }
+    if (!progress.sessions) return "Start with the Learn Workspace.";
 
     if (progress.mathProblemsAttempted && percent(progress.correctAnswers, progress.mathProblemsAttempted) < 80) {
       return `Practice ${titleSkill(weakestSkill)} and watch for ${readableMistake(commonMistake)}.`;
