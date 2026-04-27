@@ -279,6 +279,8 @@
 
     if (!hasDedicatedHero) return;
 
+    updateHeroShowcase();
+
     if (els.heroShowcaseDots && !els.heroShowcaseDots.children.length) {
       heroShowcase.forEach((item, index) => {
         const dot = buttonEl(item.subject, "showcase-dot", () => {
@@ -289,8 +291,6 @@
         els.heroShowcaseDots.append(dot);
       });
     }
-
-    updateHeroShowcase();
 
     window.setInterval(() => {
       state.activeHeroCard = (state.activeHeroCard + 1) % heroShowcase.length;
@@ -410,7 +410,7 @@
     };
 
     reader.onerror = () => {
-      setStatus("Horizon could not read that file. Try pasting the text instead.");
+      setStatus("Theorem could not read that file. Try pasting the text instead.");
     };
 
     reader.readAsText(file);
@@ -858,7 +858,7 @@
       const card = div("concept-summary");
       card.append(
         heading("Based on the material you pasted...", 3),
-        textP(`Horizon thinks the best study mode is ${strategyLabels[session.strategy.strategy]}. Check this against your class notes.`, "muted")
+        textP(`Theorem thinks the best study mode is ${strategyLabels[session.strategy.strategy]}. Check this against your class notes.`, "muted")
       );
 
       session.summary.forEach((line) => card.append(textP(line)));
@@ -869,7 +869,7 @@
     if (current === "Key Terms" || current === "Main Idea") {
       els.currentTutorCard.append(
         heading(current, 3),
-        textP("Horizon found these likely key ideas. Check them against your class notes.", "muted"),
+        textP("Theorem found these likely key ideas. Check them against your class notes.", "muted"),
         list(session.terms, "term-list")
       );
       return;
@@ -999,7 +999,7 @@
 
     els.currentTutorCard.append(
       heading(title, 3),
-      textP("Horizon can check key words, but not perfectly grade open-ended answers.", "muted"),
+      textP("Theorem can check key words, but not perfectly grade open-ended answers.", "muted"),
       box
     );
   }
@@ -1110,7 +1110,7 @@
     } else if (session.type === "code") {
       tools.append(
         toolCard("Best move", "Explain one line, then write one small test case."),
-        toolCard("No fake grading", "Horizon guides your reasoning without pretending to run your code."),
+        toolCard("No fake grading", "Theorem guides your reasoning without pretending to run your code."),
         toolCard("Terms found", session.terms.join(", ") || "No strong coding terms found")
       );
     } else {
@@ -1352,15 +1352,15 @@
     const expression = parseLinearExpression(normalized);
 
     let mistakeType = forced || "random_or_unclear";
-    let message = "Horizon is not sure which mistake happened, but here is the safest next step.";
-    let why = "The answer does not match the structure Horizon expected.";
+    let message = "Theorem is not sure which mistake happened, but here is the safest next step.";
+    let why = "The answer does not match the structure Theorem expected.";
     let fix = "Go one step at a time and check whether each operation was undone or distributed correctly.";
 
     if (problem.kind === "equation") {
       if (forced === "incomplete_solution" || normalized === "") {
         mistakeType = "incomplete_solution";
         message = "Enter a number for x, like 6 or x = 6.";
-        why = "Horizon needs an attempted value before showing the worked steps.";
+        why = "Theorem needs an attempted value before showing the worked steps.";
         fix = "Type the value you think x equals.";
       } else if (number !== null) {
         if (nearly(number, problem.middleValue)) {
@@ -1566,7 +1566,7 @@
 
   function summarizeText(sentences) {
     if (!sentences.length) {
-      return ["Horizon found short material. Try adding more notes for a better summary."];
+      return ["Theorem found short material. Try adding more notes for a better summary."];
     }
 
     return sentences.slice(0, 4).map((sentence) => `• ${sentence}`);
@@ -1811,7 +1811,7 @@
     if (!missing.length) {
       return {
         missing: [],
-        message: "Good coverage. Your explanation includes the key terms Horizon checked."
+        message: "Good coverage. Your explanation includes the key terms Theorem checked."
       };
     }
 
@@ -1901,7 +1901,7 @@
 
     if (els.resetProgressBtn) {
       els.resetProgressBtn.addEventListener("click", () => {
-        if (!window.confirm("Reset local Horizon progress?")) return;
+        if (!window.confirm("Reset local Theorem progress?")) return;
 
         state.progress = defaultProgress();
         saveProgress();
@@ -1949,7 +1949,7 @@
       });
 
     if (!els.reviewGrid.children.length) {
-      els.reviewGrid.append(reviewCard("Review is ready.", "Keep using Learn Workspace and Horizon will build more specific review."));
+      els.reviewGrid.append(reviewCard("Review is ready.", "Keep using Learn Workspace and Theorem will build more specific review."));
     }
   }
 
