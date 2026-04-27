@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Axiom Tutor</title>
+  <meta
+    name="description"
+    content="A tutoring website that helps students find where their solution went wrong and practice the missing skill."
+  />
+
+  <meta name="color-scheme" content="dark" />
+
+  <style>
+    :root {
+      --background: #0f172a;
+      --card: #111827;
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --accent: #38bdf8;
+      --accent-hover: #7dd3fc;
+      --border: rgba(255, 255, 255, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(56, 189, 248, 0.18), transparent 35%),
+        var(--background);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    main {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 760px;
+      padding: 48px 32px;
+      background: rgba(17, 24, 39, 0.72);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(12px);
+    }
+
+    .badge {
+      display: inline-block;
+      margin-bottom: 18px;
+      padding: 6px 12px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--accent);
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0 0 14px;
+      font-size: clamp(2.4rem, 8vw, 4.8rem);
+      line-height: 1;
+      letter-spacing: -0.06em;
+    }
+
+    p {
+      max-width: 620px;
+      margin: 0 auto;
+      color: var(--muted);
+      font-size: clamp(1rem, 2.5vw, 1.25rem);
+    }
+
+    .actions {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 32px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 0 22px;
+      border-radius: 12px;
+      background: var(--accent);
+      color: #020617;
+      font-weight: 800;
+      text-decoration: none;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .button:hover,
+    .button:focus-visible {
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+      outline: none;
+    }
+
+    .button.secondary {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .button.secondary:hover,
+    .button.secondary:focus-visible {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .preview {
+      margin-top: 34px;
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: rgba(15, 23, 42, 0.75);
+      text-align: left;
+    }
+
+    .preview strong {
+      color: var(--accent);
+    }
+
+    .preview ul {
+      margin: 12px 0 0;
+      padding-left: 20px;
+      color: var(--muted);
+    }
+
+    @media (max-width: 520px) {
+      .card {
+        padding: 36px 22px;
+      }
+
+      .actions {
+        flex-direction: column;
+      }
+
+      .button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <section class="card" aria-labelledby="site-title">
+      <span class="badge">Coming Soon</span>
+
+      <h1 id="site-title">Axiom Tutor</h1>
+
+      <p>
+        Find where your solution went wrong. Fix the missing skill. Try again stronger.
+      </p>
+
+      <div class="actions">
+        <a class="button" href="#demo">Start Learning</a>
+        <a class="button secondary" href="#demo">See How It Works</a>
+      </div>
+
+      <div class="preview" id="demo">
+        <strong>How it will work:</strong>
+        <ul>
+          <li>You answer a problem.</li>
+          <li>The site checks the step where your thinking broke.</li>
+          <li>You get a targeted mini-drill to fix that exact mistake.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
