@@ -107,7 +107,37 @@
     ]
   };
 
-  document.addEventListener("DOMContentLoaded", init);
+  document.addEventListener("DOMContentLoaded", () => {
+    startLoadingScreen();
+    init();
+  });
+
+  function startLoadingScreen() {
+    const loadingScreen = document.querySelector("#loadingScreen");
+    const phrase = document.querySelector("#loadingPhrase");
+
+    if (!loadingScreen || !phrase) return;
+
+    const phrases = [
+      "Reading the material…",
+      "Detecting the subject…",
+      "Choosing the best study mode…",
+      "Preparing your workspace…"
+    ];
+
+    let index = 0;
+
+    const phraseTimer = window.setInterval(() => {
+      index = (index + 1) % phrases.length;
+      phrase.textContent = phrases[index];
+    }, 350);
+
+    window.setTimeout(() => {
+      window.clearInterval(phraseTimer);
+      loadingScreen.classList.add("hide");
+      document.body.classList.add("loaded");
+    }, 1500);
+  }
 
   function init() {
     cacheElements();
@@ -245,7 +275,7 @@
     const text = (els.materialInput && els.materialInput.value ? els.materialInput.value : "").trim();
 
     if (!text) {
-      setStatus("Paste homework, notes, study material, or code first.");
+      setStatus("Paste notes, homework, study material, or code first.");
       return;
     }
 
@@ -1567,6 +1597,14 @@
       ];
     }
 
+    if (subject === "english") {
+      return [
+        "Find one claim or main idea.",
+        "Choose one piece of evidence and explain why it matters.",
+        "Rewrite the idea in clearer words."
+      ];
+    }
+
     return [
       `Explain why ${terms[0] || "the main idea"} matters.`,
       "Create your own example.",
@@ -1588,6 +1626,14 @@
         "Name the inputs and outputs of the process.",
         "Explain one cause-and-effect relationship.",
         "Define one key term and use it in an example."
+      ];
+    }
+
+    if (subject === "english") {
+      return [
+        "State the main idea in one sentence.",
+        "Give one piece of evidence and explain it.",
+        "Write a claim using one key term."
       ];
     }
 
@@ -1733,7 +1779,7 @@
       progress.teachBackAttempts;
 
     if (!hasProgress) {
-      els.reviewGrid.append(reviewCard("Complete a learning session first.", "Paste notes, code, or Algebra 1 problems in the Learn Workspace."));
+      els.reviewGrid.append(reviewCard("Complete a learning session first.", "Paste notes, code, worksheets, or exact Algebra 1 problems in the Learn Workspace."));
       return;
     }
 
