@@ -818,3 +818,348 @@ h3 {
     scroll-behavior: auto !important;
   }
 }
+
+
+/* ==========================================================
+   THEOREM HOMEWORK APP COMPATIBILITY PATCH
+   Add this at the very bottom of style.css.
+
+   Why this fixes the blank page:
+   The pasted theme displays sections only when they have `.visible`,
+   but the current Theorem JavaScript uses `.active-section`.
+   ========================================================== */
+
+.brand-button,
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  border: 0;
+  background: transparent;
+  color: var(--text-strong);
+  font-weight: 850;
+  font-size: 1.08rem;
+  letter-spacing: -0.02em;
+  padding: 0;
+  appearance: none;
+}
+
+.brand-button:hover,
+.brand-button:focus-visible,
+.brand:hover,
+.brand:focus-visible {
+  outline: none;
+  color: var(--text-strong);
+}
+
+.brand-button:focus-visible .brand-mark,
+.brand:focus-visible .brand-mark {
+  outline: 3px solid rgba(217, 119, 87, 0.28);
+  outline-offset: 3px;
+}
+
+.app-section.active-section {
+  display: block;
+}
+
+.hero-section.active-section {
+  display: flex;
+}
+
+/* Keep support for either section state class. */
+.app-section.visible,
+.app-section.active-section {
+  display: block;
+}
+
+.hero-section.visible,
+.hero-section.active-section {
+  display: flex;
+}
+
+/* Homework Tutor classes from the current app */
+.hero-panel,
+.card,
+.homework-input-card,
+.queue-card,
+.unsupported-card,
+.tutor-zone,
+.review-panel,
+.practice-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  background:
+    linear-gradient(145deg, rgba(255,255,255,0.72), rgba(255,255,255,0.36)),
+    var(--surface);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(14px);
+  padding: 24px;
+}
+
+.card-heading {
+  margin-bottom: 16px;
+}
+
+.hero-text,
+.hero-tagline,
+.learning-note,
+.status-line,
+.file-status,
+.queue-summary,
+.empty-state p {
+  color: var(--muted);
+}
+
+.learning-note {
+  margin-top: 18px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(165, 108, 34, 0.22);
+  background: var(--amber-soft);
+}
+
+.main-orbit {
+  display: grid;
+  gap: 14px;
+}
+
+.orbit-card {
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.56);
+  border-radius: 20px;
+  padding: 16px;
+}
+
+.orbit-card strong {
+  display: block;
+  color: var(--text-strong);
+}
+
+.orbit-card span {
+  color: var(--muted);
+}
+
+.orbit-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.homework-textarea,
+textarea {
+  width: 100%;
+  min-height: 220px;
+  resize: vertical;
+  padding: 16px;
+  border-radius: 20px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.76);
+  color: var(--text-strong);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.78);
+}
+
+.homework-textarea::placeholder,
+textarea::placeholder,
+input::placeholder {
+  color: var(--muted-soft);
+}
+
+.homework-textarea:focus,
+textarea:focus,
+input:focus {
+  outline: 3px solid rgba(217, 119, 87, 0.18);
+  border-color: rgba(217, 119, 87, 0.34);
+}
+
+.form-label,
+label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text-strong);
+  font-weight: 820;
+}
+
+.button-row,
+.file-row,
+.progress-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.primary-button,
+.secondary-button,
+.ghost-button,
+.danger-button,
+.file-button {
+  min-height: 46px;
+  padding: 0 18px;
+  border-radius: 999px;
+  font-weight: 820;
+  border: 1px solid transparent;
+  transition: transform 0.16s ease, box-shadow 0.18s ease, background 0.18s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.primary-button {
+  background: linear-gradient(145deg, var(--accent), var(--accent-strong));
+  color: #fffaf6;
+  box-shadow: 0 14px 28px rgba(217, 119, 87, 0.20);
+}
+
+.secondary-button,
+.file-button {
+  background: rgba(255, 255, 255, 0.86);
+  border-color: var(--line);
+  color: var(--text-strong);
+}
+
+.ghost-button {
+  background: rgba(255, 251, 245, 0.54);
+  border-color: var(--line);
+  color: var(--text);
+}
+
+.danger-button {
+  background: var(--red-soft);
+  border-color: rgba(180, 84, 72, 0.24);
+  color: var(--red);
+}
+
+.primary-button:hover:not(:disabled),
+.secondary-button:hover:not(:disabled),
+.ghost-button:hover:not(:disabled),
+.danger-button:hover:not(:disabled),
+.file-button:hover:not(:disabled),
+.primary-button:focus-visible:not(:disabled),
+.secondary-button:focus-visible:not(:disabled),
+.ghost-button:focus-visible:not(:disabled),
+.danger-button:focus-visible:not(:disabled),
+.file-button:focus-visible:not(:disabled) {
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.primary-button:disabled,
+.secondary-button:disabled,
+.ghost-button:disabled,
+.danger-button:disabled,
+.file-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.file-button input[type="file"] {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.problem-queue,
+.unsupported-list {
+  display: grid;
+  gap: 10px;
+}
+
+.queue-card,
+.unsupported-card {
+  padding: 16px;
+  border-radius: 18px;
+}
+
+.queue-card[aria-current="true"] {
+  border-color: rgba(217, 119, 87, 0.34);
+  background: var(--accent-soft);
+}
+
+.unsupported-card {
+  border-color: rgba(165, 108, 34, 0.24);
+  background: var(--amber-soft);
+}
+
+.tutor-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  background:
+    radial-gradient(circle at 100% 0%, rgba(217, 119, 87, 0.10), transparent 30%),
+    rgba(255, 255, 255, 0.62);
+  padding: 24px;
+  box-shadow: var(--shadow-soft);
+}
+
+.dashboard-grid,
+.about-grid,
+.review-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.dashboard-grid .card:first-child,
+.review-panel,
+.about-grid .card:first-child {
+  grid-column: 1 / -1;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 28px;
+  border-radius: var(--radius-xl);
+  border: 1px dashed var(--line-strong);
+  background: rgba(255, 255, 255, 0.42);
+}
+
+.empty-icon {
+  font-size: 2rem;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  inline-size: 1px !important;
+  block-size: 1px !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  white-space: nowrap !important;
+}
+
+.site-footer {
+  width: min(var(--max-width), calc(100% - 32px));
+  margin: 0 auto;
+  padding: 24px 0 40px;
+  color: var(--muted);
+}
+
+@media (max-width: 920px) {
+  .dashboard-grid,
+  .about-grid,
+  .review-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .orbit-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .button-row,
+  .file-row,
+  .progress-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .primary-button,
+  .secondary-button,
+  .ghost-button,
+  .danger-button,
+  .file-button {
+    width: 100%;
+  }
+}
