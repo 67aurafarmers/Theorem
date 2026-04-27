@@ -1,1063 +1,1042 @@
-"use strict";
+(() => {
+  'use strict';
 
-const STORAGE_KEY = "theoremProgressV1";
+  const STORAGE_KEY = 'theoremProgressV2';
+  const MISTAKE_TYPES = [
+    'skipped_inverse_operation',
+    'wrong_operation',
+    'sign_error',
+    'arithmetic_error',
+    'combined_unlike_terms',
+    'distribution_error',
+    'variable_confusion',
+    'incomplete_solution',
+    'random_or_unclear'
+  ];
 
-const mistakeLabels = {
-  skipped_inverse_operation: "Skipped inverse operation",
-  wrong_operation: "Wrong inverse operation",
-  sign_error: "Sign error",
-  arithmetic_error: "Arithmetic error",
-  combined_unlike_terms: "Combined unlike terms",
-  distribution_error: "Distribution error",
-  variable_confusion: "Variable confusion",
-  incomplete_solution: "Incomplete solution",
-  random_or_unclear: "Random or unclear"
-};
+  const SUBJECTS = ['math', 'science', 'english', 'history', 'coding', 'language', 'general'];
 
-const modules = [
-  {
-    id: "two_step_equations",
-    title: "Two-step equations",
-    description: "Solve equations like 2x + 5 = 17.",
-    active: true
-  },
-  {
-    id: "combining_like_terms",
-    title: "Combining like terms",
-    description: "Simplify expressions like 3x + 2x + 5.",
-    active: true
-  },
-  {
-    id: "distributive_property",
-    title: "Distributive property",
-    description: "Simplify expressions like 3(x + 4).",
-    active: true
-  },
-  {
-    id: "variables_both_sides",
-    title: "Variables on both sides",
-    description: "Coming soon.",
-    active: false
-  },
-  {
-    id: "slope_basics",
-    title: "Slope basics",
-    description: "Coming soon.",
-    active: false
-  },
-  {
-    id: "word_problem_translation",
-    title: "Word problem translation",
-    description: "Coming soon.",
-    active: false
-  }
-];
-
-const problemBank = [
-  twoStep("ts1", "2x + 5 = 17", 2, 5, 17),
-  twoStep("ts2", "3x - 4 = 11", 3, -4, 11),
-  twoStep("ts3", "5x + 2 = 27", 5, 2, 27),
-  twoStep("ts4", "4x - 9 = 15", 4, -9, 15),
-  twoStep("ts5", "7x + 3 = 31", 7, 3, 31),
-  twoStep("ts6", "6x - 8 = 16", 6, -8, 16),
-  twoStep("ts7", "2x - 7 = 9", 2, -7, 9),
-  twoStep("ts8", "9x + 6 = 42", 9, 6, 42),
-  twoStep("ts9", "5x - 10 = 15", 5, -10, 15),
-  twoStep("ts10", "8x + 1 = 33", 8, 1, 33),
-  twoStep("ts11", "3x + 12 = 24", 3, 12, 24),
-  twoStep("ts12", "10x - 5 = 45", 10, -5, 45),
-
-  linearProblem("clt1", "Simplify: 3x + 2x + 5", "combining_like_terms", 5, 5, {
-    combined_unlike_terms: ["10x"],
-    incomplete_solution: ["5x"]
-  }),
-  linearProblem("clt2", "Simplify: 4x + x + 7", "combining_like_terms", 5, 7, {
-    combined_unlike_terms: ["12x"],
-    incomplete_solution: ["5x"]
-  }),
-  linearProblem("clt3", "Simplify: 6x - 2x + 9", "combining_like_terms", 4, 9, {
-    combined_unlike_terms: ["13x"],
-    incomplete_solution: ["4x"]
-  }),
-  linearProblem("clt4", "Simplify: 8x + 3 - 2x", "combining_like_terms", 6, 3, {
-    incomplete_solution: ["6x"]
-  }),
-  linearProblem("clt5", "Simplify: x + 5x + 4", "combining_like_terms", 6, 4, {
-    incomplete_solution: ["6x"]
-  }),
-  linearProblem("clt6", "Simplify: 10x - 3x + 2", "combining_like_terms", 7, 2, {
-    incomplete_solution: ["7x"]
-  }),
-  linearProblem("clt7", "Simplify: 2x + 6 + 4x", "combining_like_terms", 6, 6, {
-    incomplete_solution: ["6x"]
-  }),
-  linearProblem("clt8", "Simplify: 9x + 1 - 5x", "combining_like_terms", 4, 1, {
-    incomplete_solution: ["4x"]
-  }),
-  linearProblem("clt9", "Simplify: 7x + 2x - 3", "combining_like_terms", 9, -3, {
-    incomplete_solution: ["9x"]
-  }),
-  linearProblem("clt10", "Simplify: 5x + 8 - x", "combining_like_terms", 4, 8, {
-    incomplete_solution: ["4x"]
-  }),
-
-  distributionProblem("dp1", "Simplify: 3(x + 4)", 3, 4),
-  distributionProblem("dp2", "Simplify: 2(x + 5)", 2, 5),
-  distributionProblem("dp3", "Simplify: 4(x + 3)", 4, 3),
-  distributionProblem("dp4", "Simplify: 5(x - 2)", 5, -2),
-  distributionProblem("dp5", "Simplify: 6(x + 1)", 6, 1),
-  distributionProblem("dp6", "Simplify: 7(x - 3)", 7, -3),
-  distributionProblem("dp7", "Simplify: 2(x - 8)", 2, -8),
-  distributionProblem("dp8", "Simplify: 9(x + 2)", 9, 2),
-  distributionProblem("dp9", "Simplify: 3(x - 6)", 3, -6),
-  distributionProblem("dp10", "Simplify: 8(x + 4)", 8, 4)
-];
-
-let progress = loadProgress();
-let selectedSkill = "two_step_equations";
-let currentProblem = getProblemsForSkill(selectedSkill)[0];
-let currentProblemIndex = 0;
-let currentHintIndex = 0;
-let submittedCurrentProblem = false;
-
-document.addEventListener("DOMContentLoaded", init);
-
-function init() {
-  bindNavigation();
-  bindTutor();
-  renderSkillList();
-  renderPracticeModules();
-  renderProblem();
-  renderProgressDashboard();
-  renderReviewDashboard();
-}
-
-function twoStep(id, display, a, b, c) {
-  const correctValue = (c - b) / a;
-  const middleValue = c - b;
-  const sign = b >= 0 ? `+ ${b}` : `- ${Math.abs(b)}`;
-
-  return {
-    id,
-    skill: "two_step_equations",
-    topic: "Algebra 1",
-    title: "Two-step equations",
-    type: "twoStep",
-    display,
-    instruction: "Enter the value of x.",
-    a,
-    b,
-    c,
-    correctValue,
-    middleValue,
-    correctText: `x = ${formatNumber(correctValue)}`,
-    steps: [
-      `${a}x ${sign} = ${c}`,
-      `${a}x = ${middleValue}`,
-      `x = ${formatNumber(correctValue)}`
-    ],
-    hints: [
-      "Undo the operation farthest from x first.",
-      b >= 0 ? `Start by subtracting ${b} from both sides.` : `Start by adding ${Math.abs(b)} to both sides.`,
-      `After the first inverse operation, you should have ${a}x = ${middleValue}.`
-    ],
-    repairDrill: "Try another two-step equation and finish all the way to x."
+  const state = {
+    progress: loadProgress(),
+    session: null,
+    currentIndex: 0,
+    practiceSkill: 'two_step_equations',
+    practiceProblem: null,
+    practiceAttemptSaved: false
   };
-}
 
-function linearProblem(id, display, skill, coef, constant, knownMistakes = {}) {
-  return {
-    id,
-    skill,
-    topic: "Algebra 1",
-    title: skillTitle(skill),
-    type: "linearExpression",
-    display,
-    instruction: "Enter the simplified expression.",
-    correctCoef: coef,
-    correctConstant: constant,
-    correctText: formatLinear(coef, constant),
-    knownMistakes,
-    steps: [
-      "Group the x terms together.",
-      "Combine only the x terms with x terms.",
-      `Final answer: ${formatLinear(coef, constant)}`
+  const els = {};
+
+  const problemBank = {
+    two_step_equations: [
+      makeTwoStep('2x + 5 = 17', 2, '+', 5, 17),
+      makeTwoStep('3x + 4 = 19', 3, '+', 4, 19),
+      makeTwoStep('5x + 2 = 27', 5, '+', 2, 27),
+      makeTwoStep('4x - 3 = 21', 4, '-', 3, 21),
+      makeTwoStep('6x - 5 = 31', 6, '-', 5, 31),
+      makeTwoStep('7x + 1 = 36', 7, '+', 1, 36),
+      makeTwoStep('8x - 4 = 44', 8, '-', 4, 44),
+      makeTwoStep('9x + 6 = 51', 9, '+', 6, 51),
+      makeTwoStep('3x - 7 = 14', 3, '-', 7, 14),
+      makeTwoStep('10x + 5 = 65', 10, '+', 5, 65),
+      makeTwoStep('2x - 9 = 15', 2, '-', 9, 15),
+      makeTwoStep('4x + 8 = 32', 4, '+', 8, 32)
     ],
-    hints: [
-      "Only like terms can combine.",
-      "x terms combine with x terms. Constants combine with constants.",
-      "Keep the constant term separate unless there is another constant to combine with it."
+    combining_like_terms: [
+      makeCombine('3x + 2x + 5', 3, 2, '+', 5),
+      makeCombine('4x + x + 7', 4, 1, '+', 7),
+      makeCombine('6x - 2x + 9', 6, -2, '+', 9),
+      makeCombine('8x + 3x - 4', 8, 3, '-', 4),
+      makeCombine('9x - 5x + 2', 9, -5, '+', 2),
+      makeCombine('7x + 6x + 1', 7, 6, '+', 1),
+      makeCombine('10x - 4x - 8', 10, -4, '-', 8),
+      makeCombine('2x + 9x + 3', 2, 9, '+', 3),
+      makeCombine('12x - 7x + 6', 12, -7, '+', 6),
+      makeCombine('5x + 5x - 10', 5, 5, '-', 10)
     ],
-    repairDrill: "Try a smaller expression and identify which terms are alike."
+    distributive_property: [
+      makeDistribute('3(x + 4)', 3, '+', 4),
+      makeDistribute('2(x + 5)', 2, '+', 5),
+      makeDistribute('5(x - 2)', 5, '-', 2),
+      makeDistribute('4(x + 3)', 4, '+', 3),
+      makeDistribute('6(x - 1)', 6, '-', 1),
+      makeDistribute('7(x + 2)', 7, '+', 2),
+      makeDistribute('8(x - 3)', 8, '-', 3),
+      makeDistribute('9(x + 1)', 9, '+', 1),
+      makeDistribute('10(x - 4)', 10, '-', 4),
+      makeDistribute('3(x - 6)', 3, '-', 6)
+    ]
   };
-}
 
-function distributionProblem(id, display, a, b) {
-  const constant = a * b;
+  document.addEventListener('DOMContentLoaded', init);
 
-  return {
-    id,
-    skill: "distributive_property",
-    topic: "Algebra 1",
-    title: "Distributive property",
-    type: "distribution",
-    display,
-    instruction: "Enter the simplified expression.",
-    a,
-    b,
-    correctCoef: a,
-    correctConstant: constant,
-    correctText: formatLinear(a, constant),
-    steps: [
-      `Multiply ${a} by x.`,
-      `Multiply ${a} by ${b}.`,
-      `Final answer: ${formatLinear(a, constant)}`
-    ],
-    hints: [
-      "The outside number must multiply every term inside the parentheses.",
-      `First multiply ${a} by x.`,
-      `Then multiply ${a} by ${b}.`
-    ],
-    repairDrill: "Try another distribution problem and check both terms."
-  };
-}
-
-function bindNavigation() {
-  document.querySelectorAll("[data-target]").forEach((button) => {
-    button.addEventListener("click", () => showSection(button.dataset.target));
-  });
-
-  const navToggle = document.getElementById("navToggle");
-  const navLinks = document.getElementById("navLinks");
-
-  navToggle.addEventListener("click", () => {
-    navLinks.classList.toggle("open");
-  });
-}
-
-function showSection(sectionId) {
-  document.querySelectorAll(".app-section").forEach((section) => {
-    section.classList.toggle("visible", section.id === sectionId);
-  });
-
-  document.querySelectorAll(".nav-link").forEach((link) => {
-    link.classList.toggle("active", link.dataset.target === sectionId);
-  });
-
-  const navLinks = document.getElementById("navLinks");
-  navLinks.classList.remove("open");
-
-  if (sectionId === "progress") {
+  function init() {
+    cacheEls();
+    bindNavigation();
+    bindLearnWorkspace();
+    bindPractice();
+    bindProgress();
     renderProgressDashboard();
+    renderReview();
   }
 
-  if (sectionId === "review") {
-    renderReviewDashboard();
+  function cacheEls() {
+    els.navToggle = qs('#navToggle');
+    els.navLinks = qs('#navLinks');
+    els.sections = Array.from(document.querySelectorAll('.app-section'));
+    els.navButtons = Array.from(document.querySelectorAll('[data-section-target]'));
+    els.materialInput = qs('#materialInput');
+    els.materialFile = qs('#materialFile');
+    els.subjectSelect = qs('#subjectSelect');
+    els.buildSessionBtn = qs('#buildSessionBtn');
+    els.uploadMessage = qs('#uploadMessage');
+    els.learnWorkspace = qs('#learnWorkspace');
+    els.detectedSummary = qs('#detectedSummary');
+    els.outlineList = qs('#outlineList');
+    els.unsupportedList = qs('#unsupportedList');
+    els.currentTutorCard = qs('#currentTutorCard');
+    els.studyTools = qs('#studyTools');
+    els.practiceShell = qs('#practiceShell');
+    els.practiceSkillName = qs('#practiceSkillName');
+    els.practiceTutorCard = qs('#practiceTutorCard');
+    els.newPracticeProblemBtn = qs('#newPracticeProblemBtn');
+    els.progressDashboard = qs('#progressDashboard');
+    els.refreshProgressBtn = qs('#refreshProgressBtn');
+    els.resetProgressBtn = qs('#resetProgressBtn');
+    els.reviewGrid = qs('#reviewGrid');
   }
 
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}
-
-function bindTutor() {
-  const form = document.getElementById("answerForm");
-  const hintButton = document.getElementById("hintButton");
-
-  form.addEventListener("submit", (event) => {
-    event.preventDefault();
-    handleSubmit();
-  });
-
-  hintButton.addEventListener("click", showNextHint);
-}
-
-function renderSkillList() {
-  const skillList = document.getElementById("skillList");
-  skillList.innerHTML = "";
-
-  modules.forEach((module) => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "skill-button";
-    button.disabled = !module.active;
-
-    if (module.id === selectedSkill) {
-      button.classList.add("active");
-    }
-
-    button.textContent = module.title;
-
-    const small = document.createElement("small");
-    small.textContent = module.description;
-    button.appendChild(small);
-
-    if (module.active) {
-      button.addEventListener("click", () => {
-        selectSkill(module.id);
-        showSection("tutor");
+  function bindNavigation() {
+    if (els.navToggle) {
+      els.navToggle.addEventListener('click', () => {
+        const open = els.navLinks.classList.toggle('open');
+        els.navToggle.setAttribute('aria-expanded', String(open));
       });
     }
 
-    skillList.appendChild(button);
-  });
-}
-
-function renderPracticeModules() {
-  const container = document.getElementById("practiceModules");
-  container.innerHTML = "";
-
-  modules.forEach((module) => {
-    const card = document.createElement("article");
-    card.className = "module-card";
-
-    if (!module.active) {
-      card.classList.add("coming-soon");
-    }
-
-    const title = document.createElement("h3");
-    title.textContent = module.title;
-
-    const desc = document.createElement("p");
-    desc.textContent = module.description;
-
-    const button = document.createElement("button");
-    button.className = module.active ? "btn btn-primary" : "btn btn-ghost";
-    button.type = "button";
-    button.textContent = module.active ? "Practice this" : "Coming soon";
-    button.disabled = !module.active;
-
-    if (module.active) {
-      button.addEventListener("click", () => {
-        selectSkill(module.id);
-        showSection("tutor");
-      });
-    }
-
-    card.append(title, desc, button);
-    container.appendChild(card);
-  });
-}
-
-function selectSkill(skillId) {
-  selectedSkill = skillId;
-  currentProblemIndex = 0;
-  currentHintIndex = 0;
-  submittedCurrentProblem = false;
-  currentProblem = getProblemsForSkill(skillId)[0];
-  renderSkillList();
-  renderProblem();
-}
-
-function renderProblem() {
-  const problems = getProblemsForSkill(selectedSkill);
-  currentProblem = problems[currentProblemIndex % problems.length];
-
-  document.getElementById("currentTopic").textContent = currentProblem.topic;
-  document.getElementById("problemTitle").textContent = currentProblem.title;
-  document.getElementById("problemCount").textContent = `Problem ${currentProblemIndex + 1}`;
-  document.getElementById("problemDisplay").textContent = currentProblem.display;
-  document.getElementById("problemInstruction").textContent = currentProblem.instruction;
-  document.getElementById("answerInput").value = "";
-  document.getElementById("answerInput").focus();
-
-  currentHintIndex = 0;
-  submittedCurrentProblem = false;
-  document.getElementById("hintText").textContent = "";
-  document.getElementById("hintButton").disabled = false;
-
-  const feedback = document.getElementById("feedbackPanel");
-  feedback.className = "feedback-panel hidden";
-  feedback.innerHTML = "";
-}
-
-function handleSubmit() {
-  const input = document.getElementById("answerInput").value;
-  const result = checkAnswer(currentProblem, input);
-
-  if (!submittedCurrentProblem) {
-    saveAttempt(result);
-    submittedCurrentProblem = true;
+    els.navButtons.forEach((button) => {
+      button.addEventListener('click', () => showSection(button.dataset.sectionTarget));
+    });
   }
 
-  showFeedback(result);
-  renderProgressDashboard();
-  renderReviewDashboard();
-}
-
-function checkAnswer(problem, input) {
-  const raw = String(input || "").trim();
-
-  if (!raw) {
-    return {
-      correct: false,
-      mistakeType: "incomplete_solution",
-      title: "Not quite — enter an answer first.",
-      message: "Type a value or expression before checking.",
-      fix: "For example, write 6 or x = 6.",
-      problem
-    };
+  function showSection(name) {
+    els.sections.forEach((section) => section.classList.toggle('active-section', section.id === `section-${name}`));
+    document.querySelectorAll('.nav-link').forEach((button) => button.classList.toggle('active', button.dataset.sectionTarget === name));
+    if (els.navLinks) els.navLinks.classList.remove('open');
+    if (els.navToggle) els.navToggle.setAttribute('aria-expanded', 'false');
+    if (name === 'progress') renderProgressDashboard();
+    if (name === 'review') renderReview();
   }
 
-  if (problem.type === "twoStep") {
-    const value = parseNumericAnswer(raw);
+  function bindLearnWorkspace() {
+    els.buildSessionBtn?.addEventListener('click', buildLearningSession);
 
-    if (value === null) {
-      return wrong(problem, "random_or_unclear", "Theorem could not read that answer.", "Enter a number for x, like 6 or x = 6.");
-    }
-
-    if (nearlyEqual(value, problem.correctValue)) {
-      return {
-        correct: true,
-        mistakeType: null,
-        title: "Correct.",
-        message: `${problem.correctText} works because substituting it back satisfies the equation.`,
-        fix: "You finished both inverse operations.",
-        problem
+    els.materialFile?.addEventListener('change', () => {
+      const file = els.materialFile.files && els.materialFile.files[0];
+      if (!file) return;
+      const name = file.name.toLowerCase();
+      const isSupported = name.endsWith('.txt') || name.endsWith('.md') || file.type === 'text/plain' || file.type === 'text/markdown';
+      if (!isSupported) {
+        setStatus('Image and PDF upload is coming later. For now, paste the text or upload .txt/.md.');
+        els.materialFile.value = '';
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        els.materialInput.value = String(reader.result || '');
+        setStatus(`Loaded ${file.name}.`);
       };
+      reader.onerror = () => setStatus('Theorem could not read that file. Try pasting the text instead.');
+      reader.readAsText(file);
+    });
+  }
+
+  function buildLearningSession() {
+    const text = (els.materialInput.value || '').trim();
+    if (!text) {
+      setStatus('Paste homework, notes, study material, or code first.');
+      return;
     }
 
-    return diagnoseTwoStep(problem, value);
+    const chosen = els.subjectSelect.value;
+    const subject = chosen === 'auto' ? detectSubject(text) : chosen;
+    let session;
+
+    if (subject === 'coding') session = buildCodeSession(text, subject);
+    else if (subject === 'math') session = buildMathSession(text, subject);
+    else session = buildConceptSession(text, subject);
+
+    state.session = session;
+    state.currentIndex = 0;
+    state.progress.sessions += 1;
+    state.progress.materialsImported += 1;
+    state.progress.subjectSessions[subject] = (state.progress.subjectSessions[subject] || 0) + 1;
+    state.progress.lastSubject = subject;
+    if (session.type === 'math') {
+      state.progress.problemsImported += session.items.filter((item) => item.supported).length;
+      state.progress.unsupportedProblems += session.unsupported.length;
+    }
+    saveProgress();
+    els.learnWorkspace.classList.remove('hidden');
+    renderLearningSession();
+    showSection('learn');
   }
 
-  const parsed = parseLinearExpression(raw);
-
-  if (!parsed) {
-    return wrong(problem, "random_or_unclear", "Theorem could not read that expression.", "Use a form like 5x + 5 or 3x + 12.");
-  }
-
-  if (nearlyEqual(parsed.coef, problem.correctCoef) && nearlyEqual(parsed.constant, problem.correctConstant)) {
+  function buildMathSession(text, subject) {
+    const rawItems = splitMaterial(text);
+    const items = rawItems.map((raw, index) => {
+      const problem = detectMathProblem(raw);
+      if (!problem) return { id: `unsupported-${index}`, type: 'unsupported', supported: false, raw };
+      return { id: `math-${index}`, type: 'math', supported: true, raw, problem, hintIndex: 0, attempted: false, saved: false };
+    });
     return {
-      correct: true,
-      mistakeType: null,
-      title: "Correct.",
-      message: `${problem.correctText} is the simplified form.`,
-      fix: "Your expression has the right x term and the right constant.",
-      problem
+      type: 'math',
+      subject,
+      items,
+      unsupported: items.filter((item) => !item.supported),
+      title: 'Math exact-check session'
     };
   }
 
-  if (problem.type === "linearExpression") {
-    return diagnoseLikeTerms(problem, parsed, raw);
-  }
-
-  if (problem.type === "distribution") {
-    return diagnoseDistribution(problem, parsed);
-  }
-
-  return wrong(problem, "random_or_unclear", "That is not the target answer.", "Try again carefully.");
-}
-
-function diagnoseTwoStep(problem, value) {
-  const oppositeOperationValue = (problem.c + problem.b) / problem.a;
-
-  if (nearlyEqual(value, problem.middleValue)) {
-    return wrong(
-      problem,
-      "skipped_inverse_operation",
-      "You stopped at the middle step.",
-      `After the first move, you got ${problem.a}x = ${problem.middleValue}. But x is still multiplied by ${problem.a}. Divide by ${problem.a}.`
-    );
-  }
-
-  if (nearlyEqual(value, oppositeOperationValue)) {
-    return wrong(
-      problem,
-      "wrong_operation",
-      "You used the wrong inverse operation.",
-      problem.b >= 0
-        ? `Since +${problem.b} is attached to the x term, undo it with -${problem.b}.`
-        : `Since -${Math.abs(problem.b)} is attached to the x term, undo it with +${Math.abs(problem.b)}.`
-    );
-  }
-
-  if (nearlyEqual(value, -problem.correctValue)) {
-    return wrong(
-      problem,
-      "sign_error",
-      "The size is right, but the sign changed.",
-      "Check where the negative sign came from."
-    );
-  }
-
-  return wrong(
-    problem,
-    "arithmetic_error",
-    "Your answer is not correct yet.",
-    "Redo the arithmetic slowly and check by substitution."
-  );
-}
-
-function diagnoseLikeTerms(problem, parsed, rawInput) {
-  const normalized = normalizeText(rawInput);
-
-  if (problem.knownMistakes.combined_unlike_terms?.some((item) => normalizeText(item) === normalized)) {
-    return wrong(
-      problem,
-      "combined_unlike_terms",
-      "You combined unlike terms.",
-      "x terms can combine with x terms. Constants must stay separate."
-    );
-  }
-
-  if (problem.knownMistakes.incomplete_solution?.some((item) => normalizeText(item) === normalized)) {
-    return wrong(
-      problem,
-      "incomplete_solution",
-      "You left out the constant.",
-      "Keep the number term in the final expression."
-    );
-  }
-
-  if (nearlyEqual(parsed.coef, problem.correctCoef) && !nearlyEqual(parsed.constant, problem.correctConstant)) {
-    return wrong(
-      problem,
-      "incomplete_solution",
-      "The x term is right, but the constant is missing or wrong.",
-      "Keep constants separate and carry them into the final answer."
-    );
-  }
-
-  if (!nearlyEqual(parsed.coef, problem.correctCoef) && nearlyEqual(parsed.constant, problem.correctConstant)) {
-    return wrong(
-      problem,
-      "arithmetic_error",
-      "The constant is right, but the x coefficient is wrong.",
-      "Add or subtract only the coefficients attached to x."
-    );
-  }
-
-  return wrong(
-    problem,
-    "combined_unlike_terms",
-    "The expression is not simplified correctly.",
-    "Separate x terms from constants, then combine only like terms."
-  );
-}
-
-function diagnoseDistribution(problem, parsed) {
-  if (nearlyEqual(parsed.coef, problem.a) && nearlyEqual(parsed.constant, problem.b)) {
-    return wrong(
-      problem,
-      "distribution_error",
-      "You forgot to distribute to the second term.",
-      `The outside ${problem.a} must multiply both x and ${problem.b}.`
-    );
-  }
-
-  if (nearlyEqual(parsed.coef, 1) && nearlyEqual(parsed.constant, problem.correctConstant)) {
-    return wrong(
-      problem,
-      "distribution_error",
-      "You distributed to the number but not to x.",
-      `The x term should become ${problem.a}x.`
-    );
-  }
-
-  if (nearlyEqual(parsed.coef, problem.a * problem.b) && nearlyEqual(parsed.constant, 0)) {
-    return wrong(
-      problem,
-      "distribution_error",
-      "You turned the whole expression into one x term.",
-      "Distribution creates an x term and a constant term."
-    );
-  }
-
-  return wrong(
-    problem,
-    "distribution_error",
-    "The distribution is not complete yet.",
-    "Multiply the outside number by every term inside the parentheses."
-  );
-}
-
-function wrong(problem, mistakeType, message, fix) {
-  return {
-    correct: false,
-    mistakeType,
-    title: "Not quite — here is the likely break.",
-    message,
-    fix,
-    problem
-  };
-}
-
-function showFeedback(result) {
-  const panel = document.getElementById("feedbackPanel");
-  panel.className = result.correct ? "feedback-panel correct" : "feedback-panel repair-needed";
-  panel.innerHTML = "";
-
-  const title = document.createElement("div");
-  title.className = "feedback-title";
-  title.textContent = result.title;
-
-  const message = document.createElement("p");
-  message.textContent = result.message;
-
-  const grid = document.createElement("div");
-  grid.className = "feedback-grid";
-
-  const box1 = feedbackBox("Tiny fix", result.fix);
-  const box2 = feedbackBox("Correct steps", "");
-
-  const list = document.createElement("ol");
-  list.className = "steps-list";
-
-  result.problem.steps.forEach((step) => {
-    const li = document.createElement("li");
-    li.textContent = step;
-    list.appendChild(li);
-  });
-
-  box2.appendChild(list);
-  grid.append(box1, box2);
-
-  const actions = document.createElement("div");
-  actions.className = "hero-actions";
-
-  const nextButton = document.createElement("button");
-  nextButton.className = "btn btn-primary";
-  nextButton.type = "button";
-  nextButton.textContent = result.correct ? "Next challenge" : "Repair drill";
-  nextButton.addEventListener("click", nextProblem);
-
-  const retryButton = document.createElement("button");
-  retryButton.className = "btn btn-ghost";
-  retryButton.type = "button";
-  retryButton.textContent = "Try this one again";
-  retryButton.addEventListener("click", () => {
-    submittedCurrentProblem = true;
-    document.getElementById("answerInput").focus();
-  });
-
-  actions.append(nextButton, retryButton);
-  panel.append(title, message, grid, actions);
-}
-
-function feedbackBox(label, text) {
-  const box = document.createElement("div");
-  box.className = "feedback-box";
-
-  const strong = document.createElement("strong");
-  strong.textContent = label;
-
-  const p = document.createElement("p");
-  p.textContent = text;
-
-  box.append(strong, p);
-  return box;
-}
-
-function nextProblem() {
-  const problems = getProblemsForSkill(selectedSkill);
-  currentProblemIndex = (currentProblemIndex + 1) % problems.length;
-  renderProblem();
-}
-
-function showNextHint() {
-  const hintText = document.getElementById("hintText");
-  const hintButton = document.getElementById("hintButton");
-
-  hintText.textContent = currentProblem.hints[currentHintIndex];
-
-  currentHintIndex += 1;
-
-  if (currentHintIndex >= currentProblem.hints.length) {
-    hintButton.disabled = true;
-    hintButton.textContent = "No more hints";
-  } else {
-    hintButton.textContent = "Show next hint";
-  }
-}
-
-function saveAttempt(result) {
-  progress.attempts += 1;
-
-  if (result.correct) {
-    progress.correct += 1;
-    progress.streak += 1;
-  } else {
-    progress.streak = 0;
-    progress.mistakes[result.mistakeType] = (progress.mistakes[result.mistakeType] || 0) + 1;
-  }
-
-  const skill = result.problem.skill;
-
-  if (!progress.skills[skill]) {
-    progress.skills[skill] = { attempts: 0, correct: 0 };
-  }
-
-  progress.skills[skill].attempts += 1;
-
-  if (result.correct) {
-    progress.skills[skill].correct += 1;
-  }
-
-  progress.recentAttempts.unshift({
-    time: new Date().toISOString(),
-    skill,
-    problem: result.problem.display,
-    correct: result.correct,
-    mistakeType: result.mistakeType
-  });
-
-  progress.recentAttempts = progress.recentAttempts.slice(0, 15);
-  saveProgress(progress);
-}
-
-function defaultProgress() {
-  return {
-    attempts: 0,
-    correct: 0,
-    streak: 0,
-    mistakes: {
-      skipped_inverse_operation: 0,
-      wrong_operation: 0,
-      sign_error: 0,
-      arithmetic_error: 0,
-      combined_unlike_terms: 0,
-      distribution_error: 0,
-      variable_confusion: 0,
-      incomplete_solution: 0,
-      random_or_unclear: 0
-    },
-    skills: {
-      two_step_equations: { attempts: 0, correct: 0 },
-      combining_like_terms: { attempts: 0, correct: 0 },
-      distributive_property: { attempts: 0, correct: 0 }
-    },
-    recentAttempts: []
-  };
-}
-
-function loadProgress() {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (!saved) return defaultProgress();
-
+  function buildConceptSession(text, subject) {
+    const sentences = splitSentences(text);
+    const terms = extractTerms(text, subject);
+    const flashcards = makeFlashcards(text, terms);
+    const quiz = makeConceptQuiz(sentences, terms);
     return {
-      ...defaultProgress(),
-      ...JSON.parse(saved)
+      type: 'concept',
+      subject,
+      title: labelSubject(subject),
+      text,
+      sentences,
+      terms,
+      summary: summarizeText(sentences),
+      flashcards,
+      quiz,
+      teachBack: terms.slice(0, 6)
     };
-  } catch {
-    return defaultProgress();
   }
-}
 
-function saveProgress(data) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  } catch {
-    console.warn("Progress could not be saved. The app will still work for this session.");
+  function buildCodeSession(text, subject) {
+    const lines = text.split(/\r?\n/).map((line, i) => ({ number: i + 1, text: line })).filter((line) => line.text.trim());
+    const terms = extractCodeTerms(text);
+    return {
+      type: 'code',
+      subject,
+      title: 'Coding tutor session',
+      text,
+      lines,
+      terms,
+      summary: summarizeCode(text),
+      challenge: makeCodeChallenge(text)
+    };
   }
-}
 
-function renderProgressDashboard() {
-  const container = document.getElementById("progressDashboard");
-  container.innerHTML = "";
+  function renderLearningSession() {
+    const session = state.session;
+    if (!session) return;
+    renderDetectedSummary(session);
+    renderOutline(session);
+    renderUnsupported(session);
+    renderCurrentTutorCard(session);
+    renderStudyTools(session);
+    renderProgressDashboard();
+    renderReview();
+  }
 
-  const accuracy = progress.attempts === 0 ? 0 : Math.round((progress.correct / progress.attempts) * 100);
-  const weakest = getWeakestSkill();
-  const strongest = getStrongestSkill();
-  const commonMistake = getMostCommonMistake();
+  function renderDetectedSummary(session) {
+    clear(els.detectedSummary);
+    els.detectedSummary.append(
+      statPill('Mode', session.type === 'math' ? 'Exact check' : session.type === 'code' ? 'Code tutor' : 'Concept tutor'),
+      statPill('Subject', labelSubject(session.subject))
+    );
+    if (session.type === 'math') {
+      els.detectedSummary.append(
+        statPill('Supported', String(session.items.filter((item) => item.supported).length)),
+        statPill('Unsupported', String(session.unsupported.length))
+      );
+    } else {
+      els.detectedSummary.append(statPill('Key ideas', String(session.terms.length)));
+    }
+  }
 
-  container.append(
-    statCard("Attempts", progress.attempts),
-    statCard("Correct", progress.correct),
-    statCard("Accuracy", `${accuracy}%`),
-    statCard("Current streak", progress.streak),
-    detailCard("Strongest skill", strongest),
-    detailCard("Weakest skill", weakest),
-    detailCard("Most common mistake", commonMistake),
-    detailCard("Recommended next practice", weakest === "No data yet" ? "Start a diagnostic" : weakest)
-  );
+  function renderOutline(session) {
+    clear(els.outlineList);
+    if (session.type === 'math') {
+      session.items.forEach((item, index) => {
+        const button = buttonEl(item.supported ? item.problem.display : item.raw, 'outline-button', () => {
+          state.currentIndex = index;
+          renderLearningSession();
+        });
+        button.classList.toggle('active', state.currentIndex === index);
+        button.disabled = !item.supported;
+        els.outlineList.append(button);
+      });
+      return;
+    }
 
-  const wide = document.createElement("article");
-  wide.className = "stat-card wide-card";
-  wide.innerHTML = "<h3>Mistake pattern map</h3>";
+    const outline = session.type === 'code'
+      ? ['What this code does', 'Important lines', 'Edge cases', 'Explain a line', 'Modification challenge']
+      : ['Summary', 'Key terms', 'Flashcards', 'Quiz', 'Teach-back'];
 
-  const bars = document.createElement("div");
-  bars.className = "mistake-bars";
+    outline.forEach((label, index) => {
+      const button = buttonEl(label, 'outline-button', () => {
+        state.currentIndex = index;
+        renderLearningSession();
+      });
+      button.classList.toggle('active', state.currentIndex === index);
+      els.outlineList.append(button);
+    });
+  }
 
-  Object.entries(progress.mistakes).forEach(([key, value]) => {
-    const row = document.createElement("div");
-    row.className = "mistake-row";
+  function renderUnsupported(session) {
+    clear(els.unsupportedList);
+    if (session.type !== 'math' || !session.unsupported.length) return;
+    els.unsupportedList.append(labelText('Unsupported', 'micro-label'));
+    session.unsupported.forEach((item) => {
+      const card = div('unsupported-card');
+      card.append(textP(item.raw), textP('Not supported yet — try typing this one manually or choose a supported Algebra 1 format.', 'muted'));
+      els.unsupportedList.append(card);
+    });
+  }
 
-    const label = document.createElement("span");
-    label.textContent = mistakeLabels[key] || key;
+  function renderCurrentTutorCard(session) {
+    clear(els.currentTutorCard);
+    if (session.type === 'math') renderMathTutor(session);
+    else if (session.type === 'code') renderCodeTutor(session);
+    else renderConceptTutor(session);
+  }
 
-    const bar = document.createElement("div");
-    bar.className = "bar";
+  function renderMathTutor(session) {
+    const supportedItems = session.items.filter((item) => item.supported);
+    if (!supportedItems.length) {
+      els.currentTutorCard.append(heading('No supported math found', 3), textP('Try Algebra 1 formats like 2x + 5 = 17, 3x + 2x + 5, or 3(x + 4).'));
+      return;
+    }
+    let item = session.items[state.currentIndex];
+    if (!item || !item.supported) {
+      const firstIndex = session.items.findIndex((candidate) => candidate.supported);
+      state.currentIndex = firstIndex;
+      item = session.items[firstIndex];
+    }
+    els.currentTutorCard.append(renderProblemCard(item.problem, {
+      context: 'learn',
+      item,
+      onNext: () => {
+        const next = nextSupportedIndex(session.items, state.currentIndex);
+        state.currentIndex = next;
+        renderLearningSession();
+      }
+    }));
+  }
 
-    const fill = document.createElement("span");
-    fill.style.width = `${Math.min(100, value * 18)}%`;
+  function renderConceptTutor(session) {
+    const index = state.currentIndex;
+    if (index === 0) {
+      const card = div('concept-summary');
+      card.append(heading('Based on the text you pasted...', 3));
+      card.append(textP('Theorem found these likely main ideas. Check this against your class notes.', 'muted'));
+      session.summary.forEach((line) => card.append(textP(line)));
+      els.currentTutorCard.append(card);
+    } else if (index === 1) {
+      els.currentTutorCard.append(heading('Likely key terms', 3), textP('These are terms Theorem saw repeated or defined in your material.', 'muted'), list(session.terms, 'term-list'));
+    } else if (index === 2) {
+      const box = div('flashcard-list');
+      session.flashcards.forEach((card, i) => {
+        const item = div('flashcard');
+        item.append(strong(`Card ${i + 1}: ${card.front}`), textP(card.back));
+        const reviewed = buttonEl('Mark reviewed', 'btn btn-secondary', () => {
+          state.progress.flashcardsReviewed += 1;
+          addWeakTerms(session.terms.slice(0, 2));
+          saveProgress();
+          buttonSetDone(reviewed, 'Reviewed');
+        });
+        item.append(reviewed);
+        box.append(item);
+      });
+      els.currentTutorCard.append(heading('Flashcards', 3), textP('Retrieve the answer before reading the back.', 'muted'), box);
+    } else if (index === 3) {
+      const box = div('quiz-list');
+      session.quiz.forEach((q, i) => {
+        const card = div('quiz-card');
+        card.append(strong(`Question ${i + 1}`), textP(q.question));
+        if (q.options) {
+          const options = div('quiz-options');
+          q.options.forEach((option) => {
+            options.append(buttonEl(option, 'quiz-option', (event) => {
+              Array.from(options.children).forEach((child) => child.classList.remove('selected'));
+              event.currentTarget.classList.add('selected');
+              state.progress.conceptQuizzesCompleted += 1;
+              saveProgress();
+            }));
+          });
+          card.append(options);
+        } else {
+          const input = document.createElement('textarea');
+          input.setAttribute('aria-label', q.question);
+          input.placeholder = 'Answer in your own words.';
+          const check = buttonEl('Check key words', 'btn btn-secondary', () => {
+            const result = checkTerms(input.value, session.terms.slice(0, 5));
+            card.append(feedbackBox('Self-check', result.message));
+            state.progress.conceptQuizzesCompleted += 1;
+            addWeakTerms(result.missing);
+            saveProgress();
+          });
+          card.append(input, check);
+        }
+        box.append(card);
+      });
+      els.currentTutorCard.append(heading('Quiz mode', 3), textP('Theorem can check key words, but not perfectly grade open-ended answers.', 'muted'), box);
+    } else {
+      const input = document.createElement('textarea');
+      input.placeholder = 'Explain the idea in your own words.';
+      input.setAttribute('aria-label', 'Teach-back answer');
+      const output = div('tool-card');
+      const check = buttonEl('Check my explanation', 'btn btn-primary', () => {
+        clear(output);
+        const result = checkTerms(input.value, session.teachBack);
+        output.append(strong('Teach-back checklist'), textP(result.message), list(session.teachBack, 'checklist'));
+        state.progress.teachBackAttempts += 1;
+        addWeakTerms(result.missing);
+        saveProgress();
+      });
+      els.currentTutorCard.append(heading('Teach-back mode', 3), textP('Explain first. Then use the checklist to revise.', 'muted'), input, div('actions', [check]), output);
+    }
+  }
 
-    const count = document.createElement("span");
-    count.textContent = String(value);
+  function renderCodeTutor(session) {
+    const index = state.currentIndex;
+    if (index === 0) {
+      els.currentTutorCard.append(heading('What this code appears to do', 3), textP('Based on the code you pasted, check this against your assignment instructions.', 'muted'), textP(session.summary));
+    } else if (index === 1) {
+      const items = session.lines.slice(0, 12).map((line) => `Line ${line.number}: ${line.text.trim()}`);
+      els.currentTutorCard.append(heading('Important parts', 3), list(items, 'line-list'));
+    } else if (index === 2) {
+      const edges = ['What happens with empty input?', 'What happens with very large input?', 'What happens if the type is different than expected?', 'Does the function return a value every time?'];
+      els.currentTutorCard.append(heading('Possible bugs or edge cases', 3), textP('These are safe questions to test locally.', 'muted'), list(edges, 'checklist'));
+    } else if (index === 3) {
+      const line = session.lines[0]?.text.trim() || 'the first line';
+      const input = document.createElement('textarea');
+      input.placeholder = `Explain this line: ${line}`;
+      const check = buttonEl('Save teach-back', 'btn btn-primary', () => {
+        state.progress.teachBackAttempts += 1;
+        saveProgress();
+        buttonSetDone(check, 'Saved');
+      });
+      els.currentTutorCard.append(heading('Explain this line', 3), textP(line), input, div('actions', [check]));
+    } else {
+      els.currentTutorCard.append(heading('Modification challenge', 3), textP(session.challenge), textP('Next action: make the smallest change, then write one test case before running it.', 'muted'));
+    }
+  }
 
-    bar.appendChild(fill);
-    row.append(label, bar, count);
-    bars.appendChild(row);
-  });
+  function renderStudyTools(session) {
+    clear(els.studyTools);
+    const tools = div('tool-list');
+    if (session.type === 'math') {
+      tools.append(
+        toolCard('Rule', 'No answer before attempt. Hints are allowed.'),
+        toolCard('Next action', 'Solve the current problem, then use the repair drill if needed.'),
+        toolCard('Accuracy', `${percent(state.progress.correctAnswers, state.progress.mathProblemsAttempted)}% math accuracy`)
+      );
+    } else if (session.type === 'code') {
+      tools.append(
+        toolCard('Best move', 'Explain one line, then write one small test case.'),
+        toolCard('No fake grading', 'Theorem guides your reasoning without pretending to run your code.'),
+        toolCard('Terms found', session.terms.join(', ') || 'No strong coding terms found')
+      );
+    } else {
+      tools.append(
+        toolCard('Study rule', 'Retrieve before reading. Explain before checking.'),
+        toolCard('Key terms', session.terms.slice(0, 6).join(', ') || 'No strong terms found'),
+        toolCard('Review plan', 'Flashcards → quiz → teach-back → revise missing terms')
+      );
+    }
+    els.studyTools.append(tools);
+  }
 
-  wide.appendChild(bars);
+  function bindPractice() {
+    document.querySelectorAll('[data-practice-skill]').forEach((button) => {
+      button.addEventListener('click', () => {
+        state.practiceSkill = button.dataset.practiceSkill;
+        state.practiceProblem = randomProblem(state.practiceSkill);
+        state.practiceAttemptSaved = false;
+        els.practiceShell.classList.remove('hidden');
+        els.practiceSkillName.textContent = titleSkill(state.practiceSkill);
+        renderPracticeProblem();
+      });
+    });
+    els.newPracticeProblemBtn?.addEventListener('click', () => {
+      state.practiceProblem = randomProblem(state.practiceSkill);
+      state.practiceAttemptSaved = false;
+      renderPracticeProblem();
+    });
+  }
 
-  const reset = document.createElement("button");
-  reset.className = "btn btn-ghost";
-  reset.type = "button";
-  reset.textContent = "Reset progress";
-  reset.addEventListener("click", () => {
-    if (confirm("Reset all local progress?")) {
-      progress = defaultProgress();
-      saveProgress(progress);
+  function renderPracticeProblem() {
+    clear(els.practiceTutorCard);
+    els.practiceTutorCard.append(renderProblemCard(state.practiceProblem, {
+      context: 'practice',
+      onNext: () => {
+        state.practiceProblem = randomProblem(state.practiceSkill);
+        state.practiceAttemptSaved = false;
+        renderPracticeProblem();
+      }
+    }));
+  }
+
+  function renderProblemCard(problem, options) {
+    const wrapper = document.createElement('article');
+    const title = div('problem-header');
+    title.append(heading(problem.skillLabel, 3), span(problem.topic, 'problem-pill'));
+    const stage = div('problem-stage');
+    stage.append(labelText('Problem', 'micro-label'), div('problem-display', null, problem.display), textP(problem.instruction, 'problem-instruction'));
+    const form = document.createElement('form');
+    form.className = 'answer-form';
+    const inputId = `answer-${Math.random().toString(36).slice(2)}`;
+    const label = document.createElement('label');
+    label.setAttribute('for', inputId);
+    label.textContent = 'Your answer';
+    const row = div('answer-row');
+    const input = document.createElement('input');
+    input.id = inputId;
+    input.type = 'text';
+    input.autocomplete = 'off';
+    input.placeholder = problem.answerPlaceholder;
+    const submit = buttonEl('Check answer', 'btn btn-primary');
+    row.append(input, submit);
+    form.append(label, row);
+    const hintZone = div('hint-zone');
+    const hintButton = buttonEl('Show hint', 'btn btn-ghost');
+    const hintText = textP('', 'hint-text');
+    let hintIndex = options.item ? options.item.hintIndex || 0 : 0;
+    hintButton.addEventListener('click', () => {
+      hintText.textContent = problem.hints[Math.min(hintIndex, problem.hints.length - 1)];
+      hintIndex += 1;
+      if (options.item) options.item.hintIndex = hintIndex;
+      if (hintIndex >= problem.hints.length) hintButton.disabled = true;
+    });
+    hintZone.append(hintButton, hintText);
+    const feedback = div('feedback-root');
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const result = checkAnswer(problem, input.value);
+      if (options.item) options.item.attempted = true;
+      if (options.context === 'learn' && options.item && !options.item.saved) {
+        saveMathAttempt(problem, result);
+        options.item.saved = true;
+      } else if (options.context === 'practice' && !state.practiceAttemptSaved) {
+        saveMathAttempt(problem, result);
+        state.practiceAttemptSaved = true;
+      }
+      clear(feedback);
+      feedback.append(renderMathFeedback(problem, result, options.onNext));
       renderProgressDashboard();
-      renderReviewDashboard();
-    }
-  });
+      renderReview();
+    });
 
-  wide.appendChild(reset);
-  container.appendChild(wide);
-}
-
-function renderReviewDashboard() {
-  const container = document.getElementById("reviewDashboard");
-  container.innerHTML = "";
-
-  if (progress.attempts === 0) {
-    const card = document.createElement("article");
-    card.className = "review-card";
-    card.innerHTML = "<h3>Complete a diagnostic first.</h3><p>Theorem will build your review list after you answer a few questions.</p>";
-    container.appendChild(card);
-    return;
+    wrapper.append(title, stage, form, hintZone, feedback);
+    return wrapper;
   }
 
-  const weakest = getWeakestSkillKey();
-  const commonMistakeKey = getMostCommonMistakeKey();
-
-  const reviewSkill = modules.find((item) => item.id === weakest)?.title || "Two-step equations";
-  const reviewMistake = mistakeLabels[commonMistakeKey] || "Mistake pattern";
-
-  const card1 = document.createElement("article");
-  card1.className = "review-card";
-  card1.innerHTML = `<h3>Review skill</h3><p>${reviewSkill}</p>`;
-
-  const card2 = document.createElement("article");
-  card2.className = "review-card";
-  card2.innerHTML = `<h3>Watch this mistake</h3><p>${reviewMistake}</p>`;
-
-  const card3 = document.createElement("article");
-  card3.className = "review-card";
-  card3.innerHTML = `<h3>Next move</h3><p>Practice your weakest skill until you get three correct in a row.</p>`;
-
-  const button = document.createElement("button");
-  button.className = "btn btn-primary";
-  button.type = "button";
-  button.textContent = "Start review";
-  button.addEventListener("click", () => {
-    selectSkill(weakest);
-    showSection("tutor");
-  });
-
-  card3.appendChild(button);
-  container.append(card1, card2, card3);
-}
-
-function statCard(label, value) {
-  const card = document.createElement("article");
-  card.className = "stat-card";
-
-  const number = document.createElement("div");
-  number.className = "stat-value";
-  number.textContent = value;
-
-  const text = document.createElement("div");
-  text.className = "stat-label";
-  text.textContent = label;
-
-  card.append(number, text);
-  return card;
-}
-
-function detailCard(label, value) {
-  const card = document.createElement("article");
-  card.className = "stat-card";
-
-  const title = document.createElement("h3");
-  title.textContent = label;
-
-  const p = document.createElement("p");
-  p.className = "stat-label";
-  p.textContent = value;
-
-  card.append(title, p);
-  return card;
-}
-
-function getProblemsForSkill(skill) {
-  return problemBank.filter((problem) => problem.skill === skill);
-}
-
-function skillTitle(skill) {
-  const found = modules.find((item) => item.id === skill);
-  return found ? found.title : skill;
-}
-
-function getWeakestSkillKey() {
-  let weakest = "two_step_equations";
-  let weakestScore = Infinity;
-
-  Object.entries(progress.skills).forEach(([skill, data]) => {
-    if (data.attempts === 0) return;
-
-    const score = data.correct / data.attempts;
-
-    if (score < weakestScore) {
-      weakestScore = score;
-      weakest = skill;
+  function renderMathFeedback(problem, result, onNext) {
+    const panel = div(`feedback-panel ${result.correct ? 'correct' : 'repair-needed'}`);
+    panel.append(div('feedback-title', null, result.correct ? 'Correct.' : 'Not quite — here’s the likely break.'));
+    if (result.correct) {
+      panel.append(textP(problem.correctMessage));
+      panel.append(div('actions', [buttonEl('Next challenge', 'btn btn-primary', onNext)]));
+      return panel;
     }
-  });
 
-  return weakest;
-}
+    const grid = div('feedback-grid');
+    grid.append(
+      feedbackBox('Likely mistake', result.message),
+      feedbackBox('Why it happened', result.why),
+      feedbackBox('Tiny fix', result.fix),
+      feedbackBox('Repair drill', result.repairDrill.display)
+    );
+    panel.append(grid, strong('Correct steps'), list(problem.steps, 'steps-list'));
+    panel.append(div('actions', [buttonEl('Try repair drill', 'btn btn-secondary', () => {
+      const session = buildMathSession(result.repairDrill.display, 'math');
+      state.session = session;
+      state.currentIndex = 0;
+      renderLearningSession();
+    }), buttonEl('Next problem', 'btn btn-primary', onNext)]));
+    return panel;
+  }
 
-function getWeakestSkill() {
-  if (progress.attempts === 0) return "No data yet";
-  return skillTitle(getWeakestSkillKey());
-}
+  function saveMathAttempt(problem, result) {
+    state.progress.mathProblemsAttempted += 1;
+    if (result.correct) state.progress.correctAnswers += 1;
+    else state.progress.mistakes[result.mistakeType] = (state.progress.mistakes[result.mistakeType] || 0) + 1;
+    const skill = state.progress.skills[problem.skill] || { attempts: 0, correct: 0 };
+    skill.attempts += 1;
+    if (result.correct) skill.correct += 1;
+    state.progress.skills[problem.skill] = skill;
+    if (!result.correct) addWeakSubject('math');
+    state.progress.recentAttempts.unshift({ subject: 'math', skill: problem.skill, correct: result.correct, mistake: result.mistakeType || null, at: new Date().toISOString() });
+    state.progress.recentAttempts = state.progress.recentAttempts.slice(0, 20);
+    saveProgress();
+  }
 
-function getStrongestSkill() {
-  if (progress.attempts === 0) return "No data yet";
-
-  let strongest = "two_step_equations";
-  let strongestScore = -1;
-
-  Object.entries(progress.skills).forEach(([skill, data]) => {
-    if (data.attempts === 0) return;
-
-    const score = data.correct / data.attempts;
-
-    if (score > strongestScore) {
-      strongestScore = score;
-      strongest = skill;
+  function checkAnswer(problem, input) {
+    if (!input || !input.trim()) return diagnoseMistake(problem, input, 'incomplete_solution');
+    if (problem.kind === 'equation') {
+      const value = parseNumericAnswer(input);
+      if (value !== null && nearly(value, problem.correctAnswer)) return { correct: true };
+      return diagnoseMistake(problem, input);
     }
-  });
+    const parsed = parseLinearExpression(input);
+    if (parsed && parsed.x === problem.correctAnswer.x && parsed.c === problem.correctAnswer.c) return { correct: true };
+    return diagnoseMistake(problem, input);
+  }
 
-  return skillTitle(strongest);
-}
+  function diagnoseMistake(problem, input, forced) {
+    const normalized = String(input || '').trim().toLowerCase();
+    const number = parseNumericAnswer(normalized);
+    const expression = parseLinearExpression(normalized);
+    let mistakeType = forced || 'random_or_unclear';
+    let message = 'Theorem is not sure which mistake happened, but here is the safest next step.';
+    let why = 'The answer does not match the structure Theorem expected.';
+    let fix = 'Go one step at a time and check whether each operation was undone or distributed correctly.';
 
-function getMostCommonMistakeKey() {
-  let best = "random_or_unclear";
-  let max = 0;
-
-  Object.entries(progress.mistakes).forEach(([key, value]) => {
-    if (value > max) {
-      max = value;
-      best = key;
-    }
-  });
-
-  return best;
-}
-
-function getMostCommonMistake() {
-  if (progress.attempts === 0) return "No data yet";
-
-  const key = getMostCommonMistakeKey();
-  return progress.mistakes[key] === 0 ? "No mistakes yet" : mistakeLabels[key];
-}
-
-function parseNumericAnswer(input) {
-  let text = normalizeText(input);
-  text = text.replace(/^x=/, "");
-
-  if (text.includes("/")) {
-    const parts = text.split("/");
-    if (parts.length === 2) {
-      const top = Number(parts[0]);
-      const bottom = Number(parts[1]);
-      if (Number.isFinite(top) && Number.isFinite(bottom) && bottom !== 0) {
-        return top / bottom;
+    if (problem.kind === 'equation') {
+      if (forced === 'incomplete_solution' || normalized === '') {
+        mistakeType = 'incomplete_solution';
+        message = 'Enter a number for x, like 6 or x = 6.';
+        why = 'Theorem needs an attempted value before showing the worked steps.';
+        fix = 'Type the value you think x equals.';
+      } else if (number !== null) {
+        if (nearly(number, problem.middleValue)) {
+          mistakeType = 'skipped_inverse_operation';
+          message = `You reached ${problem.coefficient}x = ${problem.middleValue}, but stopped before solving for x.`;
+          why = `x is still multiplied by ${problem.coefficient}.`;
+          fix = `Divide both sides by ${problem.coefficient}.`;
+        } else if (nearly(number, -problem.correctAnswer)) {
+          mistakeType = 'sign_error';
+          message = 'The size is right, but the sign changed.';
+          why = 'A negative may have appeared during an inverse operation.';
+          fix = 'Track the sign on each side after every operation.';
+        } else if (nearly(number, problem.wrongInverseValue)) {
+          mistakeType = 'wrong_operation';
+          message = 'You used the wrong inverse operation.';
+          why = `The constant is ${problem.sign}${problem.constant}, so you undo it with the opposite operation.`;
+          fix = problem.sign === '+' ? `Subtract ${problem.constant} first.` : `Add ${problem.constant} first.`;
+        } else {
+          mistakeType = 'arithmetic_error';
+          message = 'Your setup may be right, but one calculation is off.';
+          why = 'The final value does not satisfy the original equation.';
+          fix = 'Substitute your answer back into the original equation to check it.';
+        }
+      }
+    } else if (problem.kind === 'combine') {
+      if (expression) {
+        if (expression.c === 0 && problem.correctAnswer.c !== 0) {
+          mistakeType = 'incomplete_solution';
+          message = 'You combined the x terms but dropped the constant.';
+          why = 'Constants without x do not disappear.';
+          fix = 'Bring the constant along unchanged.';
+        } else if (expression.x !== problem.correctAnswer.x && expression.c === problem.correctAnswer.c) {
+          mistakeType = 'arithmetic_error';
+          message = 'The constant is right, but the x coefficient is off.';
+          why = 'The like terms were combined with a calculation error.';
+          fix = 'Add or subtract only the coefficients in front of x.';
+        } else if (expression.c === 0 || Math.abs(expression.x) > Math.abs(problem.correctAnswer.x + problem.correctAnswer.c)) {
+          mistakeType = 'combined_unlike_terms';
+          message = 'It looks like x terms and constants were combined together.';
+          why = 'Terms with x and terms without x are unlike terms.';
+          fix = 'Combine x terms with x terms. Keep constants separate.';
+        }
+      }
+    } else if (problem.kind === 'distribute') {
+      if (expression) {
+        if (expression.x === problem.coefficient && expression.c === problem.insideConstant) {
+          mistakeType = 'distribution_error';
+          message = 'You distributed to x but not to the second term.';
+          why = 'The outside number multiplies every term inside parentheses.';
+          fix = `Multiply ${problem.coefficient} by ${problem.insideConstant} too.`;
+        } else if (expression.x === 1 && expression.c === problem.correctAnswer.c) {
+          mistakeType = 'variable_confusion';
+          message = 'The constant was multiplied, but the x coefficient was lost.';
+          why = `${problem.coefficient} times x becomes ${problem.coefficient}x.`;
+          fix = 'Keep the coefficient attached to x.';
+        } else {
+          mistakeType = 'distribution_error';
+          message = 'The distribution pattern is off.';
+          why = 'Each term inside the parentheses must be multiplied by the outside number.';
+          fix = 'Use a(b + c) = ab + ac.';
+        }
       }
     }
+
+    return { correct: false, mistakeType, message, why, fix, repairDrill: problem.repairDrill };
   }
 
-  const value = Number(text);
-  return Number.isFinite(value) ? value : null;
-}
+  function detectSubject(text) {
+    const t = text.toLowerCase();
+    const score = {
+      coding: countMatches(t, ['function', 'const ', 'let ', 'var ', 'class ', 'def ', 'return', 'if ', 'for ', 'while ', '{}', 'console.log', 'print(']),
+      math: countRegex(t, [/\bx\s*=/, /\bsimplify\b/, /\bsolve\b/, /\d\s*[+\-*/=()]\s*\d/, /\d*x\s*[+\-]/]),
+      science: countMatches(t, ['cell', 'energy', 'force', 'atom', 'molecule', 'photosynthesis', 'ecosystem', 'experiment', 'hypothesis', 'variable']),
+      history: countMatches(t, ['war', 'revolution', 'government', 'empire', 'president', 'colony', 'treaty', 'rights', 'economy', 'civilization']),
+      english: countMatches(t, ['theme', 'character', 'paragraph', 'essay', 'claim', 'evidence', 'author', 'poem', 'story', 'argument']),
+      language: countMatches(t, ['translate', 'conjugate', 'vocabulary', 'spanish', 'french', 'german', 'latin', 'sentence'])
+    };
+    let best = 'general';
+    let bestScore = 0;
+    Object.entries(score).forEach(([subject, value]) => {
+      if (value > bestScore) { best = subject; bestScore = value; }
+    });
+    return best;
+  }
 
-function parseLinearExpression(input) {
-  let text = normalizeText(input);
-  text = text.replace(/\s/g, "");
-  text = text.replace(/−/g, "-");
-  text = text.replace(/--/g, "+");
-
-  if (!text) return null;
-
-  if (!/^[0-9xX+\-.]+$/.test(text)) {
+  function detectMathProblem(raw) {
+    const text = raw.replace(/^\s*(solve|simplify)\s*:?\s*/i, '').trim();
+    const equation = text.match(/^([+-]?\d*)x\s*([+-])\s*(\d+)\s*=\s*([+-]?\d+)$/i);
+    if (equation) {
+      const coefficient = parseCoefficient(equation[1]);
+      return makeTwoStep(text, coefficient, equation[2], Number(equation[3]), Number(equation[4]));
+    }
+    const distribute = text.match(/^([+-]?\d+)\s*\(\s*x\s*([+-])\s*(\d+)\s*\)$/i);
+    if (distribute) return makeDistribute(text, Number(distribute[1]), distribute[2], Number(distribute[3]));
+    const combined = text.match(/^([+-]?\d*)x\s*([+-])\s*([+-]?\d*)x\s*([+-])\s*(\d+)$/i);
+    if (combined) {
+      const a = parseCoefficient(combined[1]);
+      const b = parseCoefficient(combined[3]);
+      const signedB = combined[2] === '-' ? -Math.abs(b) : b;
+      return makeCombine(text, a, signedB, combined[4], Number(combined[5]));
+    }
     return null;
   }
 
-  text = text.replace(/X/g, "x");
-  text = text.replace(/-/g, "+-");
-
-  if (text.startsWith("+")) {
-    text = text.slice(1);
+  function makeTwoStep(display, coefficient, sign, constant, right) {
+    const middleValue = sign === '+' ? right - constant : right + constant;
+    const correct = middleValue / coefficient;
+    const wrongInverseValue = sign === '+' ? (right + constant) / coefficient : (right - constant) / coefficient;
+    return {
+      id: `eq-${display}`,
+      kind: 'equation',
+      topic: 'Algebra 1',
+      skill: 'two_step_equations',
+      skillLabel: 'Two-step equations',
+      display,
+      instruction: 'Solve for x.',
+      answerPlaceholder: 'Example: x = 6',
+      coefficient,
+      sign,
+      constant,
+      right,
+      middleValue,
+      wrongInverseValue,
+      correctAnswer: correct,
+      correctMessage: `x = ${formatNumber(correct)} works because substituting it back makes both sides equal.`,
+      steps: [display, `${coefficient}x = ${formatNumber(middleValue)}`, `x = ${formatNumber(correct)}`],
+      hints: ['Undo the operation farthest from x first.', sign === '+' ? `Start by subtracting ${constant} from both sides.` : `Start by adding ${constant} to both sides.`, `You should get ${coefficient}x = ${formatNumber(middleValue)} before dividing.`],
+      repairDrill: makeTwoStep(`${coefficient + 1}x + ${constant} = ${(coefficient + 1) * correct + constant}`, coefficient + 1, '+', constant, (coefficient + 1) * correct + constant)
+    };
   }
 
-  const terms = text.split("+").filter(Boolean);
-  let coef = 0;
-  let constant = 0;
+  function makeCombine(display, a, b, constSign, constant) {
+    const c = constSign === '-' ? -Math.abs(constant) : Math.abs(constant);
+    const x = a + b;
+    return {
+      id: `combine-${display}`,
+      kind: 'combine',
+      topic: 'Algebra 1',
+      skill: 'combining_like_terms',
+      skillLabel: 'Combining like terms',
+      display,
+      instruction: 'Simplify the expression.',
+      answerPlaceholder: 'Example: 5x + 5',
+      correctAnswer: { x, c },
+      correctMessage: `The x terms combine to ${formatTerm(x, 'x')}, and the constant stays ${formatSigned(c)}.`,
+      steps: [display, `${a}x ${b < 0 ? '-' : '+'} ${Math.abs(b)}x ${formatSigned(c)}`, `${formatExpression(x, c)}`],
+      hints: ['Like terms have the same variable part.', 'Combine only the x coefficients first.', `The constant ${formatSigned(c)} stays separate.`],
+      repairDrill: makeCombine(`${a + 1}x + ${Math.abs(b)}x + ${Math.abs(c || 4)}`, a + 1, Math.abs(b), '+', Math.abs(c || 4))
+    };
+  }
 
-  for (const term of terms) {
-    if (term.includes("x")) {
-      const raw = term.replace("x", "");
-      if (raw === "" || raw === "+") {
-        coef += 1;
-      } else if (raw === "-") {
-        coef -= 1;
-      } else {
-        const value = Number(raw);
-        if (!Number.isFinite(value)) return null;
-        coef += value;
-      }
-    } else {
-      const value = Number(term);
-      if (!Number.isFinite(value)) return null;
-      constant += value;
+  function makeDistribute(display, coefficient, sign, insideConstant) {
+    const c = sign === '-' ? -coefficient * insideConstant : coefficient * insideConstant;
+    return {
+      id: `dist-${display}`,
+      kind: 'distribute',
+      topic: 'Algebra 1',
+      skill: 'distributive_property',
+      skillLabel: 'Distributive property',
+      display,
+      instruction: 'Simplify using distribution.',
+      answerPlaceholder: 'Example: 3x + 12',
+      coefficient,
+      sign,
+      insideConstant,
+      correctAnswer: { x: coefficient, c },
+      correctMessage: `${coefficient} multiplies both x and ${insideConstant}.`,
+      steps: [display, `${coefficient} · x ${sign} ${coefficient} · ${insideConstant}`, formatExpression(coefficient, c)],
+      hints: ['The outside number multiplies every term inside parentheses.', `First multiply ${coefficient} by x.`, `Then multiply ${coefficient} by ${insideConstant}.`],
+      repairDrill: makeDistribute(`${coefficient + 1}(x + ${insideConstant})`, coefficient + 1, '+', insideConstant)
+    };
+  }
+
+  function splitMaterial(text) {
+    return text
+      .replace(/\r/g, '')
+      .split(/\n|;|(?=\s*\d+\.\s+)|(?=\s*[-•*]\s+)/)
+      .map((line) => line.replace(/^\s*(\d+\.|[-•*])\s*/, '').trim())
+      .filter(Boolean);
+  }
+
+  function splitSentences(text) {
+    return text.replace(/\s+/g, ' ').split(/(?<=[.!?])\s+/).map((s) => s.trim()).filter((s) => s.length > 8).slice(0, 16);
+  }
+
+  function summarizeText(sentences) {
+    if (!sentences.length) return ['Theorem found short material. Try adding more notes for a better summary.'];
+    return sentences.slice(0, 4).map((sentence) => `• ${sentence}`);
+  }
+
+  function extractTerms(text, subject) {
+    const lower = text.toLowerCase();
+    const stop = new Set(['the','and','that','with','from','this','into','were','was','are','for','you','your','use','uses','have','has','not','but','can','will','they','their','about','because','process']);
+    const words = lower.match(/\b[a-z][a-z]{3,}\b/g) || [];
+    const counts = {};
+    words.forEach((word) => { if (!stop.has(word)) counts[word] = (counts[word] || 0) + 1; });
+    const repeated = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([word]) => word);
+    const caps = Array.from(new Set((text.match(/\b[A-Z][a-z]{3,}(?:\s+[A-Z][a-z]{3,})?\b/g) || []).slice(0, 8)));
+    const subjectTerms = {
+      science: ['energy','cell','photosynthesis','molecule','ecosystem','hypothesis','variable'],
+      history: ['revolution','government','colony','rights','treaty','economy','civilization'],
+      english: ['theme','claim','evidence','character','author','argument'],
+      language: ['translate','conjugate','vocabulary','sentence'],
+      general: []
+    }[subject] || [];
+    return Array.from(new Set([...subjectTerms.filter((t) => lower.includes(t)), ...caps, ...repeated])).slice(0, 12);
+  }
+
+  function makeFlashcards(text, terms) {
+    const sentences = splitSentences(text);
+    const cards = [];
+    sentences.forEach((sentence) => {
+      const definition = sentence.match(/^(.+?)\s+(is|are|means|refers to)\s+(.+)$/i);
+      if (definition && cards.length < 5) cards.push({ front: `What is ${definition[1].trim()}?`, back: definition[3].trim() });
+    });
+    terms.slice(0, 6).forEach((term) => {
+      if (cards.length < 8) cards.push({ front: `What should you remember about ${term}?`, back: `Check your notes for how ${term} connects to the main idea.` });
+    });
+    return cards.length ? cards : [{ front: 'What is the main idea?', back: 'Use your notes to explain the most important point in one sentence.' }];
+  }
+
+  function makeConceptQuiz(sentences, terms) {
+    const key = terms[0] || 'the main idea';
+    return [
+      { question: `Explain ${key} in your own words.` },
+      { question: `Which term appears most important based on the text?`, options: terms.slice(0, 4).length ? terms.slice(0, 4) : ['main idea', 'detail', 'example', 'definition'] },
+      { question: 'What is one connection between two ideas in the material?' }
+    ];
+  }
+
+  function checkTerms(answer, required) {
+    const lower = String(answer || '').toLowerCase();
+    const missing = required.filter((term) => !lower.includes(String(term).toLowerCase()));
+    if (!answer.trim()) return { missing: required, message: 'Write an explanation first. Then compare it to the checklist.' };
+    if (!missing.length) return { missing: [], message: 'Good coverage. Your explanation includes the key terms Theorem checked.' };
+    return { missing, message: `You may be missing: ${missing.join(', ')}. Revise and try again.` };
+  }
+
+  function extractCodeTerms(text) {
+    const terms = [];
+    if (/function|def\s+/.test(text)) terms.push('function');
+    if (/return/.test(text)) terms.push('return value');
+    if (/for\s*\(|while\s*\(|for\s+/.test(text)) terms.push('loop');
+    if (/if\s*\(/.test(text)) terms.push('conditional');
+    if (/class\s+/.test(text)) terms.push('class');
+    if (/const|let|var/.test(text)) terms.push('variable');
+    return terms;
+  }
+
+  function summarizeCode(text) {
+    if (/function\s+([a-zA-Z_$][\w$]*)/.test(text)) return `This appears to define a function named ${RegExp.$1}. Look at its parameters, return value, and edge cases.`;
+    if (/def\s+([a-zA-Z_]\w*)/.test(text)) return `This appears to define a Python function named ${RegExp.$1}. Check inputs, branches, and return values.`;
+    if (/class\s+([a-zA-Z_$][\w$]*)/.test(text)) return `This appears to define a class named ${RegExp.$1}. Check its fields and methods.`;
+    return 'This appears to be code or pseudocode. Start by identifying inputs, outputs, and the smallest test case.';
+  }
+
+  function makeCodeChallenge(text) {
+    if (/add|sum|total/i.test(text)) return 'Modify the code so it handles zero, negative numbers, and one larger test case.';
+    if (/return/i.test(text)) return 'Add one condition before the return and write a test for that condition.';
+    return 'Change one small behavior, then write the expected input and output before running it.';
+  }
+
+  function renderProgressDashboard() {
+    if (!els.progressDashboard) return;
+    clear(els.progressDashboard);
+    const p = state.progress;
+    const subjects = Object.entries(p.subjectSessions).sort((a, b) => b[1] - a[1]);
+    const mostStudied = subjects[0]?.[0] || 'None yet';
+    const weakestSkill = Object.entries(p.skills).sort((a, b) => skillAccuracy(a[1]) - skillAccuracy(b[1]))[0]?.[0] || 'None yet';
+    const commonMistake = Object.entries(p.mistakes).sort((a, b) => b[1] - a[1])[0]?.[0] || 'None yet';
+    els.progressDashboard.append(
+      statCard('Sessions', p.sessions),
+      statCard('Most studied', labelSubject(mostStudied)),
+      statCard('Math accuracy', `${percent(p.correctAnswers, p.mathProblemsAttempted)}%`),
+      statCard('Flashcards', p.flashcardsReviewed),
+      wideCard('Recommendation', recommendNext(p, weakestSkill, commonMistake)),
+      wideCard('Most common mistake', readableMistake(commonMistake))
+    );
+  }
+
+  function bindProgress() {
+    els.refreshProgressBtn?.addEventListener('click', renderProgressDashboard);
+    els.resetProgressBtn?.addEventListener('click', () => {
+      if (!window.confirm('Reset local Theorem progress?')) return;
+      state.progress = defaultProgress();
+      saveProgress();
+      renderProgressDashboard();
+      renderReview();
+    });
+  }
+
+  function renderReview() {
+    if (!els.reviewGrid) return;
+    clear(els.reviewGrid);
+    const p = state.progress;
+    const hasProgress = p.sessions || p.mathProblemsAttempted || p.flashcardsReviewed || p.teachBackAttempts;
+    if (!hasProgress) {
+      els.reviewGrid.append(reviewCard('Complete a learning session first.', 'Paste notes, code, or Algebra 1 problems in the Learn Workspace.'));
+      return;
+    }
+    const mistakes = Object.entries(p.mistakes).filter(([, count]) => count > 0).sort((a, b) => b[1] - a[1]).slice(0, 3);
+    mistakes.forEach(([type, count]) => els.reviewGrid.append(reviewCard(readableMistake(type), `${count} time(s). Try a repair drill in Practice.`)));
+    p.weakTerms.slice(0, 6).forEach((term) => els.reviewGrid.append(reviewCard(`Review term: ${term}`, 'Explain it out loud, then compare against your notes.')));
+    Object.entries(p.weakSubjects).sort((a, b) => b[1] - a[1]).slice(0, 3).forEach(([subject]) => els.reviewGrid.append(reviewCard(`Weak subject: ${labelSubject(subject)}`, 'Build a new session and use teach-back mode.')));
+  }
+
+  function saveProgress() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state.progress)); }
+    catch { /* Local storage can fail; keep session progress in memory. */ }
+  }
+
+  function loadProgress() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return defaultProgress();
+      return mergeProgress(defaultProgress(), JSON.parse(raw));
+    } catch {
+      return defaultProgress();
     }
   }
 
-  return { coef, constant };
-}
-
-function normalizeText(input) {
-  return String(input || "")
-    .toLowerCase()
-    .replace(/\s+/g, "")
-    .replace(/−/g, "-");
-}
-
-function formatLinear(coef, constant) {
-  let first;
-
-  if (coef === 1) {
-    first = "x";
-  } else if (coef === -1) {
-    first = "-x";
-  } else {
-    first = `${formatNumber(coef)}x`;
+  function defaultProgress() {
+    return {
+      sessions: 0,
+      subjectSessions: Object.fromEntries(SUBJECTS.map((s) => [s, 0])),
+      materialsImported: 0,
+      problemsImported: 0,
+      unsupportedProblems: 0,
+      mathProblemsAttempted: 0,
+      correctAnswers: 0,
+      conceptQuizzesCompleted: 0,
+      flashcardsReviewed: 0,
+      teachBackAttempts: 0,
+      weakSubjects: {},
+      weakTerms: [],
+      mistakes: Object.fromEntries(MISTAKE_TYPES.map((m) => [m, 0])),
+      skills: {
+        two_step_equations: { attempts: 0, correct: 0 },
+        combining_like_terms: { attempts: 0, correct: 0 },
+        distributive_property: { attempts: 0, correct: 0 }
+      },
+      recentAttempts: []
+    };
   }
 
-  if (constant === 0) {
-    return first;
+  function mergeProgress(base, saved) {
+    return { ...base, ...saved, subjectSessions: { ...base.subjectSessions, ...(saved.subjectSessions || {}) }, mistakes: { ...base.mistakes, ...(saved.mistakes || {}) }, skills: { ...base.skills, ...(saved.skills || {}) }, weakSubjects: { ...(saved.weakSubjects || {}) }, weakTerms: saved.weakTerms || [], recentAttempts: saved.recentAttempts || [] };
   }
 
-  const sign = constant > 0 ? "+" : "-";
-  return `${first} ${sign} ${formatNumber(Math.abs(constant))}`;
-}
+  function parseNumericAnswer(input) {
+    const cleaned = String(input).trim().toLowerCase().replace(/\s+/g, '');
+    const match = cleaned.match(/^(?:x=)?([+-]?\d+(?:\.\d+)?)$/);
+    return match ? Number(match[1]) : null;
+  }
 
-function formatNumber(value) {
-  return Number.isInteger(value) ? String(value) : String(Number(value.toFixed(3)));
-}
+  function parseLinearExpression(input) {
+    const cleaned = String(input).toLowerCase().replace(/\s+/g, '').replace(/-/g, '+-');
+    if (!cleaned) return null;
+    const parts = cleaned.split('+').filter(Boolean);
+    let x = 0;
+    let c = 0;
+    for (const part of parts) {
+      if (part.includes('x')) {
+        const value = part.replace('x', '');
+        x += value === '' ? 1 : value === '-' ? -1 : Number(value);
+      } else {
+        c += Number(part);
+      }
+    }
+    if (Number.isNaN(x) || Number.isNaN(c)) return null;
+    return { x, c };
+  }
 
-function nearlyEqual(a, b) {
-  return Math.abs(a - b) < 0.000001;
-}
+  function randomProblem(skill) {
+    const bank = problemBank[skill] || problemBank.two_step_equations;
+    return bank[Math.floor(Math.random() * bank.length)];
+  }
+
+  function nextSupportedIndex(items, current) {
+    for (let i = current + 1; i < items.length; i++) if (items[i].supported) return i;
+    const first = items.findIndex((item) => item.supported);
+    return first === -1 ? 0 : first;
+  }
+
+  function addWeakTerms(terms) {
+    terms.forEach((term) => {
+      if (term && !state.progress.weakTerms.includes(term)) state.progress.weakTerms.push(term);
+    });
+    state.progress.weakTerms = state.progress.weakTerms.slice(0, 30);
+  }
+
+  function addWeakSubject(subject) {
+    state.progress.weakSubjects[subject] = (state.progress.weakSubjects[subject] || 0) + 1;
+  }
+
+  function recommendNext(p, weakestSkill, commonMistake) {
+    if (!p.sessions) return 'Start with the Learn Workspace.';
+    if (p.mathProblemsAttempted && percent(p.correctAnswers, p.mathProblemsAttempted) < 80) return `Practice ${titleSkill(weakestSkill)} and watch for ${readableMistake(commonMistake)}.`;
+    if (p.weakTerms.length) return `Review these terms: ${p.weakTerms.slice(0, 3).join(', ')}.`;
+    return 'Build a new session and use teach-back mode.';
+  }
+
+  function skillAccuracy(skill) { return skill.attempts ? skill.correct / skill.attempts : 1; }
+  function percent(part, total) { return total ? Math.round((part / total) * 100) : 0; }
+  function nearly(a, b) { return Math.abs(a - b) < 0.000001; }
+  function parseCoefficient(value) { return value === '' || value === '+' ? 1 : value === '-' ? -1 : Number(value); }
+  function countMatches(text, words) { return words.reduce((n, word) => n + (text.includes(word) ? 1 : 0), 0); }
+  function countRegex(text, regexes) { return regexes.reduce((n, regex) => n + (regex.test(text) ? 1 : 0), 0); }
+  function labelSubject(subject) { return ({ math: 'Math', science: 'Science', english: 'English / Reading', history: 'History / Social Studies', coding: 'Coding', language: 'Foreign Language', general: 'General Study' }[subject] || subject); }
+  function titleSkill(skill) { return ({ two_step_equations: 'Two-step equations', combining_like_terms: 'Combining like terms', distributive_property: 'Distributive property' }[skill] || skill); }
+  function readableMistake(type) { return String(type || 'None yet').replace(/_/g, ' '); }
+  function formatNumber(n) { return Number.isInteger(n) ? String(n) : String(Number(n.toFixed(3))); }
+  function formatSigned(n) { return n < 0 ? `- ${Math.abs(n)}` : `+ ${n}`; }
+  function formatTerm(n, variable) { return n === 1 ? variable : n === -1 ? `-${variable}` : `${n}${variable}`; }
+  function formatExpression(x, c) { return `${formatTerm(x, 'x')} ${formatSigned(c)}`; }
+
+  function setStatus(message) { if (els.uploadMessage) els.uploadMessage.textContent = message; }
+  function qs(selector) { return document.querySelector(selector); }
+  function clear(node) { while (node && node.firstChild) node.removeChild(node.firstChild); }
+  function div(className, children, text) { const node = document.createElement('div'); if (className) node.className = className; if (text !== undefined) node.textContent = text; if (children) children.forEach((child) => node.append(child)); return node; }
+  function span(text, className) { const node = document.createElement('span'); if (className) node.className = className; node.textContent = text; return node; }
+  function strong(text) { const node = document.createElement('strong'); node.textContent = text; return node; }
+  function heading(text, level) { const node = document.createElement(`h${level}`); node.textContent = text; return node; }
+  function textP(text, className) { const node = document.createElement('p'); if (className) node.className = className; node.textContent = text; return node; }
+  function labelText(text, className) { const node = document.createElement('p'); node.className = className || 'micro-label'; node.textContent = text; return node; }
+  function buttonEl(text, className, handler) { const node = document.createElement('button'); node.type = 'button'; node.className = className; node.textContent = text; if (handler) node.addEventListener('click', handler); return node; }
+  function buttonSetDone(button, text) { button.textContent = text; button.disabled = true; }
+  function list(items, className) { const node = document.createElement('ul'); if (className) node.className = className; (items.length ? items : ['No items found yet.']).forEach((item) => { const li = document.createElement('li'); li.textContent = item; node.append(li); }); return node; }
+  function statPill(label, value) { const node = div('subject-pill'); node.append(strong(label), document.createTextNode(` ${value}`)); return node; }
+  function toolCard(title, body) { const node = div('tool-card'); node.append(strong(title), textP(body)); return node; }
+  function feedbackBox(title, body) { const node = div('feedback-box'); node.append(strong(title), textP(body)); return node; }
+  function statCard(label, value) { const node = div('stat-card'); node.append(div('stat-value', null, String(value)), textP(label, 'stat-label')); return node; }
+  function wideCard(title, body) { const node = div('stat-card wide-card'); node.append(heading(title, 3), textP(body)); return node; }
+  function reviewCard(title, body) { const node = div('review-card'); node.append(heading(title, 3), textP(body)); return node; }
+})();
