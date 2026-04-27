@@ -1,10 +1,10 @@
 # Theorem
 
-Theorem is a static universal learning workspace for students.
+Theorem is a static universal study workspace.
 
-**Core promise:** Upload or paste your material. Theorem finds the best way to teach it.
+**Core promise:** Upload anything you need to learn. Theorem builds the right study path.
 
-Theorem turns homework, notes, study material, worksheets, textbook sections, and code into guided learning sessions. It auto-detects the subject, chooses a study strategy, and creates active practice.
+Theorem turns notes, homework, study guides, textbook sections, worksheets, and code into the best learning mode for the material.
 
 ## Current Version
 
@@ -24,6 +24,7 @@ It does not use:
 - a paid API
 - an exposed API key
 - external dependencies
+- Google login
 - fake login
 - ads
 - tracking
@@ -31,19 +32,40 @@ It does not use:
 ## Main Flow
 
 1. Open Theorem.
-2. Paste homework, notes, study material, or code.
+2. Paste notes, homework, study material, worksheets, textbook sections, or code.
 3. Or upload a `.txt` / `.md` file.
-4. Click **Build my learning session**.
+4. Click **Build my study session**.
 5. Theorem auto-detects the subject.
-6. Theorem chooses the best teaching strategy it can.
+6. Theorem chooses the best study mode it can.
 7. Theorem creates a guided learning session.
 8. Progress saves locally in the browser.
 
 There is no manual subject dropdown.
 
-## Auto-Teaching Strategy Engine
+## Supported Study Modes
 
-Theorem uses a local function:
+### Math
+
+If Theorem detects supported Algebra 1 problems, it uses exact checking.
+
+Math mode includes:
+
+- exact answer checking
+- step-by-step tutoring
+- hints
+- mistake diagnosis
+- repair drills
+- mastery-style follow-up practice
+
+Supported formats include:
 
 ```text
-chooseTeachingStrategy(text, detectedSubject)
+2x + 5 = 17
+3x - 4 = 11
+5x + 2 = 27
+3x + 2x + 5
+4x + x + 7
+6x - 2x + 9
+3(x + 4)
+2(x + 5)
+5(x - 2)
