@@ -3,190 +3,209 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <title>Axiom Tutor</title>
-  <meta
-    name="description"
-    content="A tutoring website that helps students find where their solution went wrong and practice the missing skill."
-  />
-
-  <meta name="color-scheme" content="dark" />
-
-  <style>
-    :root {
-      --background: #0f172a;
-      --card: #111827;
-      --text: #f8fafc;
-      --muted: #cbd5e1;
-      --accent: #38bdf8;
-      --accent-hover: #7dd3fc;
-      --border: rgba(255, 255, 255, 0.12);
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: Arial, Helvetica, sans-serif;
-      background:
-        radial-gradient(circle at top, rgba(56, 189, 248, 0.18), transparent 35%),
-        var(--background);
-      color: var(--text);
-      line-height: 1.6;
-    }
-
-    main {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      text-align: center;
-    }
-
-    .card {
-      width: 100%;
-      max-width: 760px;
-      padding: 48px 32px;
-      background: rgba(17, 24, 39, 0.72);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
-      backdrop-filter: blur(12px);
-    }
-
-    .badge {
-      display: inline-block;
-      margin-bottom: 18px;
-      padding: 6px 12px;
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      color: var(--accent);
-      font-size: 0.9rem;
-      font-weight: 700;
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
-    }
-
-    h1 {
-      margin: 0 0 14px;
-      font-size: clamp(2.4rem, 8vw, 4.8rem);
-      line-height: 1;
-      letter-spacing: -0.06em;
-    }
-
-    p {
-      max-width: 620px;
-      margin: 0 auto;
-      color: var(--muted);
-      font-size: clamp(1rem, 2.5vw, 1.25rem);
-    }
-
-    .actions {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 14px;
-      margin-top: 32px;
-    }
-
-    .button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 48px;
-      padding: 0 22px;
-      border-radius: 12px;
-      background: var(--accent);
-      color: #020617;
-      font-weight: 800;
-      text-decoration: none;
-      transition: transform 0.2s ease, background 0.2s ease;
-    }
-
-    .button:hover,
-    .button:focus-visible {
-      background: var(--accent-hover);
-      transform: translateY(-2px);
-      outline: none;
-    }
-
-    .button.secondary {
-      background: transparent;
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-
-    .button.secondary:hover,
-    .button.secondary:focus-visible {
-      background: rgba(255, 255, 255, 0.08);
-    }
-
-    .preview {
-      margin-top: 34px;
-      padding: 20px;
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      background: rgba(15, 23, 42, 0.75);
-      text-align: left;
-    }
-
-    .preview strong {
-      color: var(--accent);
-    }
-
-    .preview ul {
-      margin: 12px 0 0;
-      padding-left: 20px;
-      color: var(--muted);
-    }
-
-    @media (max-width: 520px) {
-      .card {
-        padding: 36px 22px;
-      }
-
-      .actions {
-        flex-direction: column;
-      }
-
-      .button {
-        width: 100%;
-      }
-    }
-  </style>
+  <meta name="description" content="Theorem is a mistake-first Algebra 1 tutor that diagnoses the exact step students missed." />
+  <title>Theorem — Mistake-First Algebra Tutor</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="script.js" defer></script>
 </head>
-
 <body>
-  <main>
-    <section class="card" aria-labelledby="site-title">
-      <span class="badge">Coming Soon</span>
+  <a class="skip-link" href="#main">Skip to main content</a>
 
-      <h1 id="site-title">Axiom Tutor</h1>
+  <header class="site-header" aria-label="Main navigation">
+    <nav class="nav-shell">
+      <button class="brand nav-jump" data-target="landing" aria-label="Go to Theorem home">
+        <span class="brand-mark" aria-hidden="true">∴</span>
+        <span>Theorem</span>
+      </button>
 
-      <p>
-        Find where your solution went wrong. Fix the missing skill. Try again stronger.
-      </p>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="mainNav">
+        <span class="sr-only">Toggle navigation</span>
+        <span aria-hidden="true"></span>
+      </button>
 
-      <div class="actions">
-        <a class="button" href="#demo">Start Learning</a>
-        <a class="button secondary" href="#demo">See How It Works</a>
+      <div class="nav-links" id="mainNav">
+        <button class="nav-link active" data-target="landing" type="button">Home</button>
+        <button class="nav-link" data-target="tutor" type="button">Tutor</button>
+        <button class="nav-link" data-target="practice" type="button">Practice</button>
+        <button class="nav-link" data-target="progress" type="button">Progress</button>
+        <button class="nav-link" data-target="review" type="button">Review</button>
+        <button class="nav-link" data-target="about" type="button">About</button>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section id="landing" class="app-section visible hero-section" aria-labelledby="landingTitle">
+      <div class="ambient-orb orb-one" aria-hidden="true"></div>
+      <div class="ambient-orb orb-two" aria-hidden="true"></div>
+
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow">Algebra 1 · Mistake-first tutoring</p>
+          <h1 id="landingTitle">Find the step you missed. Master the idea behind it.</h1>
+          <p class="hero-lede">
+            Theorem does not just tell you the answer. It finds the mistake pattern,
+            gives a tiny fix, and tests you again.
+          </p>
+
+          <div class="hero-actions" aria-label="Primary actions">
+            <button class="btn btn-primary nav-jump" data-target="tutor" type="button">Start Diagnostic</button>
+            <button class="btn btn-secondary nav-jump" data-target="practice" type="button">Practice Algebra</button>
+            <button class="btn btn-ghost nav-jump" data-target="progress" type="button">View Progress</button>
+          </div>
+
+          <div class="trust-row" aria-label="Theorem product laws">
+            <span>No answer before attempt</span>
+            <span>Short repair drills</span>
+            <span>Local progress only</span>
+          </div>
+        </div>
+
+        <aside class="hero-card" aria-label="Theorem learning loop preview">
+          <div class="glass-card diagnostic-preview">
+            <div class="preview-topline">
+              <span class="status-dot" aria-hidden="true"></span>
+              <span>Live diagnostic</span>
+            </div>
+            <div class="equation-orbit" aria-hidden="true">
+              <span>2x + 5 = 17</span>
+            </div>
+            <div class="mini-panel">
+              <p class="mini-label">Likely break</p>
+              <p>You reached the middle step, but x is still multiplied by 2.</p>
+            </div>
+            <div class="mini-panel repair">
+              <p class="mini-label">Tiny fix</p>
+              <p>Undo multiplication by dividing both sides by 2.</p>
+            </div>
+            <div class="mastery-chip">Then prove it with a fresh problem →</div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="tutor" class="app-section tutor-section" aria-labelledby="tutorTitle">
+      <div class="section-heading">
+        <p class="eyebrow">Diagnostic Tutor</p>
+        <h2 id="tutorTitle">Theorem finds the exact mistake pattern.</h2>
+        <p>Start with Algebra 1. The first live module is Two-Step Equations.</p>
       </div>
 
-      <div class="preview" id="demo">
-        <strong>How it will work:</strong>
-        <ul>
-          <li>You answer a problem.</li>
-          <li>The site checks the step where your thinking broke.</li>
-          <li>You get a targeted mini-drill to fix that exact mistake.</li>
-        </ul>
+      <div class="workspace-grid">
+        <aside class="side-card">
+          <h3>Skill target</h3>
+          <p class="muted">Choose a working module. Coming-soon skills stay visible but inactive.</p>
+
+          <div class="skill-list" id="skillList" aria-label="Available practice skills"></div>
+
+          <div class="law-card">
+            <span class="law-icon" aria-hidden="true">⚑</span>
+            <div>
+              <strong>No answer before attempt.</strong>
+              <p>Theorem gives hints first, then diagnoses after you try.</p>
+            </div>
+          </div>
+        </aside>
+
+        <article class="tutor-card" aria-live="polite">
+          <div class="problem-header">
+            <div>
+              <p class="micro-label" id="currentTopic">Algebra 1</p>
+              <h3 id="problemTitle">Two-Step Equations</h3>
+            </div>
+            <span class="problem-pill" id="problemCount">Problem 1</span>
+          </div>
+
+          <div class="problem-stage">
+            <p class="prompt-label">Solve</p>
+            <div class="problem-display" id="problemDisplay">2x + 5 = 17</div>
+            <p class="problem-instruction" id="problemInstruction">Enter the value of x.</p>
+          </div>
+
+          <form id="answerForm" class="answer-form" novalidate>
+            <label for="answerInput">Your answer</label>
+            <div class="answer-row">
+              <input id="answerInput" name="answer" autocomplete="off" inputmode="text" placeholder="Example: x = 6" />
+              <button class="btn btn-primary" id="submitAnswer" type="submit">Check</button>
+            </div>
+          </form>
+
+          <div class="hint-zone">
+            <button class="btn btn-ghost" id="hintButton" type="button">Show hint</button>
+            <p class="hint-text" id="hintText" aria-live="polite"></p>
+          </div>
+
+          <div class="feedback-panel hidden" id="feedbackPanel" aria-live="polite"></div>
+        </article>
+      </div>
+    </section>
+
+    <section id="practice" class="app-section" aria-labelledby="practiceTitle">
+      <div class="section-heading">
+        <p class="eyebrow">Practice Algebra</p>
+        <h2 id="practiceTitle">Choose the skill Theorem should diagnose.</h2>
+        <p>Three modules are fully functional now. More can be added without changing the core app.</p>
+      </div>
+
+      <div class="module-grid" id="practiceModules"></div>
+    </section>
+
+    <section id="progress" class="app-section" aria-labelledby="progressTitle">
+      <div class="section-heading">
+        <p class="eyebrow">Progress</p>
+        <h2 id="progressTitle">Track mistake patterns, not just scores.</h2>
+        <p>Your data stays in this browser through localStorage. No login, no backend, no tracking.</p>
+      </div>
+
+      <div id="progressDashboard" class="dashboard"></div>
+    </section>
+
+    <section id="review" class="app-section" aria-labelledby="reviewTitle">
+      <div class="section-heading">
+        <p class="eyebrow">Review</p>
+        <h2 id="reviewTitle">Theorem brings weak skills back later.</h2>
+        <p>Review questions are generated from the mistakes you have actually made.</p>
+      </div>
+
+      <div id="reviewDashboard" class="review-grid"></div>
+    </section>
+
+    <section id="about" class="app-section" aria-labelledby="aboutTitle">
+      <div class="about-shell">
+        <div class="section-heading left-align">
+          <p class="eyebrow">About Theorem</p>
+          <h2 id="aboutTitle">A mistake-first tutor for Algebra 1.</h2>
+        </div>
+
+        <div class="about-card glass-card">
+          <p>
+            Theorem is a mistake-first tutor. It helps students understand why an answer went wrong
+            instead of just giving the answer.
+          </p>
+          <p>
+            Theorem’s core loop is simple: try a problem, get a diagnosis, repair the exact skill,
+            then prove mastery with a fresh problem. The interface is calm on purpose because
+            students learn better when feedback feels clear instead of punishing.
+          </p>
+        </div>
+
+        <div class="principles-grid" aria-label="Theorem principles">
+          <div class="principle-card">
+            <span>01</span>
+            <h3>Diagnose the break.</h3>
+            <p>Wrong answers are classified into mistake patterns like sign errors, skipped operations, or distribution mistakes.</p>
+          </div>
+          <div class="principle-card">
+            <span>02</span>
+            <h3>Repair quickly.</h3>
+            <p>Each repair is shorter than a lesson and focuses on the missing move.</p>
+          </div>
+          <div class="principle-card">
+            <span>03</span>
+            <h3>Prove mastery.</h3>
+            <p>A fresh problem confirms the student learned the idea, not just the answer.</p>
+          </div>
+        </div>
       </div>
     </section>
   </main>
