@@ -1033,3 +1033,192 @@ input:focus-visible {
     50% { transform: scale(1.06); opacity: 1; }
   }
 }
+/* =========================================================
+   EMERGENCY FIX — HTML/CSS class mismatch repair
+   Paste at the VERY BOTTOM of style.css
+========================================================= */
+
+/* The new HTML uses active-section, not visible */
+.app-section {
+  display: none;
+}
+
+.app-section.active-section {
+  display: block;
+}
+
+.hero-section.active-section {
+  display: flex;
+}
+
+/* Fix brand button if old CSS did not style it */
+.brand-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  border: 0;
+  background: transparent;
+  color: var(--text-strong, #171411);
+  font-weight: 850;
+  font-size: 1.08rem;
+  letter-spacing: -0.02em;
+  padding: 0;
+}
+
+.brand-button:hover,
+.brand-button:focus-visible {
+  background: transparent;
+  outline: none;
+}
+
+.brand-mark {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: linear-gradient(145deg, #d97757, #c55f3d);
+  color: #fff9f5;
+  box-shadow: 0 12px 24px rgba(217, 119, 87, 0.22);
+  font-weight: 900;
+}
+
+/* Force the warm intended look if old dark colors are still active */
+body {
+  color: #26231f;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(217, 119, 87, 0.10), transparent 30%),
+    radial-gradient(circle at 100% 15%, rgba(130, 110, 90, 0.08), transparent 25%),
+    linear-gradient(180deg, #fbf8f2 0%, #f7f4ee 100%) !important;
+}
+
+/* Header warm reset */
+.site-header {
+  border-bottom: 1px solid rgba(50, 41, 34, 0.10);
+  background: rgba(247, 244, 238, 0.74) !important;
+  backdrop-filter: blur(18px);
+}
+
+.nav-links {
+  background: rgba(255, 251, 245, 0.82) !important;
+  border: 1px solid rgba(50, 41, 34, 0.10);
+}
+
+.nav-link {
+  color: #6f675f;
+}
+
+.nav-link.active,
+.nav-link:hover,
+.nav-link:focus-visible {
+  background: rgba(255, 255, 255, 0.88);
+  color: #171411;
+}
+
+/* Make hero/content visible and properly spaced */
+.app-section {
+  width: min(1240px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 64px 0;
+}
+
+.hero-section {
+  min-height: calc(100vh - 76px);
+  align-items: center;
+}
+
+.hero-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 32px;
+  align-items: center;
+}
+
+.hero-lede,
+.hero-subtext,
+.section-heading p,
+.muted {
+  color: #6f675f;
+}
+
+h1,
+h2,
+h3 {
+  color: #171411;
+}
+
+h1 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(3.6rem, 11vw, 6.6rem);
+  font-weight: 600;
+  line-height: 0.92;
+  letter-spacing: -0.07em;
+}
+
+h2 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+/* Fix cards */
+.glass-card,
+.learn-input-card,
+.workspace-panel,
+.tutor-card,
+.stat-card,
+.review-card,
+.module-card,
+.about-card,
+.principle-card {
+  border: 1px solid rgba(50, 41, 34, 0.10);
+  border-radius: 28px;
+  background:
+    linear-gradient(145deg, rgba(255,255,255,0.70), rgba(255,255,255,0.32)),
+    rgba(255, 251, 245, 0.84);
+  box-shadow: 0 10px 28px rgba(39, 30, 21, 0.06);
+  backdrop-filter: blur(14px);
+}
+
+/* Fix buttons */
+.btn,
+.primary-button,
+.secondary-button,
+.ghost-button {
+  min-height: 46px;
+  padding: 0 18px;
+  border-radius: 999px;
+  font-weight: 820;
+  border: 1px solid transparent;
+}
+
+.btn-primary,
+.primary-button {
+  background: linear-gradient(145deg, #d97757, #c55f3d) !important;
+  color: #fffaf6 !important;
+  box-shadow: 0 14px 28px rgba(217, 119, 87, 0.20);
+}
+
+.btn-secondary,
+.secondary-button {
+  background: rgba(255, 255, 255, 0.86) !important;
+  border-color: rgba(50, 41, 34, 0.10);
+  color: #171411 !important;
+}
+
+.btn-ghost,
+.ghost-button {
+  background: rgba(255, 251, 245, 0.54) !important;
+  border-color: rgba(50, 41, 34, 0.10);
+  color: #26231f !important;
+}
+
+/* Mobile */
+@media (max-width: 920px) {
+  .hero-grid {
+    grid-template-columns: 1fr;
+  }
+}
