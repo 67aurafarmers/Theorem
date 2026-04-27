@@ -1,3 +1,6 @@
+Paste this as your full **`script.js`** replacement:
+
+```javascript
 (() => {
   "use strict";
 
@@ -15,24 +18,26 @@
     "random_or_unclear"
   ];
 
-  const SUBJECTS = [
-    "math",
-    "science",
-    "english",
-    "history",
-    "coding",
-    "language",
-    "general"
-  ];
+  const SUBJECTS = ["math", "science", "english", "history", "coding", "language", "general"];
 
   const subjectLabels = {
     math: "Math",
     science: "Science",
     english: "English / Reading",
-    history: "History / Social Studies",
+    history: "Social Studies",
     coding: "Coding",
     language: "Foreign Language",
     general: "General Study"
+  };
+
+  const strategyLabels = {
+    exact_math_tutor: "Exact Checking + Step Tutoring",
+    memorization_plus_analysis: "Memorization + Analysis",
+    process_and_check: "Process Breakdown + Recall",
+    reading_analysis: "Reading Analysis + Evidence Practice",
+    code_understanding: "Code Understanding + Testing",
+    language_recall: "Vocabulary + Translation Practice",
+    general_active_recall: "Active Recall Study Session"
   };
 
   const skillLabels = {
@@ -125,7 +130,6 @@
 
     els.materialInput = document.querySelector("#materialInput");
     els.materialFile = document.querySelector("#materialFile");
-    els.subjectSelect = document.querySelector("#subjectSelect");
     els.buildSessionBtn = document.querySelector("#buildSessionBtn");
     els.uploadMessage = document.querySelector("#uploadMessage");
 
@@ -230,17 +234,17 @@
       return;
     }
 
-    const chosenSubject = els.subjectSelect?.value || "auto";
-    const subject = chosenSubject === "auto" ? detectSubject(text) : chosenSubject;
+    const detectedSubject = detectSubject(text);
+    const strategy = chooseTeachingStrategy(text, detectedSubject);
 
     let session;
 
-    if (subject === "coding") {
-      session = buildCodeSession(text, subject);
-    } else if (subject === "math") {
-      session = buildMathSession(text, subject);
+    if (strategy.strategy === "exact_math_tutor") {
+      session = buildMathSession(text, strategy);
+    } else if (strategy.strategy === "code_understanding") {
+      session = buildCodeSession(text, strategy);
     } else {
-      session = buildConceptSession(text, subject);
+      session = buildConceptSession(text, strategy);
     }
 
     state.session = session;
@@ -248,8 +252,10 @@
 
     state.progress.sessions += 1;
     state.progress.materialsImported += 1;
-    state.progress.subjectSessions[subject] = (state.progress.subjectSessions[subject] || 0) + 1;
-    state.progress.lastSubject = subject;
+    state.progress.subjectSessions[strategy.subject] =
+      (state.progress.subjectSessions[strategy.subject] || 0) + 1;
+    state.progress.lastSubject = strategy.subject;
+    state.progress.lastStrategy = strategy.strategy;
 
     if (session.type === "math") {
       state.progress.problemsImported += session.items.filter((item) => item.supported).length;
@@ -264,7 +270,167 @@
     showSection("learn");
   }
 
-  function buildMathSession(text, subject) {
+  function detectSubject(text) {
+    const t = text.toLowerCase();
+
+    const scores = {
+      coding: countMatches(t, [
+        "function",
+        "const ",
+        "let ",
+        "var ",
+        "class ",
+        "def ",
+        "return",
+        "if ",
+        "for ",
+        "while ",
+        "{}",
+        "{",
+        "}",
+        "console.log",
+        "print("
+      ]),
+      math: countRegex(t, [
+        /\bx\s*=/,
+        /\bsimplify\b/,
+        /\bsolve\b/,
+        /\d\s*[+\-*/=()]\s*\d/,
+        /\d*x\s*[+\-]/,
+        /\d+\s*\(\s*x\s*[+\-]/
+      ]),
+      science: countMatches(t, [
+        "cell",
+        "energy",
+        "force",
+        "atom",
+        "molecule",
+        "photosynthesis",
+        "ecosystem",
+        "experiment",
+        "hypothesis",
+        "variable",
+        "oxygen",
+        "glucose",
+        "carbon dioxide"
+      ]),
+      history: countMatches(t, [
+        "war",
+        "revolution",
+        "government",
+        "empire",
+        "president",
+        "colony",
+        "colonial",
+        "treaty",
+        "rights",
+        "economy",
+        "civilization",
+        "taxation",
+        "representation",
+        "resistance"
+      ]),
+      english: countMatches(t, [
+        "theme",
+        "character",
+        "paragraph",
+        "essay",
+        "claim",
+        "evidence",
+        "author",
+        "poem",
+        "story",
+        "argument",
+        "quote"
+      ]),
+      language: countMatches(t, [
+        "translate",
+        "conjugate",
+        "vocabulary",
+        "spanish",
+        "french",
+        "german",
+        "latin",
+        "sentence"
+      ])
+    };
+
+    let best = "general";
+    let bestScore = 0;
+
+    Object.entries(scores).forEach(([subject, score]) => {
+      if (score > bestScore) {
+        best = subject;
+        bestScore = score;
+      }
+    });
+
+    return best;
+  }
+
+  function chooseTeachingStrategy(text, detectedSubject) {
+    const lower = text.toLowerCase();
+
+    if (
+      detectedSubject === "math" ||
+      detectMathProblem(text) ||
+      countRegex(lower, [/\d*x\s*[+\-]\s*\d+\s*=/, /\d+\s*\(\s*x\s*[+\-]\s*\d+\s*\)/]) > 0
+    ) {
+      return {
+        subject: "math",
+        strategy: "exact_math_tutor",
+        tools: ["exact checking", "step-by-step tutoring", "hints", "mistake diagnosis", "repair drills", "mastery problems"]
+      };
+    }
+
+    if (detectedSubject === "history") {
+      return {
+        subject: "history",
+        strategy: "memorization_plus_analysis",
+        tools: ["flashcards", "timeline/events", "cause & effect", "creative test", "short answer"]
+      };
+    }
+
+    if (detectedSubject === "science") {
+      return {
+        subject: "science",
+        strategy: "process_and_check",
+        tools: ["key terms", "process breakdown", "cause/effect", "diagram-style explanation", "quiz", "teach-back"]
+      };
+    }
+
+    if (detectedSubject === "english") {
+      return {
+        subject: "english",
+        strategy: "reading_analysis",
+        tools: ["main idea", "theme/claim detection", "vocabulary", "evidence practice", "short answer", "outline help"]
+      };
+    }
+
+    if (detectedSubject === "coding") {
+      return {
+        subject: "coding",
+        strategy: "code_understanding",
+        tools: ["what the code does", "line-by-line explanation", "bug/edge-case questions", "test cases", "modification challenge"]
+      };
+    }
+
+    if (detectedSubject === "language") {
+      return {
+        subject: "language",
+        strategy: "language_recall",
+        tools: ["vocabulary cards", "translation practice", "conjugation drill", "sentence building", "recall test"]
+      };
+    }
+
+    return {
+      subject: "general",
+      strategy: "general_active_recall",
+      tools: ["summary", "key ideas", "flashcards", "quiz", "teach-back", "review plan"]
+    };
+  }
+
+  function buildMathSession(text, strategy) {
     const rawItems = splitMaterial(text);
 
     const items = rawItems.map((raw, index) => {
@@ -293,34 +459,44 @@
 
     return {
       type: "math",
-      subject,
+      subject: strategy.subject,
+      strategy,
       items,
       unsupported: items.filter((item) => !item.supported),
       title: "Math exact-check session"
     };
   }
 
-  function buildConceptSession(text, subject) {
+  function buildConceptSession(text, strategy) {
     const sentences = splitSentences(text);
-    const terms = extractTerms(text, subject);
-    const flashcards = makeFlashcards(text, terms);
-    const quiz = makeConceptQuiz(sentences, terms);
+    const terms = extractTerms(text, strategy.subject);
+    const flashcards = makeFlashcards(text, terms, strategy.subject);
+    const quiz = makeConceptQuiz(sentences, terms, strategy.subject);
+    const causeEffect = makeCauseEffect(text, strategy.subject);
+    const timeline = makeTimeline(text);
+    const creative = makeCreativePrompts(text, strategy.subject, terms);
+    const shortAnswer = makeShortAnswerPrompts(strategy.subject, terms);
 
     return {
       type: "concept",
-      subject,
-      title: labelSubject(subject),
+      subject: strategy.subject,
+      strategy,
+      title: labelSubject(strategy.subject),
       text,
       sentences,
       terms,
       summary: summarizeText(sentences),
       flashcards,
       quiz,
+      causeEffect,
+      timeline,
+      creative,
+      shortAnswer,
       teachBack: terms.slice(0, 6)
     };
   }
 
-  function buildCodeSession(text, subject) {
+  function buildCodeSession(text, strategy) {
     const lines = text
       .split(/\r?\n/)
       .map((line, index) => ({ number: index + 1, text: line }))
@@ -330,7 +506,8 @@
 
     return {
       type: "code",
-      subject,
+      subject: strategy.subject,
+      strategy,
       title: "Coding tutor session",
       text,
       lines,
@@ -357,8 +534,8 @@
     clear(els.detectedSummary);
 
     els.detectedSummary.append(
-      statPill("Mode", session.type === "math" ? "Exact check" : session.type === "code" ? "Code tutor" : "Concept tutor"),
-      statPill("Subject", labelSubject(session.subject))
+      statPill("Detected subject", labelSubject(session.subject)),
+      statPill("Strategy", strategyLabels[session.strategy.strategy] || session.strategy.strategy)
     );
 
     if (session.type === "math") {
@@ -395,7 +572,7 @@
     const outline =
       session.type === "code"
         ? ["What this code does", "Important lines", "Edge cases", "Explain a line", "Modification challenge"]
-        : ["Summary", "Key terms", "Flashcards", "Quiz", "Teach-back"];
+        : outlineForStrategy(session.strategy);
 
     outline.forEach((label, index) => {
       const button = buttonEl(label, "outline-button", () => {
@@ -406,6 +583,26 @@
       button.classList.toggle("active", state.currentIndex === index);
       els.outlineList.append(button);
     });
+  }
+
+  function outlineForStrategy(strategy) {
+    if (strategy.subject === "history") {
+      return ["Summary", "Flashcards", "Timeline/Events", "Cause & Effect", "Creative Test", "Short Answer", "Teach-back"];
+    }
+
+    if (strategy.subject === "science") {
+      return ["Summary", "Key Terms", "Process Breakdown", "Cause & Effect", "Quiz", "Teach-back"];
+    }
+
+    if (strategy.subject === "english") {
+      return ["Summary", "Main Idea", "Vocabulary", "Evidence Practice", "Short Answer", "Teach-back"];
+    }
+
+    if (strategy.subject === "language") {
+      return ["Vocabulary Cards", "Translation Practice", "Sentence Building", "Recall Test", "Teach-back"];
+    }
+
+    return ["Summary", "Key Terms", "Flashcards", "Quiz", "Teach-back"];
   }
 
   function renderUnsupported(session) {
@@ -419,7 +616,7 @@
       const card = div("unsupported-card");
       card.append(
         textP(item.raw),
-        textP("Not supported yet — try typing this one manually or choose a supported Algebra 1 format.", "muted")
+        textP("Not supported yet — try typing this one manually or use a supported Algebra 1 format.", "muted")
       );
       els.unsupportedList.append(card);
     });
@@ -469,13 +666,14 @@
   }
 
   function renderConceptTutor(session) {
-    const index = state.currentIndex;
+    const labels = outlineForStrategy(session.strategy);
+    const current = labels[state.currentIndex] || labels[0];
 
-    if (index === 0) {
+    if (current === "Summary") {
       const card = div("concept-summary");
       card.append(
-        heading("Based on the text you pasted...", 3),
-        textP("Theorem found these likely main ideas. Check this against your class notes.", "muted")
+        heading("Based on the material you pasted...", 3),
+        textP(`Theorem thinks the best study mode is ${strategyLabels[session.strategy.strategy]}. Check this against your class notes.`, "muted")
       );
 
       session.summary.forEach((line) => card.append(textP(line)));
@@ -483,92 +681,143 @@
       return;
     }
 
-    if (index === 1) {
+    if (current === "Key Terms" || current === "Key ideas" || current === "Main Idea") {
       els.currentTutorCard.append(
-        heading("Likely key terms", 3),
-        textP("These are terms Theorem saw repeated or defined in your material.", "muted"),
+        heading(current, 3),
+        textP("Theorem found these likely key ideas. Check them against your class notes.", "muted"),
         list(session.terms, "term-list")
       );
       return;
     }
 
-    if (index === 2) {
-      const box = div("flashcard-list");
+    if (current === "Flashcards" || current === "Vocabulary Cards") {
+      renderFlashcards(session);
+      return;
+    }
 
-      session.flashcards.forEach((card, index) => {
-        const item = div("flashcard");
-        const reviewed = buttonEl("Mark reviewed", "btn btn-secondary", () => {
-          state.progress.flashcardsReviewed += 1;
-          saveProgress();
-          buttonSetDone(reviewed, "Reviewed");
+    if (current === "Timeline/Events") {
+      els.currentTutorCard.append(
+        heading("Timeline / Events", 3),
+        textP("Based on the material you pasted, these look like possible events, people, or time markers.", "muted"),
+        list(session.timeline, "timeline-list")
+      );
+      return;
+    }
+
+    if (current === "Cause & Effect") {
+      els.currentTutorCard.append(
+        heading("Cause & Effect", 3),
+        textP("Use these to explain why events or ideas connect.", "muted"),
+        list(session.causeEffect, "cause-effect-list")
+      );
+      return;
+    }
+
+    if (current === "Process Breakdown") {
+      els.currentTutorCard.append(
+        heading("Process Breakdown", 3),
+        textP("Turn the notes into a step-by-step explanation.", "muted"),
+        list(makeProcessBreakdown(session.sentences), "checklist")
+      );
+      return;
+    }
+
+    if (current === "Creative Test") {
+      els.currentTutorCard.append(
+        heading("Creative-thinking test", 3),
+        textP("These questions test whether you understand the idea, not just the words.", "muted"),
+        list(session.creative, "checklist")
+      );
+      return;
+    }
+
+    if (current === "Short Answer" || current === "Evidence Practice" || current === "Translation Practice" || current === "Sentence Building" || current === "Recall Test" || current === "Quiz") {
+      renderQuizLike(session, current);
+      return;
+    }
+
+    renderTeachBack(session);
+  }
+
+  function renderFlashcards(session) {
+    const box = div("flashcard-list");
+
+    session.flashcards.forEach((card, index) => {
+      const item = div("flashcard");
+      const reviewed = buttonEl("Mark reviewed", "btn btn-secondary", () => {
+        state.progress.flashcardsReviewed += 1;
+        saveProgress();
+        buttonSetDone(reviewed, "Reviewed");
+      });
+
+      item.append(
+        strong(`Card ${index + 1}: ${card.front}`),
+        textP(card.back),
+        reviewed
+      );
+
+      box.append(item);
+    });
+
+    els.currentTutorCard.append(
+      heading("Flashcards", 3),
+      textP("Try to answer before reading the back.", "muted"),
+      box
+    );
+  }
+
+  function renderQuizLike(session, title) {
+    const box = div("quiz-list");
+    const questions = title === "Short Answer" ? session.shortAnswer : session.quiz;
+
+    questions.forEach((question, index) => {
+      const card = div("quiz-card");
+      const prompt = typeof question === "string" ? question : question.question;
+
+      card.append(strong(`Question ${index + 1}`), textP(prompt));
+
+      if (typeof question !== "string" && question.options) {
+        const options = div("quiz-options");
+
+        question.options.forEach((option) => {
+          options.append(
+            buttonEl(option, "quiz-option", (event) => {
+              Array.from(options.children).forEach((child) => child.classList.remove("selected"));
+              event.currentTarget.classList.add("selected");
+              state.progress.conceptQuizzesCompleted += 1;
+              saveProgress();
+            })
+          );
         });
 
-        item.append(
-          strong(`Card ${index + 1}: ${card.front}`),
-          textP(card.back),
-          reviewed
-        );
+        card.append(options);
+      } else {
+        const input = document.createElement("textarea");
+        input.setAttribute("aria-label", prompt);
+        input.placeholder = "Answer in your own words.";
 
-        box.append(item);
-      });
+        const check = buttonEl("Check key words", "btn btn-secondary", () => {
+          const result = checkTerms(input.value, session.terms.slice(0, 5));
+          card.append(feedbackBox("Self-check", result.message));
+          state.progress.conceptQuizzesCompleted += 1;
+          addWeakTerms(result.missing);
+          saveProgress();
+        });
 
-      els.currentTutorCard.append(
-        heading("Flashcards", 3),
-        textP("Retrieve the answer before reading the back.", "muted"),
-        box
-      );
-      return;
-    }
+        card.append(input, check);
+      }
 
-    if (index === 3) {
-      const box = div("quiz-list");
+      box.append(card);
+    });
 
-      session.quiz.forEach((question, index) => {
-        const card = div("quiz-card");
-        card.append(strong(`Question ${index + 1}`), textP(question.question));
+    els.currentTutorCard.append(
+      heading(title, 3),
+      textP("Theorem can check key words, but not perfectly grade open-ended answers.", "muted"),
+      box
+    );
+  }
 
-        if (question.options) {
-          const options = div("quiz-options");
-
-          question.options.forEach((option) => {
-            options.append(
-              buttonEl(option, "quiz-option", (event) => {
-                Array.from(options.children).forEach((child) => child.classList.remove("selected"));
-                event.currentTarget.classList.add("selected");
-                state.progress.conceptQuizzesCompleted += 1;
-                saveProgress();
-              })
-            );
-          });
-
-          card.append(options);
-        } else {
-          const input = document.createElement("textarea");
-          input.setAttribute("aria-label", question.question);
-          input.placeholder = "Answer in your own words.";
-
-          const check = buttonEl("Check key words", "btn btn-secondary", () => {
-            const result = checkTerms(input.value, session.terms.slice(0, 5));
-            card.append(feedbackBox("Self-check", result.message));
-            state.progress.conceptQuizzesCompleted += 1;
-            addWeakTerms(result.missing);
-            saveProgress();
-          });
-
-          card.append(input, check);
-        }
-
-        box.append(card);
-      });
-
-      els.currentTutorCard.append(
-        heading("Quiz mode", 3),
-        textP("Theorem can check key words, but not perfectly grade open-ended answers.", "muted"),
-        box
-      );
-      return;
-    }
-
+  function renderTeachBack(session) {
     const input = document.createElement("textarea");
     input.placeholder = "Explain the idea in your own words.";
     input.setAttribute("aria-label", "Teach-back answer");
@@ -614,7 +863,7 @@
     if (index === 1) {
       const items = session.lines.slice(0, 12).map((line) => `Line ${line.number}: ${line.text.trim()}`);
       els.currentTutorCard.append(
-        heading("Important parts", 3),
+        heading("Important lines", 3),
         list(items, "line-list")
       );
       return;
@@ -666,6 +915,12 @@
 
     const tools = div("tool-list");
 
+    tools.append(
+      toolCard("Detected subject", labelSubject(session.subject)),
+      toolCard("Chosen strategy", strategyLabels[session.strategy.strategy] || session.strategy.strategy),
+      toolCard("Learning tools generated", session.strategy.tools.join(", "))
+    );
+
     if (session.type === "math") {
       tools.append(
         toolCard("Rule", "No answer before attempt. Hints are allowed."),
@@ -682,7 +937,7 @@
       tools.append(
         toolCard("Study rule", "Retrieve before reading. Explain before checking."),
         toolCard("Key terms", session.terms.slice(0, 6).join(", ") || "No strong terms found"),
-        toolCard("Review plan", "Flashcards → quiz → teach-back → revise missing terms")
+        toolCard("Reminder", "Based on the material you pasted. Check this against your class notes.")
       );
     }
 
@@ -846,7 +1101,7 @@
     panel.append(
       div("actions", [
         buttonEl("Try repair drill", "btn btn-secondary", () => {
-          const session = buildMathSession(repair.display, "math");
+          const session = buildMathSession(repair.display, chooseTeachingStrategy(repair.display, "math"));
           state.session = session;
           state.currentIndex = 0;
 
@@ -1005,93 +1260,6 @@
       fix,
       repairDrill: problem.repairDrill || problem
     };
-  }
-
-  function detectSubject(text) {
-    const t = text.toLowerCase();
-
-    const scores = {
-      coding: countMatches(t, [
-        "function",
-        "const ",
-        "let ",
-        "var ",
-        "class ",
-        "def ",
-        "return",
-        "if ",
-        "for ",
-        "while ",
-        "{}",
-        "console.log",
-        "print("
-      ]),
-      math: countRegex(t, [
-        /\bx\s*=/,
-        /\bsimplify\b/,
-        /\bsolve\b/,
-        /\d\s*[+\-*/=()]\s*\d/,
-        /\d*x\s*[+\-]/
-      ]),
-      science: countMatches(t, [
-        "cell",
-        "energy",
-        "force",
-        "atom",
-        "molecule",
-        "photosynthesis",
-        "ecosystem",
-        "experiment",
-        "hypothesis",
-        "variable"
-      ]),
-      history: countMatches(t, [
-        "war",
-        "revolution",
-        "government",
-        "empire",
-        "president",
-        "colony",
-        "treaty",
-        "rights",
-        "economy",
-        "civilization"
-      ]),
-      english: countMatches(t, [
-        "theme",
-        "character",
-        "paragraph",
-        "essay",
-        "claim",
-        "evidence",
-        "author",
-        "poem",
-        "story",
-        "argument"
-      ]),
-      language: countMatches(t, [
-        "translate",
-        "conjugate",
-        "vocabulary",
-        "spanish",
-        "french",
-        "german",
-        "latin",
-        "sentence"
-      ])
-    };
-
-    let best = "general";
-    let bestScore = 0;
-
-    Object.entries(scores).forEach(([subject, score]) => {
-      if (score > bestScore) {
-        best = subject;
-        bestScore = score;
-      }
-    });
-
-    return best;
   }
 
   function detectMathProblem(raw) {
@@ -1300,8 +1468,8 @@
     );
 
     const subjectTerms = {
-      science: ["energy", "cell", "photosynthesis", "molecule", "ecosystem", "hypothesis", "variable"],
-      history: ["revolution", "government", "colony", "rights", "treaty", "economy", "civilization"],
+      science: ["energy", "cell", "photosynthesis", "molecule", "ecosystem", "hypothesis", "variable", "oxygen", "glucose"],
+      history: ["revolution", "government", "colony", "rights", "treaty", "economy", "civilization", "taxation", "representation", "resistance"],
       english: ["theme", "claim", "evidence", "character", "author", "argument"],
       language: ["translate", "conjugate", "vocabulary", "sentence"],
       general: []
@@ -1312,7 +1480,7 @@
     ).slice(0, 12);
   }
 
-  function makeFlashcards(text, terms) {
+  function makeFlashcards(text, terms, subject) {
     const sentences = splitSentences(text);
     const cards = [];
 
@@ -1327,6 +1495,19 @@
       }
     });
 
+    if (subject === "history" && text.toLowerCase().includes("american revolution")) {
+      cards.push(
+        {
+          front: "What was one cause of the American Revolution?",
+          back: "Taxation, lack of representation, or colonial resistance."
+        },
+        {
+          front: "What does “taxation without representation” mean?",
+          back: "Colonists were taxed by a government where they had no elected representatives."
+        }
+      );
+    }
+
     terms.slice(0, 6).forEach((term) => {
       if (cards.length < 8) {
         cards.push({
@@ -1337,7 +1518,7 @@
     });
 
     return cards.length
-      ? cards
+      ? cards.slice(0, 8)
       : [
           {
             front: "What is the main idea?",
@@ -1346,8 +1527,32 @@
         ];
   }
 
-  function makeConceptQuiz(sentences, terms) {
+  function makeConceptQuiz(sentences, terms, subject) {
     const key = terms[0] || "the main idea";
+
+    if (subject === "history") {
+      return [
+        { question: "Why did this event or idea matter?" },
+        { question: `Explain ${key} in your own words.` },
+        { question: "What is one cause and one effect from the material?" }
+      ];
+    }
+
+    if (subject === "science") {
+      return [
+        { question: `Explain ${key} in your own words.` },
+        { question: "What causes the process or effect described in the material?" },
+        { question: "What variables, inputs, or outputs are mentioned?" }
+      ];
+    }
+
+    if (subject === "english") {
+      return [
+        { question: "What is the main idea or theme?" },
+        { question: "What evidence from the text supports that idea?" },
+        { question: "Explain the claim-evidence-reasoning pattern." }
+      ];
+    }
 
     return [
       { question: `Explain ${key} in your own words.` },
@@ -1357,6 +1562,127 @@
       },
       { question: "What is one connection between two ideas in the material?" }
     ];
+  }
+
+  function makeCauseEffect(text, subject) {
+    const lower = text.toLowerCase();
+    const results = [];
+
+    if (subject === "history" && lower.includes("taxation")) {
+      results.push("Cause: taxation without representation → Effect: colonial resistance increased");
+    }
+
+    if (subject === "history" && lower.includes("lack of representation")) {
+      results.push("Cause: lack of representation → Effect: colonists believed British rule was unfair");
+    }
+
+    if (subject === "science" && lower.includes("photosynthesis")) {
+      results.push("Cause: sunlight, carbon dioxide, and water are available → Effect: plants produce glucose and oxygen");
+    }
+
+    if (!results.length) {
+      results.push(
+        "Cause: one important event or condition from your notes → Effect: what changed because of it",
+        "Cause: a choice, process, or pressure → Effect: the result you should be able to explain"
+      );
+    }
+
+    return results;
+  }
+
+  function makeTimeline(text) {
+    const sentences = splitSentences(text);
+    const dated = sentences.filter((sentence) => /\b\d{3,4}\b|war|revolution|treaty|president|empire|colony|colonial/i.test(sentence));
+
+    if (dated.length) {
+      return dated.slice(0, 8);
+    }
+
+    return [
+      "Find the first event or idea in the material.",
+      "Find what happened next.",
+      "Explain what changed by the end."
+    ];
+  }
+
+  function makeCreativePrompts(text, subject, terms) {
+    if (subject === "history") {
+      return [
+        "Explain why people at the time may have believed this was unfair or necessary.",
+        "Compare this event or idea to another protest, conflict, or government decision.",
+        "What might have happened if one major decision had gone differently?"
+      ];
+    }
+
+    if (subject === "science") {
+      return [
+        "Explain the process as if you were drawing a diagram with arrows.",
+        "Predict what would happen if one input or variable changed.",
+        "Create a simple real-world example of this concept."
+      ];
+    }
+
+    if (subject === "english") {
+      return [
+        "Explain how a character, claim, or theme changes the meaning.",
+        "Choose one piece of evidence and explain why it matters.",
+        "Write a stronger version of the main claim."
+      ];
+    }
+
+    return [
+      `Explain why ${terms[0] || "the main idea"} matters.`,
+      "Create your own example.",
+      "Compare this idea to something you already know."
+    ];
+  }
+
+  function makeShortAnswerPrompts(subject, terms) {
+    if (subject === "history") {
+      return [
+        "Name two causes from the material and explain one.",
+        "Describe one effect and why it mattered.",
+        "Use one key term in a complete explanation."
+      ];
+    }
+
+    if (subject === "science") {
+      return [
+        "Name the inputs and outputs of the process.",
+        "Explain one cause-and-effect relationship.",
+        "Define one key term and use it in an example."
+      ];
+    }
+
+    if (subject === "english") {
+      return [
+        "State the main idea in one sentence.",
+        "Give one piece of evidence and explain it.",
+        "Write a claim using one key term."
+      ];
+    }
+
+    if (subject === "language") {
+      return [
+        "Translate one vocabulary word.",
+        "Write one sentence using a key word.",
+        "Recall three terms without looking."
+      ];
+    }
+
+    return [
+      "State the main idea in one sentence.",
+      "Explain one key term.",
+      "Connect two ideas from the material."
+    ];
+  }
+
+  function makeProcessBreakdown(sentences) {
+    if (!sentences.length) {
+      return ["Step 1: Identify inputs.", "Step 2: Explain the process.", "Step 3: Name the output or result."];
+    }
+
+    return sentences.slice(0, 5).map((sentence, index) => `Step ${index + 1}: ${sentence}`);
   }
 
   function checkTerms(answer, required) {
@@ -1864,3 +2190,4 @@
     return node;
   }
 })();
+```
