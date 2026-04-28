@@ -1,459 +1,345 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta
-    name="description"
-    content="Theorem extracts school material, organizes it into study folders, and builds the right study path."
-  />
-  <title>Theorem — StudyPath Engine</title>
-  <link rel="stylesheet" href="style.css" />
-  <script src="script.js" defer></script>
-</head>
+Build Theorem v1 Full App in one complete pass.
 
-<body>
-  <div id="loadingScreen" class="loading-screen" aria-live="polite">
-    <div class="loading-orb loading-bg-orb orb-one"></div>
-    <div class="loading-orb loading-bg-orb orb-two"></div>
-    <div class="loading-orb loading-bg-orb orb-three"></div>
+Theorem is a study takeoff system.
 
-    <div class="loading-card">
-      <div class="loading-logo">
-        <span class="loading-mark">∴</span>
-        <span>Theorem</span>
-      </div>
+Core product:
+A student comes home with messy homework, notes, worksheets, screenshots, assignments, and stress. They upload or paste everything. Theorem reads it, extracts it, classifies it, organizes it into folders, and builds the correct study path.
 
-      <p class="loading-kicker">StudyPath Engine</p>
-      <h2>Building your study path…</h2>
-      <p id="loadingPhrase" class="loading-phrase">Reading the material…</p>
+Theorem’s purpose:
+Remove the mental and physical friction of starting homework and studying.
 
-      <div class="loading-path" aria-hidden="true">
-        <span class="path-dot dot-one"></span>
-        <span class="path-line"></span>
-        <span class="path-dot dot-two"></span>
-        <span class="path-line"></span>
-        <span class="path-dot dot-three"></span>
-        <span class="path-line"></span>
-        <span class="path-dot dot-four"></span>
-      </div>
+Core analogy:
+Students are like planes. The most dangerous part is takeoff and landing. Theorem’s job is to clear the runway and get them into the air.
 
-      <div class="loading-bar" aria-hidden="true">
-        <span></span>
-      </div>
-    </div>
-  </div>
+Do not build a generic tutor.
+Do not build an Algebra-first app.
+Do not build an AI chat app.
+Do not build a subscription-first app.
+Do not collect Gmail passwords.
 
-  <a class="skip-link" href="#main">Skip to content</a>
+Build a polished frontend now and prepare safe backend hooks for later.
 
-  <header class="site-header">
-    <div class="nav-shell">
-      <button
-        class="brand-button"
-        type="button"
-        data-section-target="home"
-        aria-label="Go to Theorem home"
-      >
-        <span class="brand-mark" aria-hidden="true">∴</span>
-        <span>Theorem</span>
-      </button>
+Required app flow:
+1. User opens the site.
+2. Centered 2–5 second loading animation appears.
+3. User sees Google login screen.
+4. User can continue as guest OR continue with Google.
+5. User reaches a minimal upload workspace.
+6. User uploads/pastes assignments.
+7. Theorem extracts the text.
+8. Theorem classifies the material into departments:
+   - Math
+   - Science
+   - Social Studies
+   - Reading/Writing
+9. Theorem organizes extracted material into folders.
+10. Theorem builds the right study path.
+11. User can open study tools.
+12. Progress is saved.
 
-      <button
-        class="nav-toggle"
-        id="navToggle"
-        type="button"
-        aria-controls="navLinks"
-        aria-expanded="false"
-      >
-        Menu
-      </button>
+Important:
+For this version, if real OCR/backend is not available, simulate extraction from pasted text and .txt/.md uploads. Put image/PDF upload in the UI but show:
+“Image and PDF extraction is coming soon.”
 
-      <nav class="nav-links" id="navLinks" aria-label="Main navigation">
-        <button class="nav-link active" type="button" data-section-target="home">Home</button>
-        <button class="nav-link" type="button" data-section-target="learn">Learn</button>
-        <button class="nav-link" type="button" data-section-target="practice">Practice</button>
-        <button class="nav-link" type="button" data-section-target="progress">Progress</button>
-        <button class="nav-link" type="button" data-section-target="review">Review</button>
-        <button class="nav-link" type="button" data-section-target="about">About</button>
-      </nav>
-    </div>
-  </header>
+Do not fake image/PDF support.
 
-  <main id="main">
-    <section
-      class="app-section hero-section active-section"
-      id="section-home"
-      aria-labelledby="home-title"
-    >
-      <div class="hero-background-word" aria-hidden="true">THEOREM</div>
+Loading screen:
+- Fullscreen
+- Perfectly centered
+- Premium warm design
+- Logo: ∴ Theorem
+- Main text: “Preparing your study path…”
+- Rotating phrases:
+  - Clearing the runway…
+  - Reading your workspace…
+  - Preparing study engines…
+  - Building your path…
+  - Ready for takeoff.
+- Duration: 2–5 seconds
+- Smooth fade out
+- No external libraries
+- Must appear every refresh
 
-      <div class="hero-grid">
-        <div class="hero-copy">
-          <p class="eyebrow">StudyPath Engine</p>
-          <h1 id="home-title">Theorem</h1>
+Login screen:
+- Clean centered card
+- Title: “Welcome to Theorem”
+- Subtitle: “Upload your assignments. Theorem will organize them into a study path.”
+- Buttons:
+  - Continue with Google
+  - Continue as guest
+- No subscription shown here
+- No Gmail password form
+- No fake password form
 
-          <p class="hero-lede">Upload anything you need to learn.</p>
-          <p class="hero-subtext">
-            Theorem extracts your material, organizes it into study folders,
-            and builds the right study path from what it finds.
-          </p>
+Google login:
+For now, prepare the UI and auth.js hook.
+Use Firebase Auth only when config is available.
+Do not collect passwords.
+Do not store passwords.
+Use Google OAuth / Firebase Auth.
+Firebase Auth should handle the Google sign-in provider.
+If Firebase config is missing, Google button should show:
+“Google sign-in is not connected yet.”
 
-          <div class="hero-actions">
-            <button class="btn btn-primary" type="button" data-section-target="learn">
-              Build my study path
-            </button>
-            <button class="btn btn-secondary" type="button" data-section-target="about">
-              See how it works
-            </button>
-            <button class="btn btn-ghost" type="button" data-section-target="progress">
-              View progress
-            </button>
-          </div>
+Main dashboard after login:
+Title:
+“What do you need to study?”
 
-          <div class="trust-row" aria-label="Theorem promises">
-            <span>Extracts material</span>
-            <span>Builds study folders</span>
-            <span>Suggests study tools</span>
-            <span>Progress saved locally</span>
-          </div>
-        </div>
+Subtitle:
+“Upload your assignments. Theorem will organize them into a study path.”
 
-        <div class="hero-card">
-          <article class="glass-card cinematic-panel universal-preview-card">
-            <div class="panel-topline">
-              <span class="status-dot"></span>
-              <span>Frontend-only StudyPath Engine</span>
-            </div>
+Primary actions:
+- Upload assignments
+- Paste text
 
-            <p class="preview-label">Theorem builds the path.</p>
+The upload workspace should be minimal:
+- Big paste area
+- File upload for .txt/.md
+- Disabled/coming-soon image/PDF upload card
+- One button: “Build study path”
 
-            <div class="pipeline-list" aria-label="Theorem study pipeline">
-              <div class="pipeline-step">
-                <span>01</span>
-                <strong>Extract clean text</strong>
-              </div>
-              <div class="pipeline-step">
-                <span>02</span>
-                <strong>Sort into folders</strong>
-              </div>
-              <div class="pipeline-step">
-                <span>03</span>
-                <strong>Detect task type</strong>
-              </div>
-              <div class="pipeline-step">
-                <span>04</span>
-                <strong>Build study tools</strong>
-              </div>
-            </div>
+No manual subject dropdown.
+No unnecessary options.
 
-            <div class="tool-chip-row" aria-label="Study folders">
-              <span>Questions</span>
-              <span>Key Terms</span>
-              <span>Dates</span>
-              <span>Events</span>
-              <span>Math Problems</span>
-              <span>Code Blocks</span>
-              <span>Sources</span>
-            </div>
-
-            <div class="subject-card-grid">
-              <article class="subject-example-card">
-                <strong>Study Guide</strong>
-                <p>Questions + vocabulary + short-answer practice</p>
-              </article>
-
-              <article class="subject-example-card">
-                <strong>History Notes</strong>
-                <p>Dates + events + cause/effect review</p>
-              </article>
-
-              <article class="subject-example-card">
-                <strong>Math Homework</strong>
-                <p>Exact check + mistake repair</p>
-              </article>
-
-              <article class="subject-example-card">
-                <strong>Code</strong>
-                <p>Explanation + edge cases + test ideas</p>
-              </article>
-            </div>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section class="app-section" id="section-learn" aria-labelledby="learn-title">
-      <div class="section-heading">
-        <p class="eyebrow">Learn Workspace</p>
-        <h2 id="learn-title">Paste material. Theorem builds the study path.</h2>
-        <p>
-          Theorem is a StudyPath Engine. It extracts school material, sorts it into
-          folders, detects the task, and suggests the best study tools based on what
-          you provided.
-        </p>
-      </div>
-
-      <div class="learn-input-card glass-card" id="learnInputCard">
-        <div class="input-header">
-          <div>
-            <label class="prompt-label" for="materialInput">Your material</label>
-            <h3>Build a StudyPath session</h3>
-            <p class="muted">
-              Paste notes, homework, study guides, textbook sections, worksheets, writing
-              prompts, formulas, sources, or code.
-            </p>
-          </div>
-
-          <div class="future-card">
-            <strong>No account needed</strong>
-            <p>For now, Theorem runs in your browser with pasted text and .txt/.md upload.</p>
-            <button class="btn btn-ghost" type="button" disabled>
-              Google login coming later
-            </button>
-          </div>
-        </div>
-
-        <textarea
-          id="materialInput"
-          spellcheck="true"
-          placeholder="Paste school material here.
-
-Example:
-American Revolution Study Guide
-1. Explain taxation without representation.
-2. Describe the Boston Tea Party.
-3. What caused the American Revolution?
-Vocabulary: boycott, colony, representation.
-Important event: Boston Tea Party, 1773.
-
-You can also paste:
-- notes
-- homework
-- study guides
+Extraction/parsing:
+Parse pasted material into:
+- assignments
+- questions
+- vocabulary
+- key facts
+- dates
+- events
+- people
+- math problems
 - writing prompts
-- formulas
+- code blocks
 - sources
-- code blocks"
-        ></textarea>
+- unknown items
 
-        <div class="session-controls">
-          <div class="field file-field">
-            <label for="materialFile">Upload .txt or .md</label>
-            <input
-              id="materialFile"
-              type="file"
-              accept=".txt,.md,text/plain,text/markdown"
-            />
-          </div>
+Classification:
+Classify into departments:
+1. Math
+2. Science
+3. Social Studies
+4. Reading/Writing
 
-          <button class="btn btn-primary" id="buildSessionBtn" type="button">
-            Build my study path
-          </button>
-        </div>
+Department rules:
+Math:
+- equations
+- solve/simplify
+- numbers/operators
+- x variables
+- formulas
 
-        <p class="helper-message" id="uploadMessage" role="status" aria-live="polite"></p>
+Science:
+- photosynthesis
+- cells
+- energy
+- force
+- matter
+- atom
+- molecule
+- ecosystem
+- experiment
+- hypothesis
+- variable
+- claim/evidence/reasoning if science context
 
-        <p class="learning-note">
-          Theorem does not claim perfect understanding. It organizes material based on
-          the text you provide, then suggests study tools you can review and use.
-        </p>
-      </div>
+Social Studies:
+- revolution
+- war
+- government
+- colony
+- president
+- rights
+- treaty
+- empire
+- civilization
+- economy
+- dates/events/people
 
-      <div class="learn-workspace hidden" id="learnWorkspace" aria-live="polite">
-        <aside class="workspace-panel outline-panel">
-          <div class="panel-heading">
-            <p class="micro-label">Extracted Material</p>
-            <h3>Study Folders</h3>
-            <p class="muted">
-              Theorem extracted your material and organized it into a study path.
-            </p>
-          </div>
+Reading/Writing:
+- story
+- poem
+- theme
+- character
+- author
+- essay
+- claim
+- evidence
+- paragraph
+- prompt
+- text evidence
 
-          <div id="detectedSummary" class="detected-summary"></div>
-          <div id="outlineList" class="outline-list"></div>
-          <div id="unsupportedList" class="unsupported-list"></div>
-        </aside>
+Study folders:
+After processing, show:
+- Assignments
+- Questions
+- Vocabulary
+- Key Facts
+- Dates
+- Events
+- People
+- Math Problems
+- Writing Prompts
+- Sources
+- Unknown / Needs Review
 
-        <section class="workspace-panel tutor-workspace-card" aria-label="Current study path card">
-          <div id="currentTutorCard"></div>
-        </section>
+StudyPath Engine:
+Build study tools based on department and folders.
 
-        <aside class="workspace-panel tools-panel">
-          <div class="panel-heading">
-            <p class="micro-label">Suggested Tools</p>
-            <h3>Study Path</h3>
-            <p class="muted">
-              Based on the folders Theorem detected, these tools are suggested for this material.
-            </p>
-          </div>
+Math study path:
+- step-by-step checking
+- hints
+- mistake diagnosis
+- repair drills
+- mastery problems
 
-          <div id="studyTools"></div>
-        </aside>
-      </div>
-    </section>
+Science study path:
+Use Remember → Explain → Apply.
+Tools:
+- memory flashcards
+- vocabulary recall
+- process breakdown
+- teach-back mode
+- application questions
+- quick quiz
 
-    <section class="app-section" id="section-practice" aria-labelledby="practice-title">
-      <div class="section-heading">
-        <p class="eyebrow">Practice</p>
-        <h2 id="practice-title">Sharpen supported exact skills.</h2>
-        <p>
-          Algebra is one supported study mode inside Theorem. Use exact checking,
-          hints, mistake diagnosis, and repair drills.
-        </p>
-      </div>
+Social Studies study path:
+Tools:
+- flashcards
+- timeline
+- people/events review
+- cause/effect map
+- why-it-mattered questions
+- creative thinking test
+- short-answer practice
 
-      <div class="module-grid" id="moduleGrid">
-        <article class="module-card">
-          <h3>Two-step equations</h3>
-          <p>Solve equations like <strong>2x + 5 = 17</strong>.</p>
-          <button
-            class="btn btn-secondary"
-            type="button"
-            data-practice-skill="two_step_equations"
-          >
-            Start
-          </button>
-        </article>
+Reading/Writing study path:
+Tools:
+- main idea
+- vocabulary
+- theme/character tracker
+- claim/evidence/reasoning builder
+- essay outline
+- short-answer practice
 
-        <article class="module-card">
-          <h3>Combining like terms</h3>
-          <p>Simplify expressions like <strong>3x + 2x + 5</strong>.</p>
-          <button
-            class="btn btn-secondary"
-            type="button"
-            data-practice-skill="combining_like_terms"
-          >
-            Start
-          </button>
-        </article>
+Free plan logic:
+Prepare a simple local plan system.
+Free:
+- 3 active study paths
+- limited uploads per day
+- basic study tools
+Pro:
+- unlimited study paths
+- more uploads
+- saved history
+- smarter extraction later
+- deeper review later
 
-        <article class="module-card">
-          <h3>Distributive property</h3>
-          <p>Simplify expressions like <strong>3(x + 4)</strong>.</p>
-          <button
-            class="btn btn-secondary"
-            type="button"
-            data-practice-skill="distributive_property"
-          >
-            Start
-          </button>
-        </article>
+Do not build real payments yet.
+Show Pro as “Coming later.”
 
-        <article class="module-card coming-soon">
-          <h3>Variables on both sides</h3>
-          <p>Coming soon.</p>
-          <button class="btn btn-ghost" type="button" disabled>Coming soon</button>
-        </article>
+Storage:
+Use localStorage for now.
+Store:
+- user mode: guest/signed-in placeholder
+- study paths
+- assignments
+- folders
+- progress
+- plan usage
+- createdAt timestamps
 
-        <article class="module-card coming-soon">
-          <h3>Slope basics</h3>
-          <p>Coming soon.</p>
-          <button class="btn btn-ghost" type="button" disabled>Coming soon</button>
-        </article>
+Prepare data model for Firestore later:
+users/{uid}
+users/{uid}/studyPaths/{studyPathId}
+users/{uid}/assignments/{assignmentId}
+users/{uid}/progress/main
+users/{uid}/reviewItems/{reviewItemId}
 
-        <article class="module-card coming-soon">
-          <h3>Word problem translation</h3>
-          <p>Coming soon.</p>
-          <button class="btn btn-ghost" type="button" disabled>Coming soon</button>
-        </article>
-      </div>
+Prepare Firebase files:
+- auth.js placeholder for Firebase Auth Google sign-in
+- firestore.rules file with secure user-owned data rules
+- README instructions for enabling Firebase Auth later
 
-      <div class="practice-shell hidden" id="practiceShell">
-        <aside class="side-card">
-          <p class="micro-label">Current skill</p>
-          <h3 id="practiceSkillName">Two-step equations</h3>
-          <p class="muted">
-            Hints are allowed before you check. Steps appear only after an attempt.
-          </p>
-          <button class="btn btn-ghost" id="newPracticeProblemBtn" type="button">
-            New problem
-          </button>
-        </aside>
+Firestore rules:
+Only allow users to read/write their own data.
 
-        <section class="tutor-card" id="practiceTutorCard" aria-live="polite"></section>
-      </div>
-    </section>
+Rules pattern:
+match /users/{userId}/{document=**} {
+  allow read, write: if request.auth != null && request.auth.uid == userId;
+}
 
-    <section class="app-section" id="section-progress" aria-labelledby="progress-title">
-      <div class="section-heading">
-        <p class="eyebrow">Progress</p>
-        <h2 id="progress-title">Saved locally for now.</h2>
-        <p>
-          Your progress is stored in this browser with localStorage. There is no account,
-          backend, Google login, or paid API in this version.
-        </p>
-      </div>
+App Check:
+Mention in README that Firebase App Check should be added before production to protect backend resources.
 
-      <div class="dashboard" id="progressDashboard"></div>
+UI style:
+- warm premium workspace
+- calm
+- centered
+- minimal
+- student-friendly
+- not childish
+- not generic blue SaaS
+- not math-first
+- no clutter
+- smooth animations
+- soft shadows
+- cream background
+- clay/orange accents
 
-      <div class="actions">
-        <button class="btn btn-secondary" id="refreshProgressBtn" type="button">
-          Refresh progress
-        </button>
-        <button class="btn btn-ghost" id="resetProgressBtn" type="button">
-          Reset progress
-        </button>
-      </div>
-    </section>
+Navigation:
+After login:
+- Dashboard
+- Study Paths
+- Review
+- Progress
+- Settings
 
-    <section class="app-section" id="section-review" aria-labelledby="review-title">
-      <div class="section-heading">
-        <p class="eyebrow">Review</p>
-        <h2 id="review-title">Return to weak spots.</h2>
-        <p>
-          Theorem builds review from missed exact-skill checks, weak terms, quiz checks,
-          and incomplete teach-back practice.
-        </p>
-      </div>
+Make sure all buttons work.
+No dead buttons.
+No hidden major features.
+No console errors.
 
-      <div class="review-grid" id="reviewGrid"></div>
-    </section>
+Files to return:
+- index.html
+- style.css
+- script.js
+- auth.js
+- firestore.rules
+- README.md
 
-    <section class="app-section" id="section-about" aria-labelledby="about-title">
-      <div class="about-shell">
-        <p class="eyebrow">About</p>
-        <h2 id="about-title">Theorem is a StudyPath Engine.</h2>
+Security requirements:
+- Do not collect Gmail passwords.
+- Do not create email/password login unless Firebase Auth handles it.
+- Do not store passwords.
+- Do not expose private API keys for AI.
+- Do not call paid AI APIs from frontend.
+- Do not pretend image/PDF extraction works if it does not.
+- Do not use innerHTML with raw user input.
+- Render user content safely with textContent or created DOM nodes.
 
-        <article class="about-card">
-          <p>
-            Theorem is designed to organize learning material before tutoring begins.
-            The extraction layer reads pasted or uploaded text. Then the app’s code
-            parses the material into folders like questions, key terms, dates, events,
-            math problems, writing prompts, code blocks, sources, and unknown items.
-          </p>
-          <p>
-            Based on the material you provided, Theorem detects the subject, document
-            type, task type, and suggested study method. Then it builds tools like
-            flashcards, short-answer practice, timeline review, cause/effect practice,
-            outline building, exact math checking, code review prompts, and a review plan.
-          </p>
-          <p>
-            This version is frontend-only and GitHub Pages-compatible: HTML, CSS,
-            JavaScript, no backend, no paid API, no Google login, and localStorage only.
-          </p>
-        </article>
+Acceptance tests:
+1. Loading animation appears every refresh and is centered.
+2. Login screen appears after loading.
+3. Continue as guest works.
+4. Google sign-in button does not crash if Firebase is not configured.
+5. Dashboard appears.
+6. User can paste American Revolution notes.
+7. Theorem classifies it as Social Studies.
+8. It creates questions, vocabulary, events, dates if present.
+9. It creates flashcards, cause/effect, creative test, short answer.
+10. User can paste photosynthesis notes.
+11. Theorem classifies it as Science.
+12. It creates Remember → Explain → Apply tools.
+13. User can paste 2x + 5 = 17.
+14. Theorem classifies it as Math.
+15. It creates math practice path.
+16. Free plan blocks after 3 active study paths.
+17. Progress updates.
+18. Review items appear.
+19. Site works on mobile.
+20. No console errors.
 
-        <div class="principles-grid">
-          <article class="principle-card">
-            <span>01</span>
-            <h3>Extract</h3>
-            <p>Theorem reads pasted text or .txt/.md files and keeps the material local.</p>
-          </article>
-
-          <article class="principle-card">
-            <span>02</span>
-            <h3>Organize</h3>
-            <p>Theorem sorts material into study folders like questions, terms, dates, and code.</p>
-          </article>
-
-          <article class="principle-card">
-            <span>03</span>
-            <h3>Build</h3>
-            <p>Theorem suggests the right study path and tools based on the extracted folders.</p>
-          </article>
-        </div>
-      </div>
-    </section>
-  </main>
-</body>
-</html>
+Return complete replacement code.
