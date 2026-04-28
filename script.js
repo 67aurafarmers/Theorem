@@ -5,21 +5,6 @@
 
   const SUBJECTS = ["math", "science", "english", "history", "coding", "language", "general"];
 
-  const FOLDER_CONFIG = [
-    ["questions", "Questions"],
-    ["keyTerms", "Key Terms"],
-    ["facts", "Facts"],
-    ["people", "People"],
-    ["dates", "Dates"],
-    ["events", "Events"],
-    ["causeEffect", "Cause/Effect"],
-    ["writingPrompts", "Writing Prompts"],
-    ["mathProblems", "Math Problems"],
-    ["codeBlocks", "Code Blocks"],
-    ["sources", "Sources"],
-    ["unknown", "Unknown / Needs Review"]
-  ];
-
   const MISTAKE_TYPES = [
     "skipped_inverse_operation",
     "wrong_operation",
@@ -63,11 +48,9 @@
   const state = {
     progress: loadProgress(),
     session: null,
-    currentView: { type: "overview" },
     practiceSkill: "two_step_equations",
     practiceProblem: null,
-    practiceAttemptSaved: false,
-    currentMathIndex: 0
+    practiceAttemptSaved: false
   };
 
   const els = {};
@@ -83,33 +66,21 @@
       makeTwoStep("8x - 4 = 44", 8, "-", 4, 44),
       makeTwoStep("9x + 6 = 51", 9, "+", 6, 51),
       makeTwoStep("3x - 7 = 14", 3, "-", 7, 14),
-      makeTwoStep("10x + 5 = 65", 10, "+", 5, 65),
-      makeTwoStep("2x - 9 = 15", 2, "-", 9, 15),
-      makeTwoStep("4x + 8 = 32", 4, "+", 8, 32)
+      makeTwoStep("10x + 5 = 65", 10, "+", 5, 65)
     ],
     combining_like_terms: [
       makeCombine("3x + 2x + 5", 3, 2, "+", 5),
       makeCombine("4x + x + 7", 4, 1, "+", 7),
       makeCombine("6x - 2x + 9", 6, -2, "+", 9),
       makeCombine("8x + 3x - 4", 8, 3, "-", 4),
-      makeCombine("9x - 5x + 2", 9, -5, "+", 2),
-      makeCombine("7x + 6x + 1", 7, 6, "+", 1),
-      makeCombine("10x - 4x - 8", 10, -4, "-", 8),
-      makeCombine("2x + 9x + 3", 2, 9, "+", 3),
-      makeCombine("12x - 7x + 6", 12, -7, "+", 6),
-      makeCombine("5x + 5x - 10", 5, 5, "-", 10)
+      makeCombine("9x - 5x + 2", 9, -5, "+", 2)
     ],
     distributive_property: [
       makeDistribute("3(x + 4)", 3, "+", 4),
       makeDistribute("2(x + 5)", 2, "+", 5),
       makeDistribute("5(x - 2)", 5, "-", 2),
       makeDistribute("4(x + 3)", 4, "+", 3),
-      makeDistribute("6(x - 1)", 6, "-", 1),
-      makeDistribute("7(x + 2)", 7, "+", 2),
-      makeDistribute("8(x - 3)", 8, "-", 3),
-      makeDistribute("9(x + 1)", 9, "+", 1),
-      makeDistribute("10(x - 4)", 10, "-", 4),
-      makeDistribute("3(x - 6)", 3, "-", 6)
+      makeDistribute("6(x - 1)", 6, "-", 1)
     ]
   };
 
@@ -183,7 +154,6 @@
     els.progressDashboard = document.querySelector("#progressDashboard");
     els.refreshProgressBtn = document.querySelector("#refreshProgressBtn");
     els.resetProgressBtn = document.querySelector("#resetProgressBtn");
-
     els.reviewGrid = document.querySelector("#reviewGrid");
   }
 
@@ -197,8 +167,8 @@
 
     els.navButtons.forEach((button) => {
       button.addEventListener("click", () => {
-        const target = normalizeSectionName(button.dataset.sectionTarget || button.dataset.target);
-        showSection(target);
+        const target = button.dataset.sectionTarget || button.dataset.target;
+        showSection(normalizeSectionName(target));
       });
     });
   }
@@ -231,8 +201,6 @@
 
     if (name === "progress") renderProgressDashboard();
     if (name === "review") renderReview();
-
-    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function bindLearnWorkspace() {
@@ -284,342 +252,53 @@
       return;
     }
 
-    const folders = buildStudyFolders(text);
-    const classification = classifyStudyMaterial(text, folders);
-    const tools = buildToolsFromFolders(folders, classification);
+    const folders = extractFolders(text);
+    const classification = classifyMaterial(text, folders);
+    const path = buildGuidedPath(folders, classification);
 
-    const mathItems = folders.mathProblems
-      .map((item, index) => {
-        const problem = detectMathProblem(item.text || item);
-        if (!problem) return null;
-
-        return {
-          id: `math-${index}`,
-          supported: true,
-          raw: item.text || item,
-          problem,
-          hintIndex: 0,
-          attempted: false,
-          saved: false
-        };
-      })
-      .filter(Boolean);
-
-    const session = {
-      type: "studypath",
+    state.session = {
       originalText: text,
       folders,
       classification,
-      tools,
-      mathItems
+      path,
+      mode: "summary",
+      stepIndex: 0
     };
-
-    state.session = session;
-    state.currentView = { type: "overview" };
-    state.currentMathIndex = 0;
 
     state.progress.sessions += 1;
     state.progress.materialsImported += 1;
     state.progress.subjectSessions[classification.subjectKey] =
       (state.progress.subjectSessions[classification.subjectKey] || 0) + 1;
     state.progress.lastSubject = classification.subject;
-    state.progress.lastDocumentType = classification.documentType;
-    state.progress.lastTaskType = classification.taskType;
-    state.progress.lastStudyMethod = classification.studyMethod;
-    state.progress.foldersExtracted += countNonEmptyFolders(folders);
-    state.progress.problemsImported += mathItems.length;
+    state.progress.lastStrategy = classification.studyMethod;
+    state.progress.problemsImported += folders.mathProblems.length;
     state.progress.unsupportedProblems += folders.unknown.length;
 
     saveProgress();
 
     if (els.learnWorkspace) els.learnWorkspace.classList.remove("hidden");
 
-    renderLearningSession();
+    setStatus("Theorem extracted your material and organized it into a study path.");
+    renderGuidedSession();
     showSection("learn");
   }
 
-  function buildStudyFolders(text) {
-    const cleanedText = String(text || "").replace(/\r/g, "");
-    const codeBlocks = extractCodeBlocks(cleanedText);
-    const textWithoutCode = removeCodeBlocks(cleanedText);
-
-    const lines = textWithoutCode
-      .split("\n")
-      .map((line) => line.trim())
-      .filter(Boolean);
-
-    const folders = {
-      questions: [],
-      headings: [],
-      keyTerms: [],
-      facts: [],
-      people: [],
-      dates: [],
-      events: [],
-      formulas: [],
-      sources: [],
-      writingPrompts: [],
-      codeBlocks: codeBlocks.map((block) => ({ text: block })),
-      causeEffect: [],
-      mathProblems: [],
-      unknown: []
-    };
-
-    const seen = new Set();
-
-    lines.forEach((line, index) => {
-      const clean = cleanLine(line);
-      if (!clean) return;
-
-      let classified = false;
-
-      if (isSource(clean)) {
-        addUnique(folders.sources, clean, seen, "source");
-        classified = true;
-      }
-
-      const terms = extractTermsFromLine(clean);
-      if (terms.length) {
-        terms.forEach((term) => addUnique(folders.keyTerms, term, seen, "term"));
-        classified = true;
-      }
-
-      const dates = extractDates(clean);
-      dates.forEach((date) => addUnique(folders.dates, date, seen, "date"));
-
-      if (dates.length) classified = true;
-
-      const importantEvent = extractEventFromLine(clean);
-      if (importantEvent) {
-        addUnique(folders.events, importantEvent, seen, "event");
-        classified = true;
-      }
-
-      const mathProblem = detectMathProblem(clean);
-      if (mathProblem) {
-        addUnique(folders.mathProblems, clean, seen, "math");
-        addUnique(folders.formulas, clean, seen, "formula");
-        classified = true;
-      }
-
-      if (isQuestionLine(clean)) {
-        addUnique(folders.questions, normalizePrompt(clean), seen, "question");
-        classified = true;
-      }
-
-      if (isWritingPrompt(clean)) {
-        addUnique(folders.writingPrompts, normalizePrompt(clean), seen, "writing");
-        classified = true;
-      }
-
-      if (isCauseEffectLine(clean)) {
-        addUnique(folders.causeEffect, clean, seen, "cause");
-        classified = true;
-      }
-
-      if (looksLikeHeading(clean, index, lines.length)) {
-        addUnique(folders.headings, clean, seen, "heading");
-        classified = true;
-      }
-
-      extractPeople(clean).forEach((person) => addUnique(folders.people, person, seen, "person"));
-
-      if (!classified && clean.length > 20) {
-        addUnique(folders.facts, clean, seen, "fact");
-        classified = true;
-      }
-
-      if (!classified) {
-        addUnique(folders.unknown, clean, seen, "unknown");
-      }
-    });
-
-    if (!folders.causeEffect.length && textWithoutCode.toLowerCase().includes("caused")) {
-      addUnique(
-        folders.causeEffect,
-        "The material mentions causes. Theorem suggests reviewing cause and effect.",
-        seen,
-        "cause"
-      );
-    }
-
-    return folders;
-  }
-
-  function classifyStudyMaterial(text, folders) {
-    const lower = String(text).toLowerCase();
-    const scores = {
-      coding: folders.codeBlocks.length * 5 + countMatches(lower, ["function", "const ", "let ", "var ", "class ", "def ", "return", "console.log", "print("]),
-      math: folders.mathProblems.length * 5 + countRegex(lower, [/\d*x\s*[+\-]\s*\d+\s*=/, /\d+\s*\(\s*x\s*[+\-]\s*\d+\s*\)/, /\bsimplify\b/, /\bsolve\b/]),
-      science: countMatches(lower, ["photosynthesis", "cell", "energy", "molecule", "oxygen", "glucose", "ecosystem", "atom", "experiment", "hypothesis"]),
-      history: countMatches(lower, ["revolution", "colonial", "colony", "taxation", "representation", "boston tea party", "government", "treaty", "war", "rights"]),
-      english: countMatches(lower, ["theme", "character", "claim", "evidence", "author", "essay", "paragraph", "poem", "story", "argument"]),
-      language: countMatches(lower, ["translate", "conjugate", "vocabulary", "spanish", "french", "german", "latin"])
-    };
-
-    let subjectKey = "general";
-    let bestScore = 0;
-
-    Object.entries(scores).forEach(([key, score]) => {
-      if (score > bestScore) {
-        subjectKey = key;
-        bestScore = score;
-      }
-    });
-
-    const documentType = detectDocumentType(lower, folders);
-    const taskType = detectTaskType(subjectKey, folders);
-    const studyMethod = detectStudyMethod(subjectKey, folders);
-
-    return {
-      subjectKey,
-      subject: labelSubject(subjectKey),
-      documentType,
-      taskType,
-      studyMethod
-    };
-  }
-
-  function detectDocumentType(lower, folders) {
-    if (folders.codeBlocks.length) return "Code snippet";
-    if (lower.includes("study guide") || (folders.questions.length && folders.keyTerms.length)) return "Study guide";
-    if (folders.mathProblems.length >= 2 || folders.questions.length >= 5) return "Worksheet";
-    if (folders.writingPrompts.length) return "Writing assignment";
-    if (folders.sources.length) return "Research material";
-    if (folders.headings.length >= 2 || folders.facts.length >= 3) return "Notes";
-    return "Study material";
-  }
-
-  function detectTaskType(subjectKey, folders) {
-    if (subjectKey === "math") return "exact practice + mistake repair";
-    if (subjectKey === "coding") return "code understanding + testing";
-    if (folders.questions.length && folders.keyTerms.length) return "memorization + explanation";
-    if (folders.writingPrompts.length) return "writing + outlining";
-    if (folders.sources.length) return "research organization";
-    if (folders.dates.length || folders.events.length) return "timeline + recall";
-    return "active recall + review";
-  }
-
-  function detectStudyMethod(subjectKey, folders) {
-    const methods = [];
-
-    if (folders.keyTerms.length) methods.push("flashcards");
-    if (folders.questions.length) methods.push("short-answer practice");
-    if (folders.causeEffect.length || subjectKey === "history") methods.push("cause/effect practice");
-    if (folders.dates.length || folders.events.length) methods.push("timeline review");
-    if (folders.writingPrompts.length) methods.push("outline builder");
-    if (folders.mathProblems.length) methods.push("exact-check tutoring");
-    if (folders.codeBlocks.length) methods.push("code explanation + tests");
-    if (folders.sources.length) methods.push("research organizer");
-
-    methods.push("review plan");
-
-    return methods.join(" + ");
-  }
-
-  function buildToolsFromFolders(folders, classification) {
-    const tools = [];
-
-    if (folders.keyTerms.length) {
-      tools.push({
-        id: "flashcards",
-        title: "Flashcards",
-        description: "Use extracted key terms for recall.",
-        type: "flashcards"
-      });
-    }
-
-    if (folders.questions.length) {
-      tools.push({
-        id: "short-answer",
-        title: "Short-answer practice",
-        description: "Answer extracted questions in your own words.",
-        type: "questions"
-      });
-    }
-
-    if (folders.causeEffect.length || classification.subjectKey === "history") {
-      tools.push({
-        id: "cause-effect",
-        title: "Cause/effect practice",
-        description: "Explain why events or ideas connect.",
-        type: "causeEffect"
-      });
-    }
-
-    if (folders.dates.length || folders.events.length) {
-      tools.push({
-        id: "timeline",
-        title: "Timeline review",
-        description: "Connect dates and events.",
-        type: "timeline"
-      });
-    }
-
-    if (folders.writingPrompts.length) {
-      tools.push({
-        id: "outline",
-        title: "Outline builder",
-        description: "Turn prompts into a usable writing plan.",
-        type: "outline"
-      });
-    }
-
-    if (folders.mathProblems.length) {
-      tools.push({
-        id: "math",
-        title: "Exact-check math tutor",
-        description: "Solve supported Algebra 1 problems with repair drills.",
-        type: "math"
-      });
-    }
-
-    if (folders.codeBlocks.length) {
-      tools.push({
-        id: "code",
-        title: "Code tutor",
-        description: "Explain code, find edge cases, and create test ideas.",
-        type: "code"
-      });
-    }
-
-    if (folders.sources.length) {
-      tools.push({
-        id: "sources",
-        title: "Research organizer",
-        description: "Organize sources, claims, and evidence.",
-        type: "sources"
-      });
-    }
-
-    if (classification.subjectKey === "history" || classification.subjectKey === "science" || folders.questions.length) {
-      tools.push({
-        id: "creative",
-        title: "Creative thinking questions",
-        description: "Check deeper understanding beyond memorization.",
-        type: "creative"
-      });
-    }
-
-    tools.push({
-      id: "review-plan",
-      title: "Review plan",
-      description: "A simple study order based on extracted folders.",
-      type: "reviewPlan"
-    });
-
-    return tools;
-  }
-
-  function renderLearningSession() {
+  function renderGuidedSession() {
     const session = state.session;
     if (!session) return;
 
     renderDetectedSummary(session);
-    renderOutline(session);
-    renderUnsupported(session);
-    renderCurrentTutorCard(session);
-    renderStudyTools(session);
+    renderSimplePathPanel(session);
+    renderSimpleToolsPanel(session);
+
+    clear(els.currentTutorCard);
+
+    if (session.mode === "summary") {
+      renderStudySummary(session);
+      return;
+    }
+
+    renderCurrentStudyCard(session);
     renderProgressDashboard();
     renderReview();
   }
@@ -628,437 +307,739 @@
     clear(els.detectedSummary);
     if (!els.detectedSummary) return;
 
-    const classification = session.classification;
-
     els.detectedSummary.append(
-      statPill("Subject", classification.subject),
-      statPill("Document type", classification.documentType),
-      statPill("Task type", classification.taskType),
-      statPill("Study method", classification.studyMethod)
+      statPill("Subject", session.classification.subject),
+      statPill("Document", session.classification.documentType),
+      statPill("Task", session.classification.taskType)
     );
   }
 
-  function renderOutline(session) {
+  function renderSimplePathPanel(session) {
     clear(els.outlineList);
+    clear(els.unsupportedList);
+
     if (!els.outlineList) return;
 
-    const overview = buttonEl("Extracted Material", "outline-button", () => {
-      state.currentView = { type: "overview" };
-      renderLearningSession();
-    });
+    els.outlineList.append(labelText("Study Path", "micro-label"));
 
-    overview.classList.toggle("active", state.currentView.type === "overview");
-    els.outlineList.append(overview);
-
-    FOLDER_CONFIG.forEach(([key, label]) => {
-      const items = session.folders[key] || [];
-      if (!items.length) return;
-
-      const button = buttonEl(`${label} (${items.length})`, "outline-button", () => {
-        state.currentView = { type: "folder", folderKey: key };
-        renderLearningSession();
-      });
-
-      button.classList.toggle(
-        "active",
-        state.currentView.type === "folder" && state.currentView.folderKey === key
+    const steps = session.path.length ? session.path : [];
+    steps.forEach((step, index) => {
+      const item = div("tool-card");
+      item.append(
+        strong(`${index + 1}. ${step.title}`),
+        textP(step.short || "Study this next.")
       );
-
-      els.outlineList.append(button);
+      els.outlineList.append(item);
     });
 
-    session.tools.forEach((tool) => {
-      const button = buttonEl(tool.title, "outline-button", () => {
-        state.currentView = { type: "tool", toolType: tool.type };
-        renderLearningSession();
-      });
-
-      button.classList.toggle(
-        "active",
-        state.currentView.type === "tool" && state.currentView.toolType === tool.type
+    if (session.folders.unknown.length && els.unsupportedList) {
+      els.unsupportedList.append(labelText("Needs Review", "micro-label"));
+      els.unsupportedList.append(
+        textP(`${session.folders.unknown.length} item(s) could not be confidently sorted yet.`, "muted")
       );
-
-      els.outlineList.append(button);
-    });
-  }
-
-  function renderUnsupported(session) {
-    clear(els.unsupportedList);
-    if (!els.unsupportedList) return;
-
-    if (!session.folders.unknown.length) return;
-
-    els.unsupportedList.append(labelText("Needs Review", "micro-label"));
-
-    session.folders.unknown.slice(0, 4).forEach((item) => {
-      const card = div("unsupported-card");
-      card.append(
-        textP(item.text || item),
-        textP("Theorem could not confidently classify this item yet.", "muted")
-      );
-      els.unsupportedList.append(card);
-    });
-  }
-
-  function renderCurrentTutorCard(session) {
-    clear(els.currentTutorCard);
-    if (!els.currentTutorCard) return;
-
-    if (state.currentView.type === "folder") {
-      renderFolderDetail(session, state.currentView.folderKey);
-      return;
-    }
-
-    if (state.currentView.type === "tool") {
-      renderStudyTool(session, state.currentView.toolType);
-      return;
-    }
-
-    renderExtractedMaterial(session);
-  }
-
-  function renderExtractedMaterial(session) {
-    const box = div("concept-summary");
-
-    box.append(
-      heading("Theorem extracted your material and organized it into a study path.", 3),
-      textP("Based on the material you provided, Theorem detected the folders below. This is a structured study path, not a claim of perfect understanding.", "muted")
-    );
-
-    const detected = div("feedback-grid");
-    detected.append(
-      feedbackBox("Subject", session.classification.subject),
-      feedbackBox("Document type", session.classification.documentType),
-      feedbackBox("Task type", session.classification.taskType),
-      feedbackBox("Chosen study method", session.classification.studyMethod)
-    );
-
-    box.append(detected, heading("Study Folders", 3));
-
-    const folderGrid = div("feedback-grid");
-
-    FOLDER_CONFIG.forEach(([key, label]) => {
-      const items = session.folders[key] || [];
-      const card = div("feedback-box");
-      card.append(strong(`${label} (${items.length})`));
-
-      if (items.length) {
-        card.append(list(items.slice(0, 5).map((item) => item.text || item), "checklist"));
-      } else {
-        card.append(textP("No items detected yet.", "muted"));
-      }
-
-      folderGrid.append(card);
-    });
-
-    box.append(folderGrid);
-    els.currentTutorCard.append(box);
-  }
-
-  function renderFolderDetail(session, folderKey) {
-    const label = folderLabel(folderKey);
-    const items = session.folders[folderKey] || [];
-
-    els.currentTutorCard.append(
-      heading(label, 3),
-      textP("Based on the material you provided, Theorem placed these items in this folder.", "muted")
-    );
-
-    if (!items.length) {
-      els.currentTutorCard.append(textP("No items detected in this folder yet."));
-      return;
-    }
-
-    const folderList = div("flashcard-list");
-
-    items.forEach((item, index) => {
-      const card = div("flashcard");
-      card.append(strong(`${label} ${index + 1}`), textP(item.text || item));
-      folderList.append(card);
-    });
-
-    els.currentTutorCard.append(folderList);
-  }
-
-  function renderStudyTool(session, toolType) {
-    if (toolType === "flashcards") {
-      renderFlashcardsTool(session);
-      return;
-    }
-
-    if (toolType === "questions") {
-      renderShortAnswerTool(session);
-      return;
-    }
-
-    if (toolType === "causeEffect") {
-      renderCauseEffectTool(session);
-      return;
-    }
-
-    if (toolType === "timeline") {
-      renderTimelineTool(session);
-      return;
-    }
-
-    if (toolType === "outline") {
-      renderOutlineBuilderTool(session);
-      return;
-    }
-
-    if (toolType === "math") {
-      renderMathTool(session);
-      return;
-    }
-
-    if (toolType === "code") {
-      renderCodeTool(session);
-      return;
-    }
-
-    if (toolType === "sources") {
-      renderResearchTool(session);
-      return;
-    }
-
-    if (toolType === "creative") {
-      renderCreativeTool(session);
-      return;
-    }
-
-    renderReviewPlanTool(session);
-  }
-
-  function renderFlashcardsTool(session) {
-    const terms = session.folders.keyTerms;
-
-    els.currentTutorCard.append(
-      heading("Flashcards", 3),
-      textP("Try to answer before reading the back.", "muted")
-    );
-
-    const box = div("flashcard-list");
-
-    terms.forEach((term, index) => {
-      const text = term.text || term;
-      const card = div("flashcard");
-      const button = buttonEl("Mark reviewed", "btn btn-secondary", () => {
-        state.progress.flashcardsReviewed += 1;
-        saveProgress();
-        buttonSetDone(button, "Reviewed");
-      });
-
-      card.append(
-        strong(`Card ${index + 1}: ${text}`),
-        textP(`Explain what ${text} means and why it matters in this material.`),
-        button
-      );
-
-      box.append(card);
-    });
-
-    els.currentTutorCard.append(box);
-  }
-
-  function renderShortAnswerTool(session) {
-    const questions = session.folders.questions;
-
-    els.currentTutorCard.append(
-      heading("Short-answer practice", 3),
-      textP("Answer first. Then compare your answer to your notes or teacher materials.", "muted")
-    );
-
-    const box = div("quiz-list");
-
-    questions.forEach((question, index) => {
-      const prompt = question.text || question;
-      const card = div("quiz-card");
-      const input = document.createElement("textarea");
-      input.placeholder = "Write your answer in your own words.";
-      input.setAttribute("aria-label", prompt);
-
-      const check = buttonEl("Check for key terms", "btn btn-secondary", () => {
-        const result = checkTerms(input.value, session.folders.keyTerms.slice(0, 8).map((item) => item.text || item));
-        card.append(feedbackBox("Self-check", result.message));
-        state.progress.conceptQuizzesCompleted += 1;
-        addWeakTerms(result.missing);
-        saveProgress();
-      });
-
-      card.append(strong(`Question ${index + 1}`), textP(prompt), input, div("actions", [check]));
-      box.append(card);
-    });
-
-    els.currentTutorCard.append(box);
-  }
-
-  function renderCauseEffectTool(session) {
-    const items = session.folders.causeEffect.length
-      ? session.folders.causeEffect
-      : ["What caused the main event or idea?", "What changed because of it?", "Who was affected?"];
-
-    els.currentTutorCard.append(
-      heading("Cause/effect practice", 3),
-      textP("Theorem suggests using these prompts to connect ideas.", "muted"),
-      list(items.map((item) => item.text || item), "checklist")
-    );
-  }
-
-  function renderTimelineTool(session) {
-    const combined = [
-      ...session.folders.events.map((item) => `Event: ${item.text || item}`),
-      ...session.folders.dates.map((item) => `Date: ${item.text || item}`)
-    ];
-
-    els.currentTutorCard.append(
-      heading("Timeline review", 3),
-      textP("Connect each date to the event or idea it belongs with.", "muted"),
-      list(combined.length ? combined : ["No dates or events found yet."], "timeline-list")
-    );
-  }
-
-  function renderOutlineBuilderTool(session) {
-    const prompts = session.folders.writingPrompts;
-
-    els.currentTutorCard.append(
-      heading("Outline builder", 3),
-      textP("Turn each prompt into a claim, evidence, and explanation.", "muted")
-    );
-
-    const box = div("quiz-list");
-
-    prompts.forEach((prompt, index) => {
-      const card = div("quiz-card");
-      card.append(
-        strong(`Prompt ${index + 1}`),
-        textP(prompt.text || prompt),
-        list(["Claim:", "Evidence:", "Explanation:", "Conclusion:"], "checklist")
-      );
-      box.append(card);
-    });
-
-    els.currentTutorCard.append(box);
-  }
-
-  function renderMathTool(session) {
-    if (!session.mathItems.length) {
-      els.currentTutorCard.append(
-        heading("No supported exact-check math found", 3),
-        textP("Try Algebra 1 formats like 2x + 5 = 17, 3x + 2x + 5, or 3(x + 4).")
-      );
-      return;
-    }
-
-    const item = session.mathItems[state.currentMathIndex] || session.mathItems[0];
-
-    els.currentTutorCard.append(
-      renderProblemCard(item.problem, {
-        context: "learn",
-        item,
-        onNext: () => {
-          state.currentMathIndex = (state.currentMathIndex + 1) % session.mathItems.length;
-          renderLearningSession();
-        }
-      })
-    );
-  }
-
-  function renderCodeTool(session) {
-    const code = session.folders.codeBlocks[0] ? session.folders.codeBlocks[0].text : "";
-
-    els.currentTutorCard.append(
-      heading("Code tutor", 3),
-      textP("Theorem suggests explaining the code path before changing anything.", "muted"),
-      feedbackBox("What to explain", "Inputs, outputs, branches, return values, and edge cases."),
-      feedbackBox("Test ideas", "Try normal input, empty input, large input, and unexpected types.")
-    );
-
-    if (code) {
-      const pre = document.createElement("pre");
-      const codeNode = document.createElement("code");
-      codeNode.textContent = code;
-      pre.append(codeNode);
-      els.currentTutorCard.append(pre);
     }
   }
 
-  function renderResearchTool(session) {
-    els.currentTutorCard.append(
-      heading("Research organizer", 3),
-      textP("Theorem suggests organizing sources by claim, evidence, and usefulness.", "muted"),
-      list(session.folders.sources.map((item) => item.text || item), "checklist")
-    );
-  }
-
-  function renderCreativeTool(session) {
-    const subject = session.classification.subjectKey;
-    let prompts = [
-      "What is the most important idea in this material?",
-      "What would be a confusing part for another student?",
-      "How does one idea connect to another?"
-    ];
-
-    if (subject === "history") {
-      prompts = [
-        "What was one cause of the event?",
-        "Who benefited and who was hurt?",
-        "What might have happened if one decision changed?"
-      ];
-    }
-
-    if (subject === "science") {
-      prompts = [
-        "What are the inputs and outputs?",
-        "What would happen if one variable changed?",
-        "How would you draw this process with arrows?"
-      ];
-    }
-
-    els.currentTutorCard.append(
-      heading("Creative thinking questions", 3),
-      textP("These questions test understanding beyond memorization.", "muted"),
-      list(prompts, "checklist")
-    );
-  }
-
-  function renderReviewPlanTool(session) {
-    const steps = [];
-
-    if (session.folders.keyTerms.length) steps.push("Review flashcards for key terms.");
-    if (session.folders.questions.length) steps.push("Answer the extracted questions without looking.");
-    if (session.folders.events.length || session.folders.dates.length) steps.push("Connect events to dates.");
-    if (session.folders.causeEffect.length || session.classification.subjectKey === "history") steps.push("Practice cause and effect.");
-    if (session.folders.mathProblems.length) steps.push("Do exact-check math problems and repair mistakes.");
-    if (session.folders.codeBlocks.length) steps.push("Explain the code path and write edge-case tests.");
-    steps.push("End by teaching the material back in your own words.");
-
-    els.currentTutorCard.append(
-      heading("Review plan", 3),
-      textP("Theorem suggests this study order based on your extracted folders.", "muted"),
-      list(steps, "checklist")
-    );
-  }
-
-  function renderStudyTools(session) {
+  function renderSimpleToolsPanel(session) {
     clear(els.studyTools);
     if (!els.studyTools) return;
 
     els.studyTools.append(
-      toolCard("StudyPath Engine", "Theorem extracts, organizes, classifies, then builds tools from folders."),
-      toolCard("Detected", `${session.classification.subject} · ${session.classification.documentType}`),
-      toolCard("Suggested method", session.classification.studyMethod)
+      toolCard(
+        "Theorem found",
+        `${session.folders.questions.length} question(s), ${session.folders.keyTerms.length} key term(s), ${session.folders.events.length} event(s), ${session.folders.dates.length} date(s).`
+      ),
+      toolCard(
+        "Suggested method",
+        session.classification.studyMethod
+      ),
+      toolCard(
+        "Study rule",
+        "Continue one card at a time. Answer first, then check or move on."
+      )
+    );
+  }
+
+  function renderStudySummary(session) {
+    const found = [
+      `${session.folders.questions.length} question(s)`,
+      `${session.folders.keyTerms.length} key term(s)`,
+      `${session.folders.events.length} event(s)`,
+      `${session.folders.dates.length} date(s)`,
+      `${session.folders.mathProblems.length} math problem(s)`,
+      `${session.folders.codeBlocks.length} code block(s)`
+    ];
+
+    const card = div("study-path-overview");
+    card.append(
+      labelText("Ready", "micro-label"),
+      heading("Theorem extracted your material and built a study path.", 3),
+      textP("Based on the material you provided, Theorem detected the items below. It may not understand everything perfectly, but it gives you a clean place to start.", "muted"),
+      list(found, "checklist"),
+      heading("Suggested path", 3),
+      list(session.path.map((step) => step.title), "checklist")
     );
 
-    session.tools.forEach((tool) => {
-      const button = buttonEl(tool.title, "tool-button", () => {
-        state.currentView = { type: "tool", toolType: tool.type };
-        renderLearningSession();
-      });
+    const actions = div("actions");
+    actions.append(
+      buttonEl("Continue", "btn btn-primary", () => {
+        session.mode = "study";
+        session.stepIndex = 0;
+        renderGuidedSession();
+      })
+    );
 
-      const card = div("tool-card");
-      card.append(strong(tool.title), textP(tool.description), button);
-      els.studyTools.append(card);
+    card.append(actions);
+    els.currentTutorCard.append(card);
+  }
+
+  function renderCurrentStudyCard(session) {
+    if (!session.path.length) {
+      els.currentTutorCard.append(
+        heading("Add a little more material.", 3),
+        textP("Theorem could not find enough study items. Try pasting questions, vocabulary, notes, math problems, or code.")
+      );
+      return;
+    }
+
+    const step = session.path[session.stepIndex];
+
+    if (!step) {
+      renderSessionComplete(session);
+      return;
+    }
+
+    if (step.type === "flashcard") renderFlashcardStep(session, step);
+    else if (step.type === "question") renderQuestionStep(session, step);
+    else if (step.type === "cause_effect") renderCauseEffectStep(session, step);
+    else if (step.type === "timeline") renderTimelineStep(session, step);
+    else if (step.type === "math") renderMathStep(session, step);
+    else if (step.type === "code") renderCodeStep(session, step);
+    else renderReviewPlanStep(session, step);
+  }
+
+  function renderStepShell(session, step) {
+    const shell = div("study-card");
+    shell.append(
+      labelText(`Step ${session.stepIndex + 1} of ${session.path.length}`, "micro-label"),
+      heading(step.title, 3)
+    );
+    return shell;
+  }
+
+  function renderFlashcardStep(session, step) {
+    const shell = renderStepShell(session, step);
+
+    const answer = document.createElement("textarea");
+    answer.placeholder = `Explain "${step.term}" in your own words.`;
+    answer.setAttribute("aria-label", `Explain ${step.term}`);
+
+    const reveal = div("tool-card hidden");
+    reveal.append(
+      strong("Check yourself"),
+      textP(`Your answer should explain what "${step.term}" means and why it matters in this material.`)
+    );
+
+    shell.append(
+      textP(`Key term: ${step.term}`),
+      answer,
+      div("actions", [
+        buttonEl("Show check", "btn btn-secondary", () => {
+          reveal.classList.remove("hidden");
+          state.progress.flashcardsReviewed += 1;
+          saveProgress();
+        }),
+        buttonEl("Continue", "btn btn-primary", () => nextStudyStep(session))
+      ]),
+      reveal
+    );
+
+    els.currentTutorCard.append(shell);
+  }
+
+  function renderQuestionStep(session, step) {
+    const shell = renderStepShell(session, step);
+
+    const answer = document.createElement("textarea");
+    answer.placeholder = "Answer in your own words.";
+    answer.setAttribute("aria-label", step.question);
+
+    const feedback = div("feedback-root");
+
+    shell.append(
+      textP(step.question),
+      answer,
+      div("actions", [
+        buttonEl("Check key terms", "btn btn-secondary", () => {
+          clear(feedback);
+          const result = checkTerms(answer.value, session.folders.keyTerms.slice(0, 5));
+          feedback.append(feedbackBox("Self-check", result.message));
+          state.progress.conceptQuizzesCompleted += 1;
+          addWeakTerms(result.missing);
+          saveProgress();
+        }),
+        buttonEl("Continue", "btn btn-primary", () => nextStudyStep(session))
+      ]),
+      feedback
+    );
+
+    els.currentTutorCard.append(shell);
+  }
+
+  function renderCauseEffectStep(session, step) {
+    const shell = renderStepShell(session, step);
+
+    const answer = document.createElement("textarea");
+    answer.placeholder = "Write the cause, then the effect.";
+    answer.setAttribute("aria-label", "Cause and effect answer");
+
+    shell.append(
+      textP(step.prompt),
+      list([
+        "Cause: What started it?",
+        "Effect: What changed after?",
+        "Why it matters: Why should you remember this?"
+      ], "checklist"),
+      answer,
+      div("actions", [
+        buttonEl("Continue", "btn btn-primary", () => nextStudyStep(session))
+      ])
+    );
+
+    els.currentTutorCard.append(shell);
+  }
+
+  function renderTimelineStep(session, step) {
+    const shell = renderStepShell(session, step);
+
+    const timelineItems = [];
+
+    session.folders.events.forEach((event, index) => {
+      const date = session.folders.dates[index] || "Date not found";
+      timelineItems.push(`${date}: ${event}`);
     });
+
+    session.folders.dates.forEach((date) => {
+      if (!timelineItems.some((item) => item.startsWith(`${date}:`))) {
+        timelineItems.push(`${date}: connect this date to an event from your assignment`);
+      }
+    });
+
+    shell.append(
+      textP("Connect each date to what happened."),
+      list(timelineItems.length ? timelineItems : ["No timeline items were found."], "timeline-list"),
+      div("actions", [
+        buttonEl("Continue", "btn btn-primary", () => nextStudyStep(session))
+      ])
+    );
+
+    els.currentTutorCard.append(shell);
+  }
+
+  function renderMathStep(session, step) {
+    els.currentTutorCard.append(
+      renderProblemCard(step.problem, {
+        context: "learn",
+        item: step,
+        onNext: () => nextStudyStep(session)
+      })
+    );
+  }
+
+  function renderCodeStep(session, step) {
+    const shell = renderStepShell(session, step);
+
+    shell.append(
+      textP("Explain what this code does before running or changing it.", "muted"),
+      codeBlock(step.code),
+      list([
+        "What are the inputs?",
+        "What does it return or change?",
+        "What happens with empty input?",
+        "What is one small test case?",
+        "What is one edge case?"
+      ], "checklist"),
+      div("actions", [
+        buttonEl("Continue", "btn btn-primary", () => nextStudyStep(session))
+      ])
+    );
+
+    els.currentTutorCard.append(shell);
+  }
+
+  function renderReviewPlanStep(session, step) {
+    const shell = renderStepShell(session, step);
+
+    const plan = [];
+
+    if (session.folders.keyTerms.length) plan.push("Review key terms without looking.");
+    if (session.folders.questions.length) plan.push("Answer each question out loud.");
+    if (session.folders.events.length || session.folders.dates.length) plan.push("Connect dates and events.");
+    if (session.folders.causeEffect.length) plan.push("Explain cause and effect.");
+    if (session.folders.mathProblems.length) plan.push("Redo supported math problems.");
+    if (session.folders.codeBlocks.length) plan.push("Explain code and write test ideas.");
+    plan.push("Finish with a teach-back: explain the assignment in your own words.");
+
+    shell.append(
+      textP("Use this as your final review checklist.", "muted"),
+      list(plan, "checklist"),
+      div("actions", [
+        buttonEl("Finish session", "btn btn-primary", () => {
+          session.stepIndex = session.path.length;
+          renderGuidedSession();
+        })
+      ])
+    );
+
+    els.currentTutorCard.append(shell);
+  }
+
+  function renderSessionComplete(session) {
+    const card = div("study-path-overview");
+    card.append(
+      labelText("Complete", "micro-label"),
+      heading("Nice work. You finished this study path.", 3),
+      textP("Theorem saved your progress locally in this browser.", "muted"),
+      div("actions", [
+        buttonEl("Review again", "btn btn-secondary", () => {
+          session.mode = "summary";
+          session.stepIndex = 0;
+          renderGuidedSession();
+        }),
+        buttonEl("View progress", "btn btn-primary", () => {
+          renderProgressDashboard();
+          showSection("progress");
+        })
+      ])
+    );
+
+    els.currentTutorCard.append(card);
+  }
+
+  function nextStudyStep(session) {
+    session.stepIndex += 1;
+    renderGuidedSession();
+  }
+
+  function extractFolders(text) {
+    const folders = {
+      questions: [],
+      keyTerms: [],
+      facts: [],
+      people: [],
+      dates: [],
+      events: [],
+      causeEffect: [],
+      writingPrompts: [],
+      mathProblems: [],
+      codeBlocks: [],
+      sources: [],
+      unknown: []
+    };
+
+    const codeBlocks = extractCodeBlocks(text);
+    codeBlocks.forEach((block) => addObjectUnique(folders.codeBlocks, block, "text"));
+
+    const textWithoutCode = removeCodeBlocks(text);
+    const lines = textWithoutCode
+      .replace(/\r/g, "")
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean);
+
+    splitMaterial(textWithoutCode).forEach((item) => {
+      const problem = detectMathProblem(item);
+      if (problem) {
+        addObjectUnique(folders.mathProblems, {
+          raw: item,
+          problem,
+          hintIndex: 0,
+          saved: false
+        }, "raw");
+      }
+    });
+
+    lines.forEach((line) => {
+      const clean = stripListMarker(line);
+
+      extractDates(clean).forEach((date) => addUnique(folders.dates, date));
+
+      if (isLikelyHeading(clean)) return;
+
+      if (isVocabularyLine(clean)) {
+        extractVocabularyTerms(clean).forEach((term) => addUnique(folders.keyTerms, term));
+        return;
+      }
+
+      if (isQuestionLine(clean)) {
+        addUnique(folders.questions, normalizeQuestion(clean));
+
+        if (/\bcause|caused|effect|why|because|led to\b/i.test(clean)) {
+          addUnique(folders.causeEffect, normalizeQuestion(clean));
+        }
+
+        return;
+      }
+
+      if (isEventLine(clean)) {
+        extractEvents(clean).forEach((event) => addUnique(folders.events, event));
+        return;
+      }
+
+      if (isSourceLine(clean)) {
+        addUnique(folders.sources, clean);
+        return;
+      }
+
+      if (isWritingPromptLine(clean)) {
+        addUnique(folders.writingPrompts, clean);
+        return;
+      }
+
+      if (detectMathProblem(clean)) return;
+
+      extractEvents(clean).forEach((event) => addUnique(folders.events, event));
+      extractPeople(clean).forEach((person) => addUnique(folders.people, person));
+      extractCauseEffect(clean).forEach((item) => addUnique(folders.causeEffect, item));
+
+      if (looksLikeFact(clean)) {
+        addUnique(folders.facts, clean);
+      } else if (clean.length > 3) {
+        addUnique(folders.unknown, clean);
+      }
+    });
+
+    return folders;
+  }
+
+  function classifyMaterial(text, folders) {
+    const subjectKey = detectSubject(text, folders);
+    const documentType = detectDocumentType(text, folders);
+    const taskType = detectTaskType(folders, subjectKey);
+    const studyMethod = suggestStudyMethod(folders, subjectKey);
+
+    return {
+      subjectKey,
+      subject: subjectLabels[subjectKey] || "General Study",
+      documentType,
+      taskType,
+      studyMethod
+    };
+  }
+
+  function detectSubject(text, folders) {
+    const lower = text.toLowerCase();
+
+    const scores = {
+      coding:
+        folders.codeBlocks.length * 5 +
+        countMatches(lower, ["function", "const ", "let ", "var ", "class ", "def ", "return", "console.log"]),
+      math:
+        folders.mathProblems.length * 5 +
+        countRegex(lower, [/\bsimplify\b/, /\bsolve\b/, /\d*x\s*[+\-]/, /\d+\s*\(\s*x\s*[+\-]/]),
+      science: countMatches(lower, [
+        "cell", "energy", "force", "atom", "molecule", "photosynthesis", "ecosystem",
+        "experiment", "hypothesis", "oxygen", "glucose", "carbon dioxide"
+      ]),
+      history:
+        folders.events.length * 2 +
+        folders.dates.length +
+        countMatches(lower, [
+          "war", "revolution", "government", "colony", "colonial", "treaty", "rights",
+          "taxation", "representation", "resistance", "boston tea party", "american revolution"
+        ]),
+      english: countMatches(lower, [
+        "theme", "character", "essay", "claim", "evidence", "author", "poem", "story", "argument"
+      ]),
+      language: countMatches(lower, [
+        "translate", "conjugate", "vocabulary", "spanish", "french", "german", "latin"
+      ])
+    };
+
+    let best = "general";
+    let bestScore = 0;
+
+    Object.entries(scores).forEach(([subject, score]) => {
+      if (score > bestScore) {
+        best = subject;
+        bestScore = score;
+      }
+    });
+
+    return best;
+  }
+
+  function detectDocumentType(text, folders) {
+    const lower = text.toLowerCase();
+
+    if (lower.includes("study guide")) return "Study guide";
+    if (lower.includes("worksheet")) return "Worksheet";
+    if (lower.includes("homework")) return "Homework";
+    if (lower.includes("quiz") || lower.includes("test review")) return "Test review";
+    if (folders.codeBlocks.length) return "Code / programming material";
+    if (folders.writingPrompts.length) return "Writing assignment";
+    if (folders.sources.length) return "Research notes";
+    if (folders.questions.length >= 3 && folders.keyTerms.length) return "Study guide";
+    if (folders.questions.length >= 3) return "Question set";
+    if (folders.facts.length >= 3) return "Notes";
+
+    return "Study material";
+  }
+
+  function detectTaskType(folders, subjectKey) {
+    if (folders.mathProblems.length) return "exact practice + mistake repair";
+    if (folders.codeBlocks.length) return "code understanding + testing";
+    if (folders.writingPrompts.length) return "writing + outlining";
+    if (subjectKey === "history" && (folders.questions.length || folders.events.length || folders.dates.length)) {
+      return "memorization + explanation";
+    }
+    if (subjectKey === "science") return "process recall + explanation";
+    if (subjectKey === "english") return "reading analysis + evidence";
+    if (folders.questions.length && folders.keyTerms.length) return "memorization + explanation";
+    if (folders.keyTerms.length) return "vocabulary + recall";
+    if (folders.questions.length) return "short-answer practice";
+
+    return "active recall";
+  }
+
+  function suggestStudyMethod(folders, subjectKey) {
+    const methods = [];
+
+    if (folders.keyTerms.length) methods.push("flashcards");
+    if (folders.questions.length) methods.push("short-answer practice");
+    if (folders.causeEffect.length || subjectKey === "history") methods.push("cause/effect practice");
+    if (folders.dates.length || folders.events.length) methods.push("timeline review");
+    if (folders.mathProblems.length) methods.push("exact-check tutoring");
+    if (folders.codeBlocks.length) methods.push("code explanation");
+    methods.push("review plan");
+
+    return methods.join(" + ");
+  }
+
+  function buildGuidedPath(folders, classification) {
+    const path = [];
+
+    folders.keyTerms.forEach((term) => {
+      path.push({
+        type: "flashcard",
+        title: `Key term: ${term}`,
+        short: "Explain this term.",
+        term
+      });
+    });
+
+    folders.questions.forEach((question) => {
+      path.push({
+        type: "question",
+        title: "Short-answer practice",
+        short: "Answer in your own words.",
+        question
+      });
+    });
+
+    if (folders.events.length || folders.dates.length) {
+      path.push({
+        type: "timeline",
+        title: "Timeline review",
+        short: "Connect dates and events."
+      });
+    }
+
+    const causePrompts = folders.causeEffect.length
+      ? folders.causeEffect
+      : classification.subjectKey === "history"
+        ? ["What caused the main event, and what changed because of it?"]
+        : [];
+
+    causePrompts.forEach((prompt) => {
+      path.push({
+        type: "cause_effect",
+        title: "Cause/effect practice",
+        short: "Explain the connection.",
+        prompt
+      });
+    });
+
+    folders.mathProblems.forEach((item) => {
+      path.push({
+        type: "math",
+        title: `Math problem: ${item.raw}`,
+        short: "Use exact-check mode.",
+        problem: item.problem,
+        hintIndex: 0,
+        saved: false
+      });
+    });
+
+    folders.codeBlocks.forEach((block) => {
+      path.push({
+        type: "code",
+        title: "Code review",
+        short: "Explain code and test ideas.",
+        code: block.text
+      });
+    });
+
+    path.push({
+      type: "review_plan",
+      title: "Review plan",
+      short: "Finish with a checklist."
+    });
+
+    return path;
+  }
+
+  function isQuestionLine(line) {
+    return (
+      /\?$/.test(line) ||
+      /^(explain|describe|what|why|how|when|where|who|list|compare|contrast|define|identify)\b/i.test(line)
+    );
+  }
+
+  function normalizeQuestion(line) {
+    return stripListMarker(line).replace(/\s+/g, " ").trim();
+  }
+
+  function stripListMarker(line) {
+    return String(line)
+      .replace(/^\s*(\d+\.|\d+\)|[-•*])\s*/, "")
+      .trim();
+  }
+
+  function isVocabularyLine(line) {
+    return /^(vocabulary|vocab|key terms?|terms?)\s*:/i.test(line);
+  }
+
+  function extractVocabularyTerms(line) {
+    return String(line)
+      .replace(/^(vocabulary|vocab|key terms?|terms?)\s*:/i, "")
+      .split(/,|;|\|/)
+      .map(cleanExtractedItem)
+      .filter(Boolean);
+  }
+
+  function isEventLine(line) {
+    return /^(important event|event|battle|war|treaty|movement)\s*:/i.test(line);
+  }
+
+  function extractEvents(line) {
+    const results = [];
+    const clean = stripListMarker(line);
+
+    const eventLabel = clean.match(/^(important event|event)\s*:\s*(.+)$/i);
+    if (eventLabel) {
+      const body = eventLabel[2]
+        .replace(/\b(1[0-9]{3}|20[0-9]{2})\b/g, "")
+        .replace(/[,.;]+$/g, "");
+
+      body
+        .split(/,|;|\band\b/)
+        .map(cleanExtractedItem)
+        .filter(Boolean)
+        .forEach((item) => results.push(item));
+    }
+
+    const knownEvent = clean.match(/\b(American Revolution|Boston Tea Party|Civil War|World War I|World War II|French Revolution|Industrial Revolution)\b/i);
+    if (knownEvent) results.push(titleCaseKnown(knownEvent[1]));
+
+    return Array.from(new Set(results));
+  }
+
+  function extractDates(line) {
+    return Array.from(new Set(String(line).match(/\b(1[0-9]{3}|20[0-9]{2})\b/g) || []));
+  }
+
+  function extractPeople(line) {
+    const names = line.match(/\b[A-Z][a-z]+\s+[A-Z][a-z]+\b/g) || [];
+
+    return Array.from(
+      new Set(
+        names.filter((name) => !/American Revolution|Boston Tea|Tea Party|Civil War|World War|United States/i.test(name))
+      )
+    );
+  }
+
+  function extractCauseEffect(line) {
+    if (/\bcause|caused|effect|because|led to|resulted in\b/i.test(line)) return [line];
+    return [];
+  }
+
+  function isSourceLine(line) {
+    return /^(source|citation|works cited|reference)\s*:|https?:\/\/|www\./i.test(line);
+  }
+
+  function isWritingPromptLine(line) {
+    return /^(writing prompt|essay prompt|prompt|write|essay|paragraph)\b/i.test(stripListMarker(line));
+  }
+
+  function isLikelyHeading(line) {
+    const clean = stripListMarker(line);
+
+    return (
+      clean.length < 80 &&
+      !/[.!?]$/.test(clean) &&
+      /study guide|notes|review|chapter|unit|lesson|worksheet/i.test(clean)
+    );
+  }
+
+  function looksLikeFact(line) {
+    const clean = stripListMarker(line);
+
+    return (
+      clean.length > 14 &&
+      !isQuestionLine(clean) &&
+      !isVocabularyLine(clean) &&
+      !isWritingPromptLine(clean) &&
+      !detectMathProblem(clean)
+    );
+  }
+
+  function cleanExtractedItem(item) {
+    return String(item)
+      .replace(/^[\s,.;:-]+/, "")
+      .replace(/[\s,.;:-]+$/, "")
+      .trim();
+  }
+
+  function titleCaseKnown(value) {
+    return String(value)
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" ");
+  }
+
+  function extractCodeBlocks(text) {
+    const blocks = [];
+    const regex = /```([a-zA-Z0-9_-]*)\n?([\s\S]*?)```/g;
+    let match;
+
+    while ((match = regex.exec(String(text))) !== null) {
+      blocks.push({
+        language: match[1] || "code",
+        text: match[2].trim()
+      });
+    }
+
+    if (!blocks.length && /\b(function|const|let|var|class|def|return)\b|[{};]/.test(text)) {
+      blocks.push({
+        language: "code",
+        text: String(text).trim()
+      });
+    }
+
+    return blocks.filter((block) => block.text);
+  }
+
+  function removeCodeBlocks(text) {
+    return String(text).replace(/```([a-zA-Z0-9_-]*)\n?([\s\S]*?)```/g, "");
+  }
+
+  function splitMaterial(text) {
+    return String(text)
+      .replace(/\r/g, "")
+      .split(/\n|;|(?=\s*\d+\.\s+)|(?=\s*[-•*]\s+)/)
+      .map((line) => line.replace(/^\s*(\d+\.|[-•*])\s*/, "").trim())
+      .filter(Boolean);
   }
 
   function bindPractice() {
@@ -1169,8 +1150,6 @@
 
       const result = checkAnswer(problem, input.value);
 
-      if (options.item) options.item.attempted = true;
-
       if (options.context === "learn" && options.item && !options.item.saved) {
         saveMathAttempt(problem, result);
         options.item.saved = true;
@@ -1196,7 +1175,7 @@
 
     if (result.correct) {
       panel.append(textP(problem.correctMessage));
-      panel.append(div("actions", [buttonEl("Next challenge", "btn btn-primary", onNext)]));
+      panel.append(div("actions", [buttonEl("Continue", "btn btn-primary", onNext)]));
       return panel;
     }
 
@@ -1214,42 +1193,39 @@
 
     panel.append(
       div("actions", [
-        buttonEl("Try repair drill", "btn btn-secondary", () => {
-          const folders = buildStudyFolders(repair.display);
-          const classification = classifyStudyMaterial(repair.display, folders);
-          const session = {
-            type: "studypath",
-            originalText: repair.display,
-            folders,
-            classification,
-            tools: buildToolsFromFolders(folders, classification),
-            mathItems: [
-              {
-                id: "repair-math",
-                supported: true,
-                raw: repair.display,
-                problem: repair,
-                hintIndex: 0,
-                attempted: false,
-                saved: false
-              }
-            ]
-          };
-
-          state.session = session;
-          state.currentView = { type: "tool", toolType: "math" };
-          state.currentMathIndex = 0;
-
-          if (els.learnWorkspace) els.learnWorkspace.classList.remove("hidden");
-
-          renderLearningSession();
-          showSection("learn");
-        }),
-        buttonEl("Next problem", "btn btn-primary", onNext)
+        buttonEl("Continue", "btn btn-primary", onNext)
       ])
     );
 
     return panel;
+  }
+
+  function saveMathAttempt(problem, result) {
+    state.progress.mathProblemsAttempted += 1;
+
+    if (result.correct) {
+      state.progress.correctAnswers += 1;
+    } else {
+      state.progress.mistakes[result.mistakeType] = (state.progress.mistakes[result.mistakeType] || 0) + 1;
+      addWeakSubject("math");
+    }
+
+    const skill = state.progress.skills[problem.skill] || { attempts: 0, correct: 0 };
+    skill.attempts += 1;
+    if (result.correct) skill.correct += 1;
+    state.progress.skills[problem.skill] = skill;
+
+    state.progress.recentAttempts.unshift({
+      subject: "math",
+      skill: problem.skill,
+      correct: result.correct,
+      mistake: result.mistakeType || null,
+      at: new Date().toISOString()
+    });
+
+    state.progress.recentAttempts = state.progress.recentAttempts.slice(0, 20);
+
+    saveProgress();
   }
 
   function checkAnswer(problem, input) {
@@ -1336,17 +1312,10 @@
       }
     } else if (problem.kind === "distribute") {
       if (expression) {
-        if (expression.x === problem.coefficient && expression.c === problem.insideConstant) {
-          mistakeType = "distribution_error";
-          message = "You distributed to x but not to the second term.";
-          why = "The outside number multiplies every term inside parentheses.";
-          fix = `Multiply ${problem.coefficient} by ${problem.insideConstant} too.`;
-        } else {
-          mistakeType = "distribution_error";
-          message = "The distribution pattern is off.";
-          why = "Each term inside the parentheses must be multiplied by the outside number.";
-          fix = "Use a(b + c) = ab + ac.";
-        }
+        mistakeType = "distribution_error";
+        message = "The distribution pattern is off.";
+        why = "Each term inside the parentheses must be multiplied by the outside number.";
+        fix = "Use a(b + c) = ab + ac.";
       }
     }
 
@@ -1358,34 +1327,6 @@
       fix,
       repairDrill: problem.repairDrill || problem
     };
-  }
-
-  function saveMathAttempt(problem, result) {
-    state.progress.mathProblemsAttempted += 1;
-
-    if (result.correct) {
-      state.progress.correctAnswers += 1;
-    } else {
-      state.progress.mistakes[result.mistakeType] = (state.progress.mistakes[result.mistakeType] || 0) + 1;
-      addWeakSubject("math");
-    }
-
-    const skill = state.progress.skills[problem.skill] || { attempts: 0, correct: 0 };
-    skill.attempts += 1;
-    if (result.correct) skill.correct += 1;
-    state.progress.skills[problem.skill] = skill;
-
-    state.progress.recentAttempts.unshift({
-      subject: "math",
-      skill: problem.skill,
-      correct: result.correct,
-      mistake: result.mistakeType || null,
-      at: new Date().toISOString()
-    });
-
-    state.progress.recentAttempts = state.progress.recentAttempts.slice(0, 20);
-
-    saveProgress();
   }
 
   function detectMathProblem(raw) {
@@ -1421,7 +1362,6 @@
     const repairDisplay = `${coefficient + 1}x + ${constant} = ${formatNumber(repairRight)}`;
 
     return {
-      id: `eq-${display}`,
       kind: "equation",
       topic: "Algebra 1",
       skill: "two_step_equations",
@@ -1454,7 +1394,6 @@
     const x = a + b;
 
     return {
-      id: `combine-${display}`,
       kind: "combine",
       topic: "Algebra 1",
       skill: "combining_like_terms",
@@ -1480,7 +1419,6 @@
     const c = sign === "-" ? -coefficient * insideConstant : coefficient * insideConstant;
 
     return {
-      id: `dist-${display}`,
       kind: "distribute",
       topic: "Algebra 1",
       skill: "distributive_property",
@@ -1505,6 +1443,23 @@
     };
   }
 
+  function bindProgress() {
+    if (els.refreshProgressBtn) {
+      els.refreshProgressBtn.addEventListener("click", renderProgressDashboard);
+    }
+
+    if (els.resetProgressBtn) {
+      els.resetProgressBtn.addEventListener("click", () => {
+        if (!window.confirm("Reset local Theorem progress?")) return;
+
+        state.progress = defaultProgress();
+        saveProgress();
+        renderProgressDashboard();
+        renderReview();
+      });
+    }
+  }
+
   function renderProgressDashboard() {
     if (!els.progressDashboard) return;
 
@@ -1527,28 +1482,11 @@
     els.progressDashboard.append(
       statCard("Sessions", progress.sessions),
       statCard("Most studied", labelSubject(mostStudied)),
-      statCard("Folders extracted", progress.foldersExtracted),
       statCard("Math accuracy", `${percent(progress.correctAnswers, progress.mathProblemsAttempted)}%`),
+      statCard("Flashcards", progress.flashcardsReviewed),
       wideCard("Recommendation", recommendNext(progress, weakestSkill, commonMistake)),
       wideCard("Most common mistake", readableMistake(commonMistake))
     );
-  }
-
-  function bindProgress() {
-    if (els.refreshProgressBtn) {
-      els.refreshProgressBtn.addEventListener("click", renderProgressDashboard);
-    }
-
-    if (els.resetProgressBtn) {
-      els.resetProgressBtn.addEventListener("click", () => {
-        if (!window.confirm("Reset local Theorem progress?")) return;
-
-        state.progress = defaultProgress();
-        saveProgress();
-        renderProgressDashboard();
-        renderReview();
-      });
-    }
   }
 
   function renderReview() {
@@ -1561,35 +1499,47 @@
       progress.sessions ||
       progress.mathProblemsAttempted ||
       progress.flashcardsReviewed ||
-      progress.teachBackAttempts;
+      progress.conceptQuizzesCompleted;
 
     if (!hasProgress) {
-      els.reviewGrid.append(reviewCard("Complete a learning session first.", "Paste notes, code, worksheets, or exact Algebra 1 problems in the Learn Workspace."));
+      els.reviewGrid.append(
+        reviewCard("Complete a learning session first.", "Paste notes, homework, code, or supported Algebra 1 problems in the Learn Workspace.")
+      );
       return;
     }
 
-    const mistakes = Object.entries(progress.mistakes)
+    Object.entries(progress.mistakes)
       .filter(([, count]) => count > 0)
       .sort((a, b) => b[1] - a[1])
-      .slice(0, 3);
-
-    mistakes.forEach(([type, count]) => {
-      els.reviewGrid.append(reviewCard(readableMistake(type), `${count} time(s). Try a repair drill in Practice.`));
-    });
+      .slice(0, 3)
+      .forEach(([type, count]) => {
+        els.reviewGrid.append(reviewCard(readableMistake(type), `${count} time(s). Try a repair drill in Practice.`));
+      });
 
     progress.weakTerms.slice(0, 6).forEach((term) => {
       els.reviewGrid.append(reviewCard(`Review term: ${term}`, "Explain it out loud, then compare against your notes."));
     });
 
-    Object.entries(progress.weakSubjects)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 3)
-      .forEach(([subject]) => {
-        els.reviewGrid.append(reviewCard(`Weak subject: ${labelSubject(subject)}`, "Build a new session and use teach-back mode."));
-      });
-
     if (!els.reviewGrid.children.length) {
-      els.reviewGrid.append(reviewCard("Review is ready.", "Keep using Learn Workspace and Theorem will build more specific review."));
+      els.reviewGrid.append(reviewCard("Review is ready.", "Keep using Theorem and review cards will appear here."));
+    }
+  }
+
+  function saveProgress() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.progress));
+    } catch {
+      /* Keep progress in memory if localStorage fails. */
+    }
+  }
+
+  function loadProgress() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return defaultProgress();
+      return mergeProgress(defaultProgress(), JSON.parse(raw));
+    } catch {
+      return defaultProgress();
     }
   }
 
@@ -1598,14 +1548,12 @@
       sessions: 0,
       subjectSessions: Object.fromEntries(SUBJECTS.map((subject) => [subject, 0])),
       materialsImported: 0,
-      foldersExtracted: 0,
       problemsImported: 0,
       unsupportedProblems: 0,
       mathProblemsAttempted: 0,
       correctAnswers: 0,
       conceptQuizzesCompleted: 0,
       flashcardsReviewed: 0,
-      teachBackAttempts: 0,
       weakSubjects: {},
       weakTerms: [],
       mistakes: Object.fromEntries(MISTAKE_TYPES.map((mistake) => [mistake, 0])),
@@ -1616,17 +1564,6 @@
       },
       recentAttempts: []
     };
-  }
-
-  function loadProgress() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return defaultProgress();
-
-      return mergeProgress(defaultProgress(), JSON.parse(raw));
-    } catch {
-      return defaultProgress();
-    }
   }
 
   function mergeProgress(base, saved) {
@@ -1645,126 +1582,10 @@
         ...base.skills,
         ...(saved.skills || {})
       },
-      weakSubjects: {
-        ...(saved.weakSubjects || {})
-      },
+      weakSubjects: saved.weakSubjects || {},
       weakTerms: saved.weakTerms || [],
       recentAttempts: saved.recentAttempts || []
     };
-  }
-
-  function saveProgress() {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.progress));
-    } catch {
-      /* Keep progress in memory if localStorage fails. */
-    }
-  }
-
-  function cleanLine(line) {
-    return String(line || "")
-      .replace(/^\s*(?:[-•*]|\d+[.)])\s*/, "")
-      .trim();
-  }
-
-  function normalizePrompt(line) {
-    return cleanLine(line).replace(/\s+/g, " ");
-  }
-
-  function extractCodeBlocks(text) {
-    const matches = [];
-    const regex = /```[\s\S]*?```/g;
-    let match;
-
-    while ((match = regex.exec(text)) !== null) {
-      matches.push(match[0].replace(/^```[a-zA-Z]*\n?/, "").replace(/```$/, "").trim());
-    }
-
-    if (!matches.length && looksLikeCode(text)) {
-      matches.push(text.trim());
-    }
-
-    return matches.filter(Boolean);
-  }
-
-  function removeCodeBlocks(text) {
-    return String(text || "").replace(/```[\s\S]*?```/g, "");
-  }
-
-  function looksLikeCode(text) {
-    return /\b(function|const|let|var|class|def|return|console\.log|print\()\b|[{};]/.test(String(text));
-  }
-
-  function extractTermsFromLine(line) {
-    const match = line.match(/^(?:vocabulary|key terms?|terms?)\s*:\s*(.+)$/i);
-    if (!match) return [];
-
-    return match[1]
-      .split(/,|;/)
-      .map((term) => term.trim())
-      .filter(Boolean);
-  }
-
-  function extractDates(line) {
-    const matches = line.match(/\b(?:1[0-9]{3}|20[0-9]{2})\b/g) || [];
-    return Array.from(new Set(matches));
-  }
-
-  function extractEventFromLine(line) {
-    const explicit = line.match(/^(?:important\s+event|event)\s*:\s*(.+)$/i);
-    if (explicit) {
-      return explicit[1].replace(/\b(?:1[0-9]{3}|20[0-9]{2})\b/g, "").replace(/,\s*$/, "").trim();
-    }
-
-    if (/Boston Tea Party/i.test(line)) return "Boston Tea Party";
-    if (/American Revolution/i.test(line)) return "American Revolution";
-
-    return "";
-  }
-
-  function isQuestionLine(line) {
-    return (
-      /\?$/.test(line) ||
-      /^(?:explain|describe|what|why|how|compare|analyze|discuss|evaluate|name|identify)\b/i.test(line)
-    );
-  }
-
-  function isWritingPrompt(line) {
-    return /^(?:write|essay|prompt|draft|compose|argue|paragraph)\b/i.test(line);
-  }
-
-  function isCauseEffectLine(line) {
-    return /\b(cause|caused|causes|because|effect|led to|resulted in|why)\b/i.test(line);
-  }
-
-  function isSource(line) {
-    return /^(?:source|works cited|citation|reference)\s*:|https?:\/\//i.test(line);
-  }
-
-  function looksLikeHeading(line, index) {
-    if (index > 2 && line.length > 70) return false;
-    if (/[.!?]$/.test(line)) return false;
-    return /study guide|notes|worksheet|review|chapter|unit/i.test(line) || /^[A-Z][A-Za-z0-9\s:&-]{4,60}$/.test(line);
-  }
-
-  function extractPeople(line) {
-    const names = line.match(/\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)+\b/g) || [];
-    return names.filter((name) => !/American Revolution|Boston Tea Party|Study Guide/i.test(name));
-  }
-
-  function addUnique(folder, text, seen, prefix) {
-    const value = String(text || "").trim();
-    if (!value) return;
-
-    const key = `${prefix}:${value.toLowerCase()}`;
-    if (seen.has(key)) return;
-
-    seen.add(key);
-    folder.push({ text: value });
-  }
-
-  function countNonEmptyFolders(folders) {
-    return Object.values(folders).filter((items) => Array.isArray(items) && items.length > 0).length;
   }
 
   function checkTerms(answer, required) {
@@ -1774,7 +1595,14 @@
     if (!String(answer || "").trim()) {
       return {
         missing: required,
-        message: "Write an explanation first. Then compare it to the checklist."
+        message: "Write an answer first. Then compare it to the checklist."
+      };
+    }
+
+    if (!required.length) {
+      return {
+        missing: [],
+        message: "Good. Now compare your answer against your class notes."
       };
     }
 
@@ -1831,6 +1659,23 @@
     return bank[Math.floor(Math.random() * bank.length)];
   }
 
+  function addUnique(list, value) {
+    const clean = cleanExtractedItem(value);
+    if (clean && !list.some((item) => String(item).toLowerCase() === clean.toLowerCase())) {
+      list.push(clean);
+    }
+  }
+
+  function addObjectUnique(list, object, key) {
+    if (!object || !object[key]) return;
+
+    const value = String(object[key]).toLowerCase();
+
+    if (!list.some((item) => String(item[key]).toLowerCase() === value)) {
+      list.push(object);
+    }
+  }
+
   function addWeakTerms(terms) {
     terms.forEach((term) => {
       if (term && !state.progress.weakTerms.includes(term)) {
@@ -1846,7 +1691,7 @@
   }
 
   function recommendNext(progress, weakestSkill, commonMistake) {
-    if (!progress.sessions) return "Start with the Learn Workspace.";
+    if (!progress.sessions) return "Start by building a study path.";
 
     if (progress.mathProblemsAttempted && percent(progress.correctAnswers, progress.mathProblemsAttempted) < 80) {
       return `Practice ${titleSkill(weakestSkill)} and watch for ${readableMistake(commonMistake)}.`;
@@ -1856,7 +1701,7 @@
       return `Review these terms: ${progress.weakTerms.slice(0, 3).join(", ")}.`;
     }
 
-    return "Build a new StudyPath session and use teach-back mode.";
+    return "Build another study path and continue one card at a time.";
   }
 
   function skillAccuracy(skill) {
@@ -1896,11 +1741,6 @@
   function readableMistake(type) {
     if (!type || type === "None yet") return "None yet";
     return mistakeLabels[type] || String(type).replace(/_/g, " ");
-  }
-
-  function folderLabel(folderKey) {
-    const found = FOLDER_CONFIG.find(([key]) => key === folderKey);
-    return found ? found[1] : folderKey;
   }
 
   function formatNumber(number) {
@@ -1946,10 +1786,8 @@
 
   function span(text, className) {
     const node = document.createElement("span");
-
     if (className) node.className = className;
     node.textContent = text;
-
     return node;
   }
 
@@ -1967,10 +1805,8 @@
 
   function textP(text, className) {
     const node = document.createElement("p");
-
     if (className) node.className = className;
     node.textContent = text;
-
     return node;
   }
 
@@ -1992,25 +1828,30 @@
     return node;
   }
 
-  function buttonSetDone(button, text) {
-    button.textContent = text;
-    button.disabled = true;
-  }
-
   function list(items, className) {
     const node = document.createElement("ul");
-
     if (className) node.className = className;
 
     const safeItems = items && items.length ? items : ["No items found yet."];
 
     safeItems.forEach((item) => {
       const li = document.createElement("li");
-      li.textContent = item;
+      li.textContent = typeof item === "string" ? item : JSON.stringify(item);
       node.append(li);
     });
 
     return node;
+  }
+
+  function codeBlock(text) {
+    const pre = document.createElement("pre");
+    pre.className = "code-block-view";
+
+    const code = document.createElement("code");
+    code.textContent = text;
+
+    pre.append(code);
+    return pre;
   }
 
   function statPill(label, value) {
