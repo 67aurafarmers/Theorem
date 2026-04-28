@@ -790,3 +790,21 @@ button:focus-visible {
     scroll-behavior: auto !important;
   }
 }
+.path-card.active {
+  border-color: rgba(217, 119, 87, 0.35);
+  background:
+    linear-gradient(145deg, rgba(217, 119, 87, 0.16), rgba(255, 255, 255, 0.58)),
+    rgba(255, 251, 245, 0.9);
+}
+
+.disabled-card {
+  opacity: 0.72;
+}
+
+.disabled-card:hover {
+  transform: none;
+}
+
+.app-view {
+  min-height: 100vh;
+}
