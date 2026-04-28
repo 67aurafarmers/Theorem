@@ -1,345 +1,262 @@
-Build Theorem v1 Full App in one complete pass.
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta
+    name="description"
+    content="Theorem is a study takeoff system that organizes assignments into a clear study path."
+  />
+  <title>Theorem — Study Takeoff System</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="auth.js" defer></script>
+  <script src="script.js" defer></script>
+</head>
 
-Theorem is a study takeoff system.
+<body>
+  <div id="loadingScreen" class="loading-screen" aria-live="polite">
+    <div class="loading-orb orb-one"></div>
+    <div class="loading-orb orb-two"></div>
+    <div class="loading-orb orb-three"></div>
 
-Core product:
-A student comes home with messy homework, notes, worksheets, screenshots, assignments, and stress. They upload or paste everything. Theorem reads it, extracts it, classifies it, organizes it into folders, and builds the correct study path.
+    <div class="loading-card">
+      <div class="loading-logo">
+        <span class="brand-mark">∴</span>
+        <span>Theorem</span>
+      </div>
 
-Theorem’s purpose:
-Remove the mental and physical friction of starting homework and studying.
+      <p class="eyebrow">Study takeoff system</p>
+      <h1>Preparing your study path…</h1>
+      <p id="loadingPhrase" class="loading-phrase">Clearing the runway…</p>
 
-Core analogy:
-Students are like planes. The most dangerous part is takeoff and landing. Theorem’s job is to clear the runway and get them into the air.
+      <div class="loading-bar" aria-hidden="true">
+        <span></span>
+      </div>
+    </div>
+  </div>
 
-Do not build a generic tutor.
-Do not build an Algebra-first app.
-Do not build an AI chat app.
-Do not build a subscription-first app.
-Do not collect Gmail passwords.
+  <main id="main">
+    <section id="loginView" class="auth-view hidden" aria-labelledby="loginTitle">
+      <div class="auth-card">
+        <div class="auth-logo">
+          <span class="brand-mark">∴</span>
+          <span>Theorem</span>
+        </div>
 
-Build a polished frontend now and prepare safe backend hooks for later.
+        <p class="eyebrow">Clear the runway</p>
+        <h1 id="loginTitle">Welcome to Theorem</h1>
+        <p class="auth-subtitle">
+          Upload your assignments. Theorem will organize them into a study path.
+        </p>
 
-Required app flow:
-1. User opens the site.
-2. Centered 2–5 second loading animation appears.
-3. User sees Google login screen.
-4. User can continue as guest OR continue with Google.
-5. User reaches a minimal upload workspace.
-6. User uploads/pastes assignments.
-7. Theorem extracts the text.
-8. Theorem classifies the material into departments:
-   - Math
-   - Science
-   - Social Studies
-   - Reading/Writing
-9. Theorem organizes extracted material into folders.
-10. Theorem builds the right study path.
-11. User can open study tools.
-12. Progress is saved.
+        <div class="auth-actions">
+          <button class="btn btn-primary" id="googleLoginBtn" type="button">
+            Continue with Google
+          </button>
+          <button class="btn btn-secondary" id="guestLoginBtn" type="button">
+            Continue as guest
+          </button>
+        </div>
 
-Important:
-For this version, if real OCR/backend is not available, simulate extraction from pasted text and .txt/.md uploads. Put image/PDF upload in the UI but show:
-“Image and PDF extraction is coming soon.”
+        <p id="authMessage" class="helper-message" role="status" aria-live="polite"></p>
 
-Do not fake image/PDF support.
+        <p class="safe-note">
+          Theorem never asks for your Gmail password. Google sign-in will use Google OAuth /
+          Firebase Auth only when it is connected.
+        </p>
+      </div>
+    </section>
 
-Loading screen:
-- Fullscreen
-- Perfectly centered
-- Premium warm design
-- Logo: ∴ Theorem
-- Main text: “Preparing your study path…”
-- Rotating phrases:
-  - Clearing the runway…
-  - Reading your workspace…
-  - Preparing study engines…
-  - Building your path…
-  - Ready for takeoff.
-- Duration: 2–5 seconds
-- Smooth fade out
-- No external libraries
-- Must appear every refresh
+    <section id="appView" class="app-view hidden">
+      <header class="site-header">
+        <div class="nav-shell">
+          <button class="brand-button" type="button" data-screen-target="dashboard">
+            <span class="brand-mark">∴</span>
+            <span>Theorem</span>
+          </button>
 
-Login screen:
-- Clean centered card
-- Title: “Welcome to Theorem”
-- Subtitle: “Upload your assignments. Theorem will organize them into a study path.”
-- Buttons:
-  - Continue with Google
-  - Continue as guest
-- No subscription shown here
-- No Gmail password form
-- No fake password form
+          <button
+            class="nav-toggle"
+            id="navToggle"
+            type="button"
+            aria-controls="navLinks"
+            aria-expanded="false"
+          >
+            Menu
+          </button>
 
-Google login:
-For now, prepare the UI and auth.js hook.
-Use Firebase Auth only when config is available.
-Do not collect passwords.
-Do not store passwords.
-Use Google OAuth / Firebase Auth.
-Firebase Auth should handle the Google sign-in provider.
-If Firebase config is missing, Google button should show:
-“Google sign-in is not connected yet.”
+          <nav id="navLinks" class="nav-links" aria-label="Main navigation">
+            <button class="nav-link active" type="button" data-screen-target="dashboard">Dashboard</button>
+            <button class="nav-link" type="button" data-screen-target="paths">Study Paths</button>
+            <button class="nav-link" type="button" data-screen-target="review">Review</button>
+            <button class="nav-link" type="button" data-screen-target="progress">Progress</button>
+            <button class="nav-link" type="button" data-screen-target="settings">Settings</button>
+          </nav>
+        </div>
+      </header>
 
-Main dashboard after login:
-Title:
-“What do you need to study?”
+      <section id="screen-dashboard" class="screen active-screen">
+        <div class="hero-shell">
+          <div class="hero-copy">
+            <p class="eyebrow">Study takeoff system</p>
+            <h2>What do you need to study?</h2>
+            <p>
+              Upload your assignments. Theorem will organize them into a study path.
+            </p>
 
-Subtitle:
-“Upload your assignments. Theorem will organize them into a study path.”
+            <div class="hero-actions">
+              <button class="btn btn-primary" id="uploadActionBtn" type="button">
+                Upload assignments
+              </button>
+              <button class="btn btn-secondary" id="pasteActionBtn" type="button">
+                Paste text
+              </button>
+            </div>
+          </div>
 
-Primary actions:
-- Upload assignments
-- Paste text
+          <div class="runway-card">
+            <p class="eyebrow">Runway status</p>
+            <h3>Ready for takeoff</h3>
+            <p>
+              Paste or upload school material. Theorem extracts, classifies, organizes,
+              and turns it into a guided study path.
+            </p>
+          </div>
+        </div>
 
-The upload workspace should be minimal:
-- Big paste area
-- File upload for .txt/.md
-- Disabled/coming-soon image/PDF upload card
-- One button: “Build study path”
+        <section class="upload-card" aria-labelledby="uploadTitle">
+          <div class="section-heading">
+            <p class="eyebrow">Assignment intake</p>
+            <h2 id="uploadTitle">Drop everything here.</h2>
+            <p>
+              Notes, homework, worksheets, study guides, writing prompts, code, and text
+              from assignments all go in one place.
+            </p>
+          </div>
 
-No manual subject dropdown.
-No unnecessary options.
+          <textarea
+            id="materialInput"
+            placeholder="Paste your assignment, notes, study guide, worksheet, or code here.
 
-Extraction/parsing:
-Parse pasted material into:
-- assignments
-- questions
-- vocabulary
-- key facts
-- dates
-- events
-- people
-- math problems
-- writing prompts
-- code blocks
-- sources
-- unknown items
+Example:
+American Revolution Study Guide
+1. Explain taxation without representation.
+2. Describe the Boston Tea Party.
+3. What caused the American Revolution?
+Vocabulary: boycott, colony, representation.
+Important event: Boston Tea Party, 1773."
+          ></textarea>
 
-Classification:
-Classify into departments:
-1. Math
-2. Science
-3. Social Studies
-4. Reading/Writing
+          <div class="upload-grid">
+            <label class="file-card">
+              <span class="file-icon">TXT</span>
+              <strong>Upload .txt or .md</strong>
+              <span>Works now</span>
+              <input id="materialFile" type="file" accept=".txt,.md,text/plain,text/markdown" />
+            </label>
 
-Department rules:
-Math:
-- equations
-- solve/simplify
-- numbers/operators
-- x variables
-- formulas
+            <button class="file-card disabled-card" id="imagePdfBtn" type="button">
+              <span class="file-icon">IMG</span>
+              <strong>Image / PDF upload</strong>
+              <span>Coming soon</span>
+            </button>
+          </div>
 
-Science:
-- photosynthesis
-- cells
-- energy
-- force
-- matter
-- atom
-- molecule
-- ecosystem
-- experiment
-- hypothesis
-- variable
-- claim/evidence/reasoning if science context
+          <div class="build-row">
+            <button class="btn btn-primary" id="buildPathBtn" type="button">
+              Build study path
+            </button>
+            <p id="uploadMessage" class="helper-message" role="status" aria-live="polite"></p>
+          </div>
 
-Social Studies:
-- revolution
-- war
-- government
-- colony
-- president
-- rights
-- treaty
-- empire
-- civilization
-- economy
-- dates/events/people
+          <p class="safe-note">
+            For v1, Theorem reads pasted text and .txt/.md files. Image and PDF extraction is coming soon.
+          </p>
+        </section>
 
-Reading/Writing:
-- story
-- poem
-- theme
-- character
-- author
-- essay
-- claim
-- evidence
-- paragraph
-- prompt
-- text evidence
+        <section id="activePathShell" class="study-shell hidden" aria-live="polite">
+          <aside class="side-panel">
+            <p class="eyebrow">Detected</p>
+            <div id="detectedSummary" class="detected-summary"></div>
 
-Study folders:
-After processing, show:
-- Assignments
-- Questions
-- Vocabulary
-- Key Facts
-- Dates
-- Events
-- People
-- Math Problems
-- Writing Prompts
-- Sources
-- Unknown / Needs Review
+            <div class="mini-divider"></div>
 
-StudyPath Engine:
-Build study tools based on department and folders.
+            <p class="eyebrow">Study path</p>
+            <div id="pathSteps" class="path-steps"></div>
+          </aside>
 
-Math study path:
-- step-by-step checking
-- hints
-- mistake diagnosis
-- repair drills
-- mastery problems
+          <section class="study-card-panel">
+            <div id="studyStage"></div>
+          </section>
 
-Science study path:
-Use Remember → Explain → Apply.
-Tools:
-- memory flashcards
-- vocabulary recall
-- process breakdown
-- teach-back mode
-- application questions
-- quick quiz
+          <aside class="side-panel">
+            <p class="eyebrow">Tools</p>
+            <div id="studyTools"></div>
+          </aside>
+        </section>
+      </section>
 
-Social Studies study path:
-Tools:
-- flashcards
-- timeline
-- people/events review
-- cause/effect map
-- why-it-mattered questions
-- creative thinking test
-- short-answer practice
+      <section id="screen-paths" class="screen">
+        <div class="section-heading">
+          <p class="eyebrow">Saved locally</p>
+          <h2>Study Paths</h2>
+          <p>Your active paths are saved in this browser using localStorage.</p>
+        </div>
 
-Reading/Writing study path:
-Tools:
-- main idea
-- vocabulary
-- theme/character tracker
-- claim/evidence/reasoning builder
-- essay outline
-- short-answer practice
+        <div id="pathsGrid" class="card-grid"></div>
+      </section>
 
-Free plan logic:
-Prepare a simple local plan system.
-Free:
-- 3 active study paths
-- limited uploads per day
-- basic study tools
-Pro:
-- unlimited study paths
-- more uploads
-- saved history
-- smarter extraction later
-- deeper review later
+      <section id="screen-review" class="screen">
+        <div class="section-heading">
+          <p class="eyebrow">Review</p>
+          <h2>Weak spots and review items</h2>
+          <p>Theorem builds review from completed cards, missed math checks, and saved terms.</p>
+        </div>
 
-Do not build real payments yet.
-Show Pro as “Coming later.”
+        <div id="reviewGrid" class="card-grid"></div>
+      </section>
 
-Storage:
-Use localStorage for now.
-Store:
-- user mode: guest/signed-in placeholder
-- study paths
-- assignments
-- folders
-- progress
-- plan usage
-- createdAt timestamps
+      <section id="screen-progress" class="screen">
+        <div class="section-heading">
+          <p class="eyebrow">Progress</p>
+          <h2>Local progress</h2>
+          <p>No backend is connected yet. This progress is stored on this device.</p>
+        </div>
 
-Prepare data model for Firestore later:
-users/{uid}
-users/{uid}/studyPaths/{studyPathId}
-users/{uid}/assignments/{assignmentId}
-users/{uid}/progress/main
-users/{uid}/reviewItems/{reviewItemId}
+        <div id="progressDashboard" class="dashboard-grid"></div>
+      </section>
 
-Prepare Firebase files:
-- auth.js placeholder for Firebase Auth Google sign-in
-- firestore.rules file with secure user-owned data rules
-- README instructions for enabling Firebase Auth later
+      <section id="screen-settings" class="screen">
+        <div class="section-heading">
+          <p class="eyebrow">Settings</p>
+          <h2>Your Theorem setup</h2>
+          <p>Manage local data and future account settings.</p>
+        </div>
 
-Firestore rules:
-Only allow users to read/write their own data.
+        <div class="settings-grid">
+          <article class="info-card">
+            <h3>Free plan</h3>
+            <p>3 active study paths, limited uploads per day, and basic study tools.</p>
+            <p id="planUsageText" class="stat-line"></p>
+          </article>
 
-Rules pattern:
-match /users/{userId}/{document=**} {
-  allow read, write: if request.auth != null && request.auth.uid == userId;
-}
+          <article class="info-card">
+            <h3>Pro</h3>
+            <p>Unlimited paths, more uploads, saved history, smarter extraction, and deeper review.</p>
+            <span class="coming-pill">Coming later</span>
+          </article>
 
-App Check:
-Mention in README that Firebase App Check should be added before production to protect backend resources.
-
-UI style:
-- warm premium workspace
-- calm
-- centered
-- minimal
-- student-friendly
-- not childish
-- not generic blue SaaS
-- not math-first
-- no clutter
-- smooth animations
-- soft shadows
-- cream background
-- clay/orange accents
-
-Navigation:
-After login:
-- Dashboard
-- Study Paths
-- Review
-- Progress
-- Settings
-
-Make sure all buttons work.
-No dead buttons.
-No hidden major features.
-No console errors.
-
-Files to return:
-- index.html
-- style.css
-- script.js
-- auth.js
-- firestore.rules
-- README.md
-
-Security requirements:
-- Do not collect Gmail passwords.
-- Do not create email/password login unless Firebase Auth handles it.
-- Do not store passwords.
-- Do not expose private API keys for AI.
-- Do not call paid AI APIs from frontend.
-- Do not pretend image/PDF extraction works if it does not.
-- Do not use innerHTML with raw user input.
-- Render user content safely with textContent or created DOM nodes.
-
-Acceptance tests:
-1. Loading animation appears every refresh and is centered.
-2. Login screen appears after loading.
-3. Continue as guest works.
-4. Google sign-in button does not crash if Firebase is not configured.
-5. Dashboard appears.
-6. User can paste American Revolution notes.
-7. Theorem classifies it as Social Studies.
-8. It creates questions, vocabulary, events, dates if present.
-9. It creates flashcards, cause/effect, creative test, short answer.
-10. User can paste photosynthesis notes.
-11. Theorem classifies it as Science.
-12. It creates Remember → Explain → Apply tools.
-13. User can paste 2x + 5 = 17.
-14. Theorem classifies it as Math.
-15. It creates math practice path.
-16. Free plan blocks after 3 active study paths.
-17. Progress updates.
-18. Review items appear.
-19. Site works on mobile.
-20. No console errors.
-
-Return complete replacement code.
+          <article class="info-card">
+            <h3>Account</h3>
+            <p id="accountModeText">Current mode: Guest</p>
+            <div class="button-row">
+              <button class="btn btn-secondary" id="signOutBtn" type="button">Sign out</button>
+              <button class="btn btn-ghost" id="resetDataBtn" type="button">Reset local data</button>
+            </div>
+          </article>
+        </div>
+      </section>
+    </section>
+  </main>
+</body>
+</html>
