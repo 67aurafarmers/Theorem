@@ -1769,3 +1769,79 @@ select {
     scroll-behavior: auto !important;
   }
 }
+/* StudyPath Engine additions */
+
+.folder-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.study-path-overview,
+.folder-view,
+.outline-builder {
+  display: grid;
+  gap: 16px;
+}
+
+.code-block-view {
+  margin: 12px 0 0;
+  padding: 16px;
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--line, rgba(255, 255, 255, 0.12));
+  border-radius: 18px;
+  background: rgba(0, 0, 0, 0.28);
+  color: var(--text-strong, #fffaf2);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.code-block-view code {
+  font-family:
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Monaco,
+    Consolas,
+    "Liberation Mono",
+    monospace;
+  white-space: pre;
+}
+
+.tool-button {
+  width: 100%;
+  text-align: left;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid var(--line, rgba(255, 255, 255, 0.12));
+  background: rgba(255, 255, 255, 0.055);
+  color: var(--text, #f5f0e8);
+  font-weight: 800;
+}
+
+.tool-button:hover,
+.tool-button:focus-visible,
+.tool-button.active {
+  outline: none;
+  background: rgba(255, 255, 255, 0.095);
+  border-color: rgba(217, 121, 75, 0.3);
+}
+
+.detected-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.folder-view .term-list,
+.study-path-overview .term-list {
+  margin-top: 10px;
+}
+
+@media (max-width: 700px) {
+  .folder-summary-grid {
+    grid-template-columns: 1fr;
+  }
+}
