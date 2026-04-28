@@ -5,18 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta
     name="description"
-    content="Theorem turns notes, homework, study guides, worksheets, textbook sections, and code into the right study path."
+    content="Theorem extracts school material, organizes it into study folders, and builds the right study path."
   />
-  <title>Theorem — Universal Study Workspace</title>
+  <title>Theorem — StudyPath Engine</title>
   <link rel="stylesheet" href="style.css" />
   <script src="script.js" defer></script>
 </head>
 
 <body>
   <div id="loadingScreen" class="loading-screen" aria-live="polite">
-    <div class="loading-bg-orb orb-one"></div>
-    <div class="loading-bg-orb orb-two"></div>
-    <div class="loading-bg-orb orb-three"></div>
+    <div class="loading-orb loading-bg-orb orb-one"></div>
+    <div class="loading-orb loading-bg-orb orb-two"></div>
+    <div class="loading-orb loading-bg-orb orb-three"></div>
 
     <div class="loading-card">
       <div class="loading-logo">
@@ -24,7 +24,7 @@
         <span>Theorem</span>
       </div>
 
-      <p class="loading-kicker">Universal study workspace</p>
+      <p class="loading-kicker">StudyPath Engine</p>
       <h2>Building your study path…</h2>
       <p id="loadingPhrase" class="loading-phrase">Reading the material…</p>
 
@@ -85,19 +85,22 @@
       id="section-home"
       aria-labelledby="home-title"
     >
+      <div class="hero-background-word" aria-hidden="true">THEOREM</div>
+
       <div class="hero-grid">
         <div class="hero-copy">
-          <p class="eyebrow">Universal study workspace</p>
+          <p class="eyebrow">StudyPath Engine</p>
           <h1 id="home-title">Theorem</h1>
+
           <p class="hero-lede">Upload anything you need to learn.</p>
           <p class="hero-subtext">
-            Theorem turns notes, homework, study guides, worksheets, textbook sections,
-            and code into the right study path for the material.
+            Theorem extracts your material, organizes it into study folders,
+            and builds the right study path from what it finds.
           </p>
 
           <div class="hero-actions">
             <button class="btn btn-primary" type="button" data-section-target="learn">
-              Build my study session
+              Build my study path
             </button>
             <button class="btn btn-secondary" type="button" data-section-target="about">
               See how it works
@@ -108,52 +111,71 @@
           </div>
 
           <div class="trust-row" aria-label="Theorem promises">
-            <span>Auto-detects subject</span>
-            <span>Chooses study mode</span>
-            <span>Turns notes into practice</span>
+            <span>Extracts material</span>
+            <span>Builds study folders</span>
+            <span>Suggests study tools</span>
             <span>Progress saved locally</span>
           </div>
         </div>
 
         <div class="hero-card">
-          <article class="glass-card universal-preview-card" id="heroShowcase">
+          <article class="glass-card cinematic-panel universal-preview-card">
+            <div class="panel-topline">
+              <span class="status-dot"></span>
+              <span>Frontend-only StudyPath Engine</span>
+            </div>
+
             <p class="preview-label">Theorem builds the path.</p>
 
-            <div class="hero-showcase">
-              <span class="showcase-subject" id="heroShowcaseSubject">History</span>
-              <h2 class="showcase-title" id="heroShowcaseTitle">Cause, effect, and memory</h2>
-              <p class="showcase-detail" id="heroShowcaseDetail">
-                Flashcards, timelines, creative tests, and short answers.
-              </p>
-
-              <div class="pipeline-list" aria-label="Theorem study pipeline">
-                <div class="pipeline-step">
-                  <span>01</span>
-                  <strong>Detect subject</strong>
-                </div>
-                <div class="pipeline-step">
-                  <span>02</span>
-                  <strong>Choose strategy</strong>
-                </div>
-                <div class="pipeline-step">
-                  <span>03</span>
-                  <strong>Generate study tools</strong>
-                </div>
-                <div class="pipeline-step">
-                  <span>04</span>
-                  <strong>Review weak spots</strong>
-                </div>
+            <div class="pipeline-list" aria-label="Theorem study pipeline">
+              <div class="pipeline-step">
+                <span>01</span>
+                <strong>Extract clean text</strong>
               </div>
-
-              <div class="tool-chip-row" aria-label="Study tools">
-                <span>Flashcards</span>
-                <span>Creative test</span>
-                <span>Step-by-step tutor</span>
-                <span>Teach-back</span>
-                <span>Review plan</span>
+              <div class="pipeline-step">
+                <span>02</span>
+                <strong>Sort into folders</strong>
               </div>
+              <div class="pipeline-step">
+                <span>03</span>
+                <strong>Detect task type</strong>
+              </div>
+              <div class="pipeline-step">
+                <span>04</span>
+                <strong>Build study tools</strong>
+              </div>
+            </div>
 
-              <div class="showcase-dots" id="heroShowcaseDots" aria-label="Subject showcase"></div>
+            <div class="tool-chip-row" aria-label="Study folders">
+              <span>Questions</span>
+              <span>Key Terms</span>
+              <span>Dates</span>
+              <span>Events</span>
+              <span>Math Problems</span>
+              <span>Code Blocks</span>
+              <span>Sources</span>
+            </div>
+
+            <div class="subject-card-grid">
+              <article class="subject-example-card">
+                <strong>Study Guide</strong>
+                <p>Questions + vocabulary + short-answer practice</p>
+              </article>
+
+              <article class="subject-example-card">
+                <strong>History Notes</strong>
+                <p>Dates + events + cause/effect review</p>
+              </article>
+
+              <article class="subject-example-card">
+                <strong>Math Homework</strong>
+                <p>Exact check + mistake repair</p>
+              </article>
+
+              <article class="subject-example-card">
+                <strong>Code</strong>
+                <p>Explanation + edge cases + test ideas</p>
+              </article>
             </div>
           </article>
         </div>
@@ -163,10 +185,11 @@
     <section class="app-section" id="section-learn" aria-labelledby="learn-title">
       <div class="section-heading">
         <p class="eyebrow">Learn Workspace</p>
-        <h2 id="learn-title">Paste material. Theorem chooses the study path.</h2>
+        <h2 id="learn-title">Paste material. Theorem builds the study path.</h2>
         <p>
-          Paste notes, homework, study guides, textbook sections, worksheets, or code.
-          Theorem detects the subject and builds the best learning mode it can.
+          Theorem is a StudyPath Engine. It extracts school material, sorts it into
+          folders, detects the task, and suggests the best study tools based on what
+          you provided.
         </p>
       </div>
 
@@ -174,17 +197,18 @@
         <div class="input-header">
           <div>
             <label class="prompt-label" for="materialInput">Your material</label>
-            <h3>Build a study session</h3>
+            <h3>Build a StudyPath session</h3>
             <p class="muted">
-              Paste any study material. Theorem will auto-detect the subject and choose a path.
+              Paste notes, homework, study guides, textbook sections, worksheets, writing
+              prompts, formulas, sources, or code.
             </p>
           </div>
 
           <div class="future-card">
-            <strong>Sign in coming later</strong>
-            <p>Future versions may save progress across devices.</p>
+            <strong>No account needed</strong>
+            <p>For now, Theorem runs in your browser with pasted text and .txt/.md upload.</p>
             <button class="btn btn-ghost" type="button" disabled>
-              Continue with Google
+              Google login coming later
             </button>
           </div>
         </div>
@@ -192,19 +216,24 @@
         <textarea
           id="materialInput"
           spellcheck="true"
-          placeholder="Paste notes, homework, study guides, worksheets, textbook sections, or code here.
+          placeholder="Paste school material here.
 
-Examples:
-The American Revolution was caused by taxation, lack of representation, and colonial resistance.
+Example:
+American Revolution Study Guide
+1. Explain taxation without representation.
+2. Describe the Boston Tea Party.
+3. What caused the American Revolution?
+Vocabulary: boycott, colony, representation.
+Important event: Boston Tea Party, 1773.
 
-Photosynthesis uses sunlight, carbon dioxide, and water to produce glucose and oxygen.
-
-Solve: 2x + 5 = 17
-
-function add(a, b) {
-  return a + b;
-}
-"
+You can also paste:
+- notes
+- homework
+- study guides
+- writing prompts
+- formulas
+- sources
+- code blocks"
         ></textarea>
 
         <div class="session-controls">
@@ -218,23 +247,26 @@ function add(a, b) {
           </div>
 
           <button class="btn btn-primary" id="buildSessionBtn" type="button">
-            Build my study session
+            Build my study path
           </button>
         </div>
 
         <p class="helper-message" id="uploadMessage" role="status" aria-live="polite"></p>
 
         <p class="learning-note">
-          Theorem is built to help you study, not copy answers. Exact math is checked directly.
-          Open-ended subjects use guided self-checks you should compare with your class notes.
+          Theorem does not claim perfect understanding. It organizes material based on
+          the text you provide, then suggests study tools you can review and use.
         </p>
       </div>
 
       <div class="learn-workspace hidden" id="learnWorkspace" aria-live="polite">
         <aside class="workspace-panel outline-panel">
           <div class="panel-heading">
-            <p class="micro-label">Auto-detected</p>
-            <h3>Session outline</h3>
+            <p class="micro-label">Extracted Material</p>
+            <h3>Study Folders</h3>
+            <p class="muted">
+              Theorem extracted your material and organized it into a study path.
+            </p>
           </div>
 
           <div id="detectedSummary" class="detected-summary"></div>
@@ -242,14 +274,17 @@ function add(a, b) {
           <div id="unsupportedList" class="unsupported-list"></div>
         </aside>
 
-        <section class="workspace-panel tutor-workspace-card" aria-label="Current tutor card">
+        <section class="workspace-panel tutor-workspace-card" aria-label="Current study path card">
           <div id="currentTutorCard"></div>
         </section>
 
         <aside class="workspace-panel tools-panel">
           <div class="panel-heading">
-            <p class="micro-label">Strategy</p>
-            <h3>Learning tools</h3>
+            <p class="micro-label">Suggested Tools</p>
+            <h3>Study Path</h3>
+            <p class="muted">
+              Based on the folders Theorem detected, these tools are suggested for this material.
+            </p>
           </div>
 
           <div id="studyTools"></div>
@@ -262,7 +297,7 @@ function add(a, b) {
         <p class="eyebrow">Practice</p>
         <h2 id="practice-title">Sharpen supported exact skills.</h2>
         <p>
-          Algebra is one supported study mode. Choose a skill to practice with exact checks,
+          Algebra is one supported study mode inside Theorem. Use exact checking,
           hints, mistake diagnosis, and repair drills.
         </p>
       </div>
@@ -345,7 +380,7 @@ function add(a, b) {
         <h2 id="progress-title">Saved locally for now.</h2>
         <p>
           Your progress is stored in this browser with localStorage. There is no account,
-          backend, or password collection in this version.
+          backend, Google login, or paid API in this version.
         </p>
       </div>
 
@@ -364,7 +399,7 @@ function add(a, b) {
     <section class="app-section" id="section-review" aria-labelledby="review-title">
       <div class="section-heading">
         <p class="eyebrow">Review</p>
-        <h2 id="review-title">Return to the weak spots.</h2>
+        <h2 id="review-title">Return to weak spots.</h2>
         <p>
           Theorem builds review from missed exact-skill checks, weak terms, quiz checks,
           and incomplete teach-back practice.
@@ -377,38 +412,44 @@ function add(a, b) {
     <section class="app-section" id="section-about" aria-labelledby="about-title">
       <div class="about-shell">
         <p class="eyebrow">About</p>
-        <h2 id="about-title">A universal study workspace.</h2>
+        <h2 id="about-title">Theorem is a StudyPath Engine.</h2>
 
         <article class="about-card">
           <p>
-            Theorem helps students turn passive material into active practice. It detects
-            the subject, chooses a study strategy, and creates tools like flashcards,
-            cause-and-effect prompts, quizzes, teach-back checks, code explanations,
-            and exact math tutoring when the format is supported.
+            Theorem is designed to organize learning material before tutoring begins.
+            The extraction layer reads pasted or uploaded text. Then the app’s code
+            parses the material into folders like questions, key terms, dates, events,
+            math problems, writing prompts, code blocks, sources, and unknown items.
           </p>
           <p>
-            This version is static, private by design, and works on GitHub Pages.
-            No login, no backend, no ads, no API key, and no paid service.
+            Based on the material you provided, Theorem detects the subject, document
+            type, task type, and suggested study method. Then it builds tools like
+            flashcards, short-answer practice, timeline review, cause/effect practice,
+            outline building, exact math checking, code review prompts, and a review plan.
+          </p>
+          <p>
+            This version is frontend-only and GitHub Pages-compatible: HTML, CSS,
+            JavaScript, no backend, no paid API, no Google login, and localStorage only.
           </p>
         </article>
 
         <div class="principles-grid">
           <article class="principle-card">
             <span>01</span>
-            <h3>Detect</h3>
-            <p>Theorem reads the material and estimates the subject.</p>
+            <h3>Extract</h3>
+            <p>Theorem reads pasted text or .txt/.md files and keeps the material local.</p>
           </article>
 
           <article class="principle-card">
             <span>02</span>
-            <h3>Choose</h3>
-            <p>Theorem chooses a study mode based on what you pasted.</p>
+            <h3>Organize</h3>
+            <p>Theorem sorts material into study folders like questions, terms, dates, and code.</p>
           </article>
 
           <article class="principle-card">
             <span>03</span>
-            <h3>Practice</h3>
-            <p>Theorem turns material into recall, explanation, review, or exact checks.</p>
+            <h3>Build</h3>
+            <p>Theorem suggests the right study path and tools based on the extracted folders.</p>
           </article>
         </div>
       </div>
