@@ -5,29 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta
     name="description"
-    content="Theorem is a study takeoff system that organizes assignments into a clear study path."
+    content="Theorem turns pasted homework, notes, study guides, and assignment text into a clean study path."
   />
-  <title>Theorem — Study Takeoff System</title>
+  <title>Theorem — StudyPath Engine</title>
   <link rel="stylesheet" href="style.css" />
-  <script src="auth.js" defer></script>
   <script src="script.js" defer></script>
 </head>
 
 <body>
   <div id="loadingScreen" class="loading-screen" aria-live="polite">
-    <div class="loading-orb orb-one"></div>
-    <div class="loading-orb orb-two"></div>
-    <div class="loading-orb orb-three"></div>
-
     <div class="loading-card">
-      <div class="loading-logo">
+      <div class="brand-lockup">
         <span class="brand-mark">∴</span>
         <span>Theorem</span>
       </div>
 
-      <p class="eyebrow">Study takeoff system</p>
-      <h1>Preparing your study path…</h1>
-      <p id="loadingPhrase" class="loading-phrase">Clearing the runway…</p>
+      <p class="eyebrow">StudyPath Engine</p>
+      <h1>Organizing your study path…</h1>
+      <p id="loadingPhrase">Reading the material…</p>
 
       <div class="loading-bar" aria-hidden="true">
         <span></span>
@@ -35,226 +30,133 @@
     </div>
   </div>
 
-  <main id="main">
-    <section id="loginView" class="auth-view hidden" aria-labelledby="loginTitle">
-      <div class="auth-card">
-        <div class="auth-logo">
+  <main class="app-shell">
+    <section class="hero">
+      <nav class="topbar" aria-label="Theorem">
+        <div class="brand-lockup">
           <span class="brand-mark">∴</span>
           <span>Theorem</span>
         </div>
 
-        <p class="eyebrow">Clear the runway</p>
-        <h1 id="loginTitle">Welcome to Theorem</h1>
-        <p class="auth-subtitle">
-          Upload your assignments. Theorem will organize them into a study path.
-        </p>
+        <span class="local-pill">Text-only V1</span>
+      </nav>
 
-        <div class="auth-actions">
-          <button class="btn btn-primary" id="googleLoginBtn" type="button">
-            Continue with Google
-          </button>
-          <button class="btn btn-secondary" id="guestLoginBtn" type="button">
-            Continue as guest
-          </button>
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow">Rule-based StudyPath Engine</p>
+          <h1>Paste the assignment. Theorem organizes the mess.</h1>
+          <p>
+            Theorem detects the subject, extracts questions and keywords, sorts the material
+            into study folders, and suggests the best way to start studying.
+          </p>
         </div>
 
-        <p id="authMessage" class="helper-message" role="status" aria-live="polite"></p>
-
-        <p class="safe-note">
-          Theorem never asks for your Gmail password. Google sign-in will use Google OAuth /
-          Firebase Auth only when it is connected.
-        </p>
+        <aside class="promise-card">
+          <h2>What Theorem does</h2>
+          <ul>
+            <li>Extracts keywords and questions</li>
+            <li>Detects the subject</li>
+            <li>Builds study folders</li>
+            <li>Generates study tools</li>
+          </ul>
+        </aside>
       </div>
     </section>
 
-    <section id="appView" class="app-view hidden">
-      <header class="site-header">
-        <div class="nav-shell">
-          <button class="brand-button" type="button" data-screen-target="dashboard">
-            <span class="brand-mark">∴</span>
-            <span>Theorem</span>
-          </button>
+    <section class="input-card" aria-labelledby="inputTitle">
+      <div class="section-heading">
+        <p class="eyebrow">Start here</p>
+        <h2 id="inputTitle">Paste written homework, notes, or a study guide.</h2>
+        <p>
+          No images yet. No PDFs yet. No AI API. This version runs fully in your browser.
+        </p>
+      </div>
 
-          <button
-            class="nav-toggle"
-            id="navToggle"
-            type="button"
-            aria-controls="navLinks"
-            aria-expanded="false"
-          >
-            Menu
-          </button>
-
-          <nav id="navLinks" class="nav-links" aria-label="Main navigation">
-            <button class="nav-link active" type="button" data-screen-target="dashboard">Dashboard</button>
-            <button class="nav-link" type="button" data-screen-target="paths">Study Paths</button>
-            <button class="nav-link" type="button" data-screen-target="review">Review</button>
-            <button class="nav-link" type="button" data-screen-target="progress">Progress</button>
-            <button class="nav-link" type="button" data-screen-target="settings">Settings</button>
-          </nav>
-        </div>
-      </header>
-
-      <section id="screen-dashboard" class="screen active-screen">
-        <div class="hero-shell">
-          <div class="hero-copy">
-            <p class="eyebrow">Study takeoff system</p>
-            <h2>What do you need to study?</h2>
-            <p>
-              Upload your assignments. Theorem will organize them into a study path.
-            </p>
-
-            <div class="hero-actions">
-              <button class="btn btn-primary" id="uploadActionBtn" type="button">
-                Upload assignments
-              </button>
-              <button class="btn btn-secondary" id="pasteActionBtn" type="button">
-                Paste text
-              </button>
-            </div>
-          </div>
-
-          <div class="runway-card">
-            <p class="eyebrow">Runway status</p>
-            <h3>Ready for takeoff</h3>
-            <p>
-              Paste or upload school material. Theorem extracts, classifies, organizes,
-              and turns it into a guided study path.
-            </p>
-          </div>
-        </div>
-
-        <section class="upload-card" aria-labelledby="uploadTitle">
-          <div class="section-heading">
-            <p class="eyebrow">Assignment intake</p>
-            <h2 id="uploadTitle">Drop everything here.</h2>
-            <p>
-              Notes, homework, worksheets, study guides, writing prompts, code, and text
-              from assignments all go in one place.
-            </p>
-          </div>
-
-          <textarea
-            id="materialInput"
-            placeholder="Paste your assignment, notes, study guide, worksheet, or code here.
+      <label class="sr-only" for="materialInput">Paste study material</label>
+      <textarea
+        id="materialInput"
+        spellcheck="true"
+        placeholder="Paste homework, notes, study guides, or assignment text here.
 
 Example:
-American Revolution Study Guide
-1. Explain taxation without representation.
-2. Describe the Boston Tea Party.
-3. What caused the American Revolution?
+American Revolution Study Guide.
+Explain taxation without representation.
 Vocabulary: boycott, colony, representation.
 Important event: Boston Tea Party, 1773."
-          ></textarea>
+      ></textarea>
 
-          <div class="upload-grid">
-            <label class="file-card">
-              <span class="file-icon">TXT</span>
-              <strong>Upload .txt or .md</strong>
-              <span>Works now</span>
-              <input id="materialFile" type="file" accept=".txt,.md,text/plain,text/markdown" />
-            </label>
+      <div class="action-row">
+        <button class="btn btn-primary" id="buildPathBtn" type="button">
+          Build study path
+        </button>
+        <p id="statusMessage" class="status-message" role="status" aria-live="polite"></p>
+      </div>
 
-            <button class="file-card disabled-card" id="imagePdfBtn" type="button">
-              <span class="file-icon">IMG</span>
-              <strong>Image / PDF upload</strong>
-              <span>Coming soon</span>
-            </button>
-          </div>
+      <p class="safe-note">
+        Theorem does not claim perfect understanding. It uses rule-based JavaScript to organize
+        the material you provide.
+      </p>
+    </section>
 
-          <div class="build-row">
-            <button class="btn btn-primary" id="buildPathBtn" type="button">
-              Build study path
-            </button>
-            <p id="uploadMessage" class="helper-message" role="status" aria-live="polite"></p>
-          </div>
-
-          <p class="safe-note">
-            For v1, Theorem reads pasted text and .txt/.md files. Image and PDF extraction is coming soon.
+    <section id="resultPanel" class="result-panel hidden" aria-live="polite">
+      <div class="result-header">
+        <div>
+          <p class="eyebrow">Result</p>
+          <h2>Theorem detected your material and built a study path.</h2>
+          <p id="confidenceMessage">
+            Based on your material, review the folders before studying.
           </p>
-        </section>
+        </div>
 
-        <section id="activePathShell" class="study-shell hidden" aria-live="polite">
-          <aside class="side-panel">
-            <p class="eyebrow">Detected</p>
-            <div id="detectedSummary" class="detected-summary"></div>
+        <div class="subject-card">
+          <span id="detectedSubject">General Study</span>
+          <strong id="confidenceValue">0%</strong>
+          <small>confidence</small>
+        </div>
+      </div>
 
-            <div class="mini-divider"></div>
+      <div class="summary-grid">
+        <article class="summary-card">
+          <h3>Study strategy</h3>
+          <p id="strategyText"></p>
+        </article>
 
-            <p class="eyebrow">Study path</p>
-            <div id="pathSteps" class="path-steps"></div>
-          </aside>
+        <article class="summary-card">
+          <h3>Recommended first action</h3>
+          <p id="firstActionText"></p>
+        </article>
+      </div>
 
-          <section class="study-card-panel">
-            <div id="studyStage"></div>
-          </section>
-
-          <aside class="side-panel">
-            <p class="eyebrow">Tools</p>
-            <div id="studyTools"></div>
-          </aside>
-        </section>
+      <section class="output-section">
+        <div class="output-heading">
+          <h3>Subject score breakdown</h3>
+          <p>Theorem scores subjects with simple keyword and pattern rules.</p>
+        </div>
+        <div id="scoreGrid" class="score-grid"></div>
       </section>
 
-      <section id="screen-paths" class="screen">
-        <div class="section-heading">
-          <p class="eyebrow">Saved locally</p>
-          <h2>Study Paths</h2>
-          <p>Your active paths are saved in this browser using localStorage.</p>
+      <section class="output-section">
+        <div class="output-heading">
+          <h3>Extracted keywords</h3>
+          <p>Important words Theorem found in the material.</p>
         </div>
-
-        <div id="pathsGrid" class="card-grid"></div>
+        <div id="keywordChips" class="chip-row"></div>
       </section>
 
-      <section id="screen-review" class="screen">
-        <div class="section-heading">
-          <p class="eyebrow">Review</p>
-          <h2>Weak spots and review items</h2>
-          <p>Theorem builds review from completed cards, missed math checks, and saved terms.</p>
+      <section class="output-section">
+        <div class="output-heading">
+          <h3>Study folders</h3>
+          <p>Theorem sorted the material into folders before building tools.</p>
         </div>
-
-        <div id="reviewGrid" class="card-grid"></div>
+        <div id="folderGrid" class="folder-grid"></div>
       </section>
 
-      <section id="screen-progress" class="screen">
-        <div class="section-heading">
-          <p class="eyebrow">Progress</p>
-          <h2>Local progress</h2>
-          <p>No backend is connected yet. This progress is stored on this device.</p>
+      <section class="output-section">
+        <div class="output-heading">
+          <h3>Generated study tools</h3>
+          <p>Based on the subject and folders, Theorem suggests these tools.</p>
         </div>
-
-        <div id="progressDashboard" class="dashboard-grid"></div>
-      </section>
-
-      <section id="screen-settings" class="screen">
-        <div class="section-heading">
-          <p class="eyebrow">Settings</p>
-          <h2>Your Theorem setup</h2>
-          <p>Manage local data and future account settings.</p>
-        </div>
-
-        <div class="settings-grid">
-          <article class="info-card">
-            <h3>Free plan</h3>
-            <p>3 active study paths, limited uploads per day, and basic study tools.</p>
-            <p id="planUsageText" class="stat-line"></p>
-          </article>
-
-          <article class="info-card">
-            <h3>Pro</h3>
-            <p>Unlimited paths, more uploads, saved history, smarter extraction, and deeper review.</p>
-            <span class="coming-pill">Coming later</span>
-          </article>
-
-          <article class="info-card">
-            <h3>Account</h3>
-            <p id="accountModeText">Current mode: Guest</p>
-            <div class="button-row">
-              <button class="btn btn-secondary" id="signOutBtn" type="button">Sign out</button>
-              <button class="btn btn-ghost" id="resetDataBtn" type="button">Reset local data</button>
-            </div>
-          </article>
-        </div>
+        <div id="toolsGrid" class="tools-grid"></div>
       </section>
     </section>
   </main>
