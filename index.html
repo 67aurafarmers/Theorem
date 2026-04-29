@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta
     name="description"
-    content="Theorem turns pasted homework, notes, study guides, and assignment text into a clean study path."
+    content="Theorem FlightPath OS turns pasted schoolwork into ranked study missions."
   />
-  <title>Theorem — StudyPath Engine</title>
+  <title>Theorem — FlightPath OS</title>
   <link rel="stylesheet" href="style.css" />
   <script src="script.js" defer></script>
 </head>
@@ -20,9 +20,9 @@
         <span>Theorem</span>
       </div>
 
-      <p class="eyebrow">StudyPath Engine</p>
-      <h1>Organizing your study path…</h1>
-      <p id="loadingPhrase">Reading the material…</p>
+      <p class="eyebrow">FlightPath OS</p>
+      <h1>Clearing the runway…</h1>
+      <p id="loadingPhrase">Reading your workspace…</p>
 
       <div class="loading-bar" aria-hidden="true">
         <span></span>
@@ -31,80 +31,88 @@
   </div>
 
   <main class="app-shell">
-    <section class="hero">
-      <nav class="topbar" aria-label="Theorem">
-        <div class="brand-lockup">
-          <span class="brand-mark">∴</span>
-          <span>Theorem</span>
-        </div>
-
-        <span class="local-pill">Text-only V1</span>
-      </nav>
-
-      <div class="hero-grid">
-        <div class="hero-copy">
-          <p class="eyebrow">Rule-based StudyPath Engine</p>
-          <h1>Paste the assignment. Theorem organizes the mess.</h1>
-          <p>
-            Theorem detects the subject, extracts questions and keywords, sorts the material
-            into study folders, and suggests the best way to start studying.
-          </p>
-        </div>
-
-        <aside class="promise-card">
-          <h2>What Theorem does</h2>
-          <ul>
-            <li>Extracts keywords and questions</li>
-            <li>Detects the subject</li>
-            <li>Builds study folders</li>
-            <li>Generates study tools</li>
-          </ul>
-        </aside>
+    <header class="topbar">
+      <div class="brand-lockup">
+        <span class="brand-mark">∴</span>
+        <span>Theorem</span>
       </div>
+
+      <span class="local-pill">Text-only V1</span>
+    </header>
+
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Study takeoff system</p>
+        <h1>Theorem gives your schoolwork a flight path.</h1>
+        <p>
+          Paste messy homework, notes, or study guides. Theorem extracts the work,
+          builds study missions, ranks what matters first, and gives you one clear
+          five-minute action.
+        </p>
+      </div>
+
+      <aside class="promise-card">
+        <h2>FlightPath OS</h2>
+        <ul>
+          <li>Builds missions, not folders</li>
+          <li>Ranks what to study first</li>
+          <li>Gives one clear first action</li>
+          <li>Saves weak missions for review</li>
+        </ul>
+      </aside>
     </section>
 
     <section class="input-card" aria-labelledby="inputTitle">
       <div class="section-heading">
-        <p class="eyebrow">Start here</p>
-        <h2 id="inputTitle">Paste written homework, notes, or a study guide.</h2>
+        <p class="eyebrow">Assignment intake</p>
+        <h2 id="inputTitle">Paste your schoolwork.</h2>
         <p>
-          No images yet. No PDFs yet. No AI API. This version runs fully in your browser.
+          Theorem does not claim perfect understanding. It uses rule-based JavaScript
+          to organize your material into missions.
         </p>
       </div>
 
-      <label class="sr-only" for="materialInput">Paste study material</label>
+      <label class="sr-only" for="materialInput">Paste schoolwork</label>
       <textarea
         id="materialInput"
         spellcheck="true"
         placeholder="Paste homework, notes, study guides, or assignment text here.
 
 Example:
-American Revolution Study Guide.
-Explain taxation without representation.
+American Revolution Study Guide
+1. Explain taxation without representation.
+2. Describe the Boston Tea Party.
+3. What caused the American Revolution?
 Vocabulary: boycott, colony, representation.
 Important event: Boston Tea Party, 1773."
       ></textarea>
 
       <div class="action-row">
         <button class="btn btn-primary" id="buildPathBtn" type="button">
-          Build study path
+          Build flight path
         </button>
+
+        <label class="upload-mini">
+          Upload .txt / .md
+          <input id="materialFile" type="file" accept=".txt,.md,text/plain,text/markdown" />
+        </label>
+
         <p id="statusMessage" class="status-message" role="status" aria-live="polite"></p>
       </div>
 
       <p class="safe-note">
-        Theorem does not claim perfect understanding. It uses rule-based JavaScript to organize
-        the material you provide.
+        Image and PDF extraction are not included yet. This version supports pasted text,
+        .txt files, and .md files.
       </p>
     </section>
 
-    <section id="resultPanel" class="result-panel hidden" aria-live="polite">
-      <div class="result-header">
+    <section id="resultPanel" class="flight-panel hidden" aria-live="polite">
+      <div class="flight-header">
         <div>
-          <p class="eyebrow">Result</p>
-          <h2>Theorem detected your material and built a study path.</h2>
+          <p class="eyebrow">Detected work</p>
+          <h2>Theorem built your FlightPath.</h2>
           <p id="confidenceMessage">
-            Based on your material, review the folders before studying.
+            Based on your material, Theorem suggests the route below.
           </p>
         </div>
 
@@ -115,48 +123,53 @@ Important event: Boston Tea Party, 1773."
         </div>
       </div>
 
-      <div class="summary-grid">
-        <article class="summary-card">
-          <h3>Study strategy</h3>
-          <p id="strategyText"></p>
+      <section class="output-section">
+        <div class="output-heading">
+          <h3>Detected work</h3>
+          <p>Review this first. If confidence is low, confirm the missions before studying.</p>
+        </div>
+        <div id="detectedGrid" class="detected-grid"></div>
+      </section>
+
+      <section class="output-section">
+        <div class="output-heading">
+          <h3>Your missions</h3>
+          <p>Theorem shows the first five missions only, so the start feels manageable.</p>
+        </div>
+        <div id="missionList" class="mission-list"></div>
+      </section>
+
+      <section class="route-grid">
+        <article class="route-card">
+          <p class="eyebrow">Recommended route</p>
+          <div id="routeList"></div>
         </article>
 
-        <article class="summary-card">
-          <h3>Recommended first action</h3>
+        <article class="route-card first-action-card">
+          <p class="eyebrow">First 5 minutes</p>
+          <h3>Start here.</h3>
           <p id="firstActionText"></p>
         </article>
-      </div>
+      </section>
 
-      <section class="output-section">
-        <div class="output-heading">
-          <h3>Subject score breakdown</h3>
-          <p>Theorem scores subjects with simple keyword and pattern rules.</p>
-        </div>
-        <div id="scoreGrid" class="score-grid"></div>
+      <section class="mission-workspace">
+        <article class="current-card">
+          <p class="eyebrow">Current mission</p>
+          <div id="currentMission"></div>
+        </article>
+
+        <aside class="mastery-card">
+          <p class="eyebrow">Mastery gate</p>
+          <div id="masteryGate"></div>
+        </aside>
       </section>
 
       <section class="output-section">
         <div class="output-heading">
-          <h3>Extracted keywords</h3>
-          <p>Important words Theorem found in the material.</p>
+          <h3>Review queue</h3>
+          <p>Weak missions you save will appear here for later review.</p>
         </div>
-        <div id="keywordChips" class="chip-row"></div>
-      </section>
-
-      <section class="output-section">
-        <div class="output-heading">
-          <h3>Study folders</h3>
-          <p>Theorem sorted the material into folders before building tools.</p>
-        </div>
-        <div id="folderGrid" class="folder-grid"></div>
-      </section>
-
-      <section class="output-section">
-        <div class="output-heading">
-          <h3>Generated study tools</h3>
-          <p>Based on the subject and folders, Theorem suggests these tools.</p>
-        </div>
-        <div id="toolsGrid" class="tools-grid"></div>
+        <div id="reviewQueue" class="review-grid"></div>
       </section>
     </section>
   </main>
