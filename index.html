@@ -1,177 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta
-    name="description"
-    content="Theorem FlightPath OS turns pasted schoolwork into ranked study missions."
-  />
-  <title>Theorem — FlightPath OS</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Decision Desk</title>
   <link rel="stylesheet" href="style.css" />
-  <script src="script.js" defer></script>
 </head>
-
 <body>
-  <div id="loadingScreen" class="loading-screen" aria-live="polite">
-    <div class="loading-card">
-      <div class="brand-lockup">
-        <span class="brand-mark">∴</span>
-        <span>Theorem</span>
-      </div>
-
-      <p class="eyebrow">FlightPath OS</p>
-      <h1>Clearing the runway…</h1>
-      <p id="loadingPhrase">Reading your workspace…</p>
-
-      <div class="loading-bar" aria-hidden="true">
-        <span></span>
-      </div>
-    </div>
-  </div>
-
-  <main class="app-shell">
-    <header class="topbar">
-      <div class="brand-lockup">
-        <span class="brand-mark">∴</span>
-        <span>Theorem</span>
-      </div>
-
-      <span class="local-pill">Text-only V1</span>
-    </header>
-
+  <main class="app">
     <section class="hero">
-      <div class="hero-copy">
-        <p class="eyebrow">Study takeoff system</p>
-        <h1>Theorem gives your schoolwork a flight path.</h1>
-        <p>
-          Paste messy homework, notes, or study guides. Theorem extracts the work,
-          builds study missions, ranks what matters first, and gives you one clear
-          five-minute action.
+      <div>
+        <p class="eyebrow">Decision Desk</p>
+        <h1>Know what to work on next.</h1>
+        <p class="subtitle">
+          Add your tasks, rate their impact, urgency, and effort, then let the desk rank your priorities.
         </p>
       </div>
 
-      <aside class="promise-card">
-        <h2>FlightPath OS</h2>
-        <ul>
-          <li>Builds missions, not folders</li>
-          <li>Ranks what to study first</li>
-          <li>Gives one clear first action</li>
-          <li>Saves weak missions for review</li>
-        </ul>
-      </aside>
+      <div class="hero-card">
+        <span class="hero-number" id="taskCount">0</span>
+        <span class="hero-label">active decisions</span>
+      </div>
     </section>
 
-    <section class="input-card" aria-labelledby="inputTitle">
-      <div class="section-heading">
-        <p class="eyebrow">Assignment intake</p>
-        <h2 id="inputTitle">Paste your schoolwork.</h2>
-        <p>
-          Theorem does not claim perfect understanding. It uses rule-based JavaScript
-          to organize your material into missions.
-        </p>
-      </div>
+    <section class="panel">
+      <form id="taskForm" class="task-form">
+        <div class="field full">
+          <label for="taskTitle">What needs a decision?</label>
+          <input 
+            id="taskTitle" 
+            type="text" 
+            placeholder="Example: Finish history project"
+            maxlength="80"
+            required
+          />
+        </div>
 
-      <label class="sr-only" for="materialInput">Paste schoolwork</label>
-      <textarea
-        id="materialInput"
-        spellcheck="true"
-        placeholder="Paste homework, notes, study guides, or assignment text here.
+        <div class="field">
+          <label for="impact">Impact</label>
+          <select id="impact">
+            <option value="5">Huge</option>
+            <option value="4">High</option>
+            <option value="3" selected>Medium</option>
+            <option value="2">Low</option>
+            <option value="1">Tiny</option>
+          </select>
+        </div>
 
-Example:
-American Revolution Study Guide
-1. Explain taxation without representation.
-2. Describe the Boston Tea Party.
-3. What caused the American Revolution?
-Vocabulary: boycott, colony, representation.
-Important event: Boston Tea Party, 1773."
-      ></textarea>
+        <div class="field">
+          <label for="urgency">Urgency</label>
+          <select id="urgency">
+            <option value="5">Today</option>
+            <option value="4">Soon</option>
+            <option value="3" selected>This week</option>
+            <option value="2">Later</option>
+            <option value="1">Someday</option>
+          </select>
+        </div>
 
-      <div class="action-row">
-        <button class="btn btn-primary" id="buildPathBtn" type="button">
-          Build flight path
-        </button>
+        <div class="field">
+          <label for="effort">Effort</label>
+          <select id="effort">
+            <option value="1">Tiny</option>
+            <option value="2">Small</option>
+            <option value="3" selected>Medium</option>
+            <option value="4">Large</option>
+            <option value="5">Huge</option>
+          </select>
+        </div>
 
-        <label class="upload-mini">
-          Upload .txt / .md
-          <input id="materialFile" type="file" accept=".txt,.md,text/plain,text/markdown" />
-        </label>
-
-        <p id="statusMessage" class="status-message" role="status" aria-live="polite"></p>
-      </div>
-
-      <p class="safe-note">
-        Image and PDF extraction are not included yet. This version supports pasted text,
-        .txt files, and .md files.
-      </p>
+        <button class="primary-btn full" type="submit">Add decision</button>
+      </form>
     </section>
 
-    <section id="resultPanel" class="flight-panel hidden" aria-live="polite">
-      <div class="flight-header">
-        <div>
-          <p class="eyebrow">Detected work</p>
-          <h2>Theorem built your FlightPath.</h2>
-          <p id="confidenceMessage">
-            Based on your material, Theorem suggests the route below.
-          </p>
-        </div>
-
-        <div class="subject-card">
-          <span id="detectedSubject">General Study</span>
-          <strong id="confidenceValue">0%</strong>
-          <small>confidence</small>
-        </div>
+    <section class="toolbar">
+      <div>
+        <h2>Your ranked list</h2>
+        <p id="summaryText">Add your first task to begin.</p>
       </div>
 
-      <section class="output-section">
-        <div class="output-heading">
-          <h3>Detected work</h3>
-          <p>Review this first. If confidence is low, confirm the missions before studying.</p>
-        </div>
-        <div id="detectedGrid" class="detected-grid"></div>
-      </section>
+      <div class="toolbar-actions">
+        <button id="showAllBtn" class="ghost-btn active" type="button">All</button>
+        <button id="showActiveBtn" class="ghost-btn" type="button">Active</button>
+        <button id="showDoneBtn" class="ghost-btn" type="button">Done</button>
+        <button id="clearDoneBtn" class="danger-btn" type="button">Clear done</button>
+      </div>
+    </section>
 
-      <section class="output-section">
-        <div class="output-heading">
-          <h3>Your missions</h3>
-          <p>Theorem shows the first five missions only, so the start feels manageable.</p>
-        </div>
-        <div id="missionList" class="mission-list"></div>
-      </section>
+    <section id="taskList" class="task-list" aria-live="polite"></section>
 
-      <section class="route-grid">
-        <article class="route-card">
-          <p class="eyebrow">Recommended route</p>
-          <div id="routeList"></div>
-        </article>
-
-        <article class="route-card first-action-card">
-          <p class="eyebrow">First 5 minutes</p>
-          <h3>Start here.</h3>
-          <p id="firstActionText"></p>
-        </article>
-      </section>
-
-      <section class="mission-workspace">
-        <article class="current-card">
-          <p class="eyebrow">Current mission</p>
-          <div id="currentMission"></div>
-        </article>
-
-        <aside class="mastery-card">
-          <p class="eyebrow">Mastery gate</p>
-          <div id="masteryGate"></div>
-        </aside>
-      </section>
-
-      <section class="output-section">
-        <div class="output-heading">
-          <h3>Review queue</h3>
-          <p>Weak missions you save will appear here for later review.</p>
-        </div>
-        <div id="reviewQueue" class="review-grid"></div>
-      </section>
+    <section id="emptyState" class="empty-state">
+      <div class="empty-icon">✨</div>
+      <h2>No decisions yet</h2>
+      <p>Add one task above. Decision Desk will rank it instantly.</p>
     </section>
   </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="scrip.js"></script>
 </body>
 </html>
