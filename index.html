@@ -1,209 +1,164 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LAB-01 / Field Systems</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta
+    name="description"
+    content="Theorem turns pasted homework, notes, study guides, and assignment text into a clean study path."
+  />
+  <title>Theorem — StudyPath Engine</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="script.js" defer></script>
 </head>
+
 <body>
-  <div class="grain"></div>
+  <div id="loadingScreen" class="loading-screen" aria-live="polite">
+    <div class="loading-card">
+      <div class="brand-lockup">
+        <span class="brand-mark">∴</span>
+        <span>Theorem</span>
+      </div>
 
-  <header class="site-header">
-    <a href="#" class="mark">+1</a>
+      <p class="eyebrow">StudyPath Engine</p>
+      <h1>Organizing your study path…</h1>
+      <p id="loadingPhrase">Reading the material…</p>
 
-    <nav class="desktop-nav">
-      <a href="#projects">Projects</a>
-      <a href="#systems">Systems</a>
-      <a href="#shop">Shop</a>
-    </nav>
-
-    <div class="header-right">
-      <a href="#drop">New Arrivals</a>
-      <button class="menu-button" id="menuButton" aria-label="Open menu">
+      <div class="loading-bar" aria-hidden="true">
         <span></span>
-        <span></span>
-      </button>
+      </div>
     </div>
-  </header>
-
-  <div class="mobile-menu" id="mobileMenu">
-    <a href="#projects">Projects</a>
-    <a href="#systems">Systems</a>
-    <a href="#shop">Shop</a>
-    <a href="#drop">New Arrivals</a>
   </div>
 
-  <main>
+  <main class="app-shell">
     <section class="hero">
-      <div class="hero-left">
-        <p class="eyebrow">X-LAB / Materials of Creation</p>
-        <h1>lab.</h1>
-        <p class="hero-copy">
-          Experimental outerwear, field objects, and protective systems built for future environments.
-        </p>
-
-        <div class="hero-actions">
-          <a href="#projects" class="primary-button">Enter Lab</a>
-          <button class="icon-button" id="nextHero" aria-label="Next slide">→</button>
-        </div>
-      </div>
-
-      <div class="hero-stage">
-        <div class="orange-block"></div>
-
-        <div class="figure-card">
-          <div class="figure-head"></div>
-          <div class="figure-body"></div>
-          <div class="figure-arm"></div>
+      <nav class="topbar" aria-label="Theorem">
+        <div class="brand-lockup">
+          <span class="brand-mark">∴</span>
+          <span>Theorem</span>
         </div>
 
-        <div class="vertical-label">
-          <span>X-LAB</span>
-          <span>MATERIALS</span>
-          <span>OF CREATION</span>
+        <span class="local-pill">Text-only V1</span>
+      </nav>
+
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow">Rule-based StudyPath Engine</p>
+          <h1>Paste the assignment. Theorem organizes the mess.</h1>
+          <p>
+            Theorem detects the subject, extracts questions and keywords, sorts the material
+            into study folders, and suggests the best way to start studying.
+          </p>
         </div>
 
-        <div class="slide-index">
-          <span id="currentSlide">01</span>
-          <span>/</span>
-          <span>03</span>
-        </div>
+        <aside class="promise-card">
+          <h2>What Theorem does</h2>
+          <ul>
+            <li>Extracts keywords and questions</li>
+            <li>Detects the subject</li>
+            <li>Builds study folders</li>
+            <li>Generates study tools</li>
+          </ul>
+        </aside>
       </div>
     </section>
 
-    <section class="ticker" aria-label="Brand statement">
-      <span>CREATED ELEMENTS</span>
-      <span>FIELD LANGUAGE</span>
-      <span>OBJECT SYSTEMS</span>
-      <span>SURVIVALIST FORM</span>
-    </section>
-
-    <section class="projects" id="projects">
-      <div class="section-label">
-        <span>Projects</span>
-        <span>01</span>
-      </div>
-
-      <div class="project-grid">
-        <article class="project-card active" data-project="0">
-          <span class="project-number">01</span>
-          <h2>Survivalist Shell</h2>
-          <p>
-            A weather-resistant uniform system designed around movement, heat control, and visual command.
-          </p>
-          <button>View System</button>
-        </article>
-
-        <article class="project-card" data-project="1">
-          <span class="project-number">02</span>
-          <h2>Signal Glove</h2>
-          <p>
-            A tactical interface object with gesture-first interactions and high-contrast orange markers.
-          </p>
-          <button>View Object</button>
-        </article>
-
-        <article class="project-card" data-project="2">
-          <span class="project-number">03</span>
-          <h2>Black Field Kit</h2>
-          <p>
-            Modular storage, strap language, and utility forms for daily urban navigation.
-          </p>
-          <button>View Kit</button>
-        </article>
-      </div>
-    </section>
-
-    <section class="systems" id="systems">
-      <div class="visual-object">
-        <div class="hand-palm"></div>
-        <div class="hand-finger finger-one"></div>
-        <div class="hand-finger finger-two"></div>
-        <div class="hand-finger finger-three"></div>
-        <div class="signal-panel">
-          <span>EXP-09</span>
-          <strong>Gesture Index</strong>
-          <small>Activated</small>
-        </div>
-      </div>
-
-      <div class="systems-copy">
-        <p class="eyebrow">Survivalist / Created Elements</p>
-        <h2>Objects that feel engineered, not decorated.</h2>
+    <section class="input-card" aria-labelledby="inputTitle">
+      <div class="section-heading">
+        <p class="eyebrow">Start here</p>
+        <h2 id="inputTitle">Paste written homework, notes, or a study guide.</h2>
         <p>
-          LAB-01 uses contrast, material discipline, and strict spatial systems to create products that feel
-          immediate, functional, and impossible to mistake.
+          No images yet. No PDFs yet. No AI API. This version runs fully in your browser.
         </p>
+      </div>
 
-        <div class="stats">
-          <div>
-            <strong>14</strong>
-            <span>Prototypes</span>
-          </div>
-          <div>
-            <strong>03</strong>
-            <span>Field Drops</span>
-          </div>
-          <div>
-            <strong>99</strong>
-            <span>Unit Index</span>
-          </div>
+      <label class="sr-only" for="materialInput">Paste study material</label>
+      <textarea
+        id="materialInput"
+        spellcheck="true"
+        placeholder="Paste homework, notes, study guides, or assignment text here.
+
+Example:
+American Revolution Study Guide.
+Explain taxation without representation.
+Vocabulary: boycott, colony, representation.
+Important event: Boston Tea Party, 1773."
+      ></textarea>
+
+      <div class="action-row">
+        <button class="btn btn-primary" id="buildPathBtn" type="button">
+          Build study path
+        </button>
+        <p id="statusMessage" class="status-message" role="status" aria-live="polite"></p>
+      </div>
+
+      <p class="safe-note">
+        Theorem does not claim perfect understanding. It uses rule-based JavaScript to organize
+        the material you provide.
+      </p>
+    </section>
+
+    <section id="resultPanel" class="result-panel hidden" aria-live="polite">
+      <div class="result-header">
+        <div>
+          <p class="eyebrow">Result</p>
+          <h2>Theorem detected your material and built a study path.</h2>
+          <p id="confidenceMessage">
+            Based on your material, review the folders before studying.
+          </p>
+        </div>
+
+        <div class="subject-card">
+          <span id="detectedSubject">General Study</span>
+          <strong id="confidenceValue">0%</strong>
+          <small>confidence</small>
         </div>
       </div>
-    </section>
 
-    <section class="shop" id="shop">
-      <div>
-        <p class="eyebrow">Drop 01</p>
-        <h2>New arrivals built for motion.</h2>
-      </div>
-
-      <div class="shop-row">
-        <article class="shop-card">
-          <div class="product-shape jacket"></div>
-          <h3>Red Utility Shell</h3>
-          <p>$180</p>
+      <div class="summary-grid">
+        <article class="summary-card">
+          <h3>Study strategy</h3>
+          <p id="strategyText"></p>
         </article>
 
-        <article class="shop-card">
-          <div class="product-shape glove"></div>
-          <h3>Signal Glove</h3>
-          <p>$74</p>
-        </article>
-
-        <article class="shop-card">
-          <div class="product-shape pack"></div>
-          <h3>Black Field Pack</h3>
-          <p>$120</p>
+        <article class="summary-card">
+          <h3>Recommended first action</h3>
+          <p id="firstActionText"></p>
         </article>
       </div>
-    </section>
 
-    <section class="drop" id="drop">
-      <div class="drop-card">
-        <span class="drop-number">01</span>
-        <h2>Join the next experiment.</h2>
-        <p>
-          Get field notes, prototype drops, and private release signals.
-        </p>
+      <section class="output-section">
+        <div class="output-heading">
+          <h3>Subject score breakdown</h3>
+          <p>Theorem scores subjects with simple keyword and pattern rules.</p>
+        </div>
+        <div id="scoreGrid" class="score-grid"></div>
+      </section>
 
-        <form id="signupForm">
-          <input id="emailInput" type="email" placeholder="email@domain.com" required />
-          <button type="submit">Request Access</button>
-        </form>
+      <section class="output-section">
+        <div class="output-heading">
+          <h3>Extracted keywords</h3>
+          <p>Important words Theorem found in the material.</p>
+        </div>
+        <div id="keywordChips" class="chip-row"></div>
+      </section>
 
-        <p class="form-message" id="formMessage"></p>
-      </div>
+      <section class="output-section">
+        <div class="output-heading">
+          <h3>Study folders</h3>
+          <p>Theorem sorted the material into folders before building tools.</p>
+        </div>
+        <div id="folderGrid" class="folder-grid"></div>
+      </section>
+
+      <section class="output-section">
+        <div class="output-heading">
+          <h3>Generated study tools</h3>
+          <p>Based on the subject and folders, Theorem suggests these tools.</p>
+        </div>
+        <div id="toolsGrid" class="tools-grid"></div>
+      </section>
     </section>
   </main>
-
-  <footer>
-    <strong>lab.</strong>
-    <span>FIELD SYSTEMS / 2026</span>
-    <a href="#">Back to top ↑</a>
-  </footer>
-
-  <script src="script.js"></script>
 </body>
 </html>
