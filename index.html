@@ -3,101 +3,100 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Decision Desk</title>
+  <title>Orbit Focus</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <main class="app">
     <section class="hero">
-      <div>
-        <p class="eyebrow">Decision Desk</p>
-        <h1>Know what to work on next.</h1>
-        <p class="subtitle">
-          Add your tasks, rate their impact, urgency, and effort, then let the desk rank your priorities.
+      <nav class="nav">
+        <div class="brand">
+          <span class="brand-mark"></span>
+          Orbit Focus
+        </div>
+        <button id="themeBtn" class="ghost-btn">Switch mood</button>
+      </nav>
+
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow">Focus launcher</p>
+          <h1>Turn scattered energy into one clean mission.</h1>
+          <p class="subtext">
+            Choose one task, start a focus sprint, and watch your progress build.
+          </p>
+
+          <form id="taskForm" class="task-form">
+            <input
+              id="taskInput"
+              type="text"
+              placeholder="What is your one mission?"
+              maxlength="70"
+              autocomplete="off"
+            />
+            <button type="submit">Start Focus</button>
+          </form>
+
+          <p id="feedback" class="feedback">Ready when you are.</p>
+        </div>
+
+        <div class="focus-card">
+          <div class="timer-ring">
+            <svg viewBox="0 0 220 220">
+              <circle class="track" cx="110" cy="110" r="96"></circle>
+              <circle id="progressCircle" class="progress" cx="110" cy="110" r="96"></circle>
+            </svg>
+            <div class="timer-content">
+              <span id="timer">25:00</span>
+              <small id="timerLabel">Focus sprint</small>
+            </div>
+          </div>
+
+          <div class="controls">
+            <button id="pauseBtn" class="secondary-btn" type="button">Pause</button>
+            <button id="resetBtn" class="secondary-btn" type="button">Reset</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="dashboard">
+      <article class="panel mission-panel">
+        <div class="panel-header">
+          <h2>Current mission</h2>
+          <span id="statusPill" class="pill">Idle</span>
+        </div>
+        <p id="currentTask" class="empty-state">
+          No mission yet. Type one task above to begin.
         </p>
-      </div>
+      </article>
 
-      <div class="hero-card">
-        <span class="hero-number" id="taskCount">0</span>
-        <span class="hero-label">active decisions</span>
-      </div>
-    </section>
-
-    <section class="panel">
-      <form id="taskForm" class="task-form">
-        <div class="field full">
-          <label for="taskTitle">What needs a decision?</label>
-          <input 
-            id="taskTitle" 
-            type="text" 
-            placeholder="Example: Finish history project"
-            maxlength="80"
-            required
-          />
+      <article class="panel">
+        <h2>Momentum</h2>
+        <div class="stats">
+          <div>
+            <strong id="completedCount">0</strong>
+            <span>sprints finished</span>
+          </div>
+          <div>
+            <strong id="streakCount">0</strong>
+            <span>day streak</span>
+          </div>
+          <div>
+            <strong id="minutesCount">0</strong>
+            <span>focus minutes</span>
+          </div>
         </div>
+      </article>
 
-        <div class="field">
-          <label for="impact">Impact</label>
-          <select id="impact">
-            <option value="5">Huge</option>
-            <option value="4">High</option>
-            <option value="3" selected>Medium</option>
-            <option value="2">Low</option>
-            <option value="1">Tiny</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label for="urgency">Urgency</label>
-          <select id="urgency">
-            <option value="5">Today</option>
-            <option value="4">Soon</option>
-            <option value="3" selected>This week</option>
-            <option value="2">Later</option>
-            <option value="1">Someday</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label for="effort">Effort</label>
-          <select id="effort">
-            <option value="1">Tiny</option>
-            <option value="2">Small</option>
-            <option value="3" selected>Medium</option>
-            <option value="4">Large</option>
-            <option value="5">Huge</option>
-          </select>
-        </div>
-
-        <button class="primary-btn full" type="submit">Add decision</button>
-      </form>
-    </section>
-
-    <section class="toolbar">
-      <div>
-        <h2>Your ranked list</h2>
-        <p id="summaryText">Add your first task to begin.</p>
-      </div>
-
-      <div class="toolbar-actions">
-        <button id="showAllBtn" class="ghost-btn active" type="button">All</button>
-        <button id="showActiveBtn" class="ghost-btn" type="button">Active</button>
-        <button id="showDoneBtn" class="ghost-btn" type="button">Done</button>
-        <button id="clearDoneBtn" class="danger-btn" type="button">Clear done</button>
-      </div>
-    </section>
-
-    <section id="taskList" class="task-list" aria-live="polite"></section>
-
-    <section id="emptyState" class="empty-state">
-      <div class="empty-icon">✨</div>
-      <h2>No decisions yet</h2>
-      <p>Add one task above. Decision Desk will rank it instantly.</p>
+      <article class="panel">
+        <h2>Recent wins</h2>
+        <ul id="winsList" class="wins-list">
+          <li class="empty-state">Completed missions will appear here.</li>
+        </ul>
+      </article>
     </section>
   </main>
 
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
-
-  <script src="scrip.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
