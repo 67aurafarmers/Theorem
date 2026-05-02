@@ -1,227 +1,108 @@
-const taskForm = document.getElementById("taskForm");
-const taskInput = document.getElementById("taskInput");
-const feedback = document.getElementById("feedback");
-const currentTask = document.getElementById("currentTask");
-const statusPill = document.getElementById("statusPill");
-const timer = document.getElementById("timer");
-const timerLabel = document.getElementById("timerLabel");
-const progressCircle = document.getElementById("progressCircle");
-const pauseBtn = document.getElementById("pauseBtn");
-const resetBtn = document.getElementById("resetBtn");
-const themeBtn = document.getElementById("themeBtn");
-const completedCount = document.getElementById("completedCount");
-const streakCount = document.getElementById("streakCount");
-const minutesCount = document.getElementById("minutesCount");
-const winsList = document.getElementById("winsList");
+const menuButton = document.getElementById("menuButton");
+const mobileMenu = document.getElementById("mobileMenu");
+const nextHero = document.getElementById("nextHero");
+const currentSlide = document.getElementById("currentSlide");
+const orangeBlock = document.querySelector(".orange-block");
+const figureCard = document.querySelector(".figure-card");
+const projectCards = document.querySelectorAll(".project-card");
+const signupForm = document.getElementById("signupForm");
+const emailInput = document.getElementById("emailInput");
+const formMessage = document.getElementById("formMessage");
 
-const FOCUS_SECONDS = 25 * 60;
-const CIRCLE_LENGTH = 603;
-
-let state = {
-  task: "",
-  secondsLeft: FOCUS_SECONDS,
-  isRunning: false,
-  timerId: null,
-  completed: 0,
-  minutes: 0,
-  streak: 0,
-  wins: []
-};
-
-function loadState() {
-  const saved = localStorage.getItem("orbitFocusState");
-
-  if (!saved) return;
-
-  try {
-    const parsed = JSON.parse(saved);
-
-    state.completed = Number(parsed.completed) || 0;
-    state.minutes = Number(parsed.minutes) || 0;
-    state.streak = Number(parsed.streak) || 0;
-    state.wins = Array.isArray(parsed.wins) ? parsed.wins.slice(0, 5) : [];
-  } catch {
-    localStorage.removeItem("orbitFocusState");
+const slides = [
+  {
+    index: "01",
+    accent: "#ff4b2b",
+    shift: "translateX(0)",
+    figure: "translateY(0) rotate(0deg)"
+  },
+  {
+    index: "02",
+    accent: "#111111",
+    shift: "translateX(-46px)",
+    figure: "translateY(-14px) rotate(-3deg)"
+  },
+  {
+    index: "03",
+    accent: "#ff6a3d",
+    shift: "translateX(34px)",
+    figure: "translateY(10px) rotate(4deg)"
   }
-}
+];
 
-function saveState() {
-  localStorage.setItem(
-    "orbitFocusState",
-    JSON.stringify({
-      completed: state.completed,
-      minutes: state.minutes,
-      streak: state.streak,
-      wins: state.wins
-    })
-  );
-}
+let activeSlide = 0;
 
-function formatTime(totalSeconds) {
-  const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, "0");
-  const seconds = (totalSeconds % 60).toString().padStart(2, "0");
+menuButton.addEventListener("click", () => {
+  menuButton.classList.toggle("active");
+  mobileMenu.classList.toggle("open");
+});
 
-  return `${minutes}:${seconds}`;
-}
-
-function setFeedback(message, type = "") {
-  feedback.textContent = message;
-  feedback.className = `feedback ${type}`.trim();
-}
-
-function updateTimerView() {
-  timer.textContent = formatTime(state.secondsLeft);
-
-  const progress = 1 - state.secondsLeft / FOCUS_SECONDS;
-  const dashOffset = CIRCLE_LENGTH - progress * CIRCLE_LENGTH;
-
-  progressCircle.style.strokeDashoffset = dashOffset;
-}
-
-function updateDashboard() {
-  currentTask.textContent = state.task || "No mission yet. Type one task above to begin.";
-  currentTask.className = state.task ? "" : "empty-state";
-
-  statusPill.textContent = state.isRunning ? "Active" : state.task ? "Paused" : "Idle";
-  statusPill.className = state.isRunning ? "pill active" : "pill";
-
-  completedCount.textContent = state.completed;
-  streakCount.textContent = state.streak;
-  minutesCount.textContent = state.minutes;
-
-  winsList.innerHTML = "";
-
-  if (state.wins.length === 0) {
-    const empty = document.createElement("li");
-    empty.className = "empty-state";
-    empty.textContent = "Completed missions will appear here.";
-    winsList.appendChild(empty);
-    return;
-  }
-
-  state.wins.forEach((win) => {
-    const item = document.createElement("li");
-    item.textContent = win;
-    winsList.appendChild(item);
+mobileMenu.querySelectorAll("a").forEach((link) => {
+  link.addEventListener("click", () => {
+    menuButton.classList.remove("active");
+    mobileMenu.classList.remove("open");
   });
-}
+});
 
-function render() {
-  updateTimerView();
-  updateDashboard();
-}
+nextHero.addEventListener("click", () => {
+  activeSlide = (activeSlide + 1) % slides.length;
+  const slide = slides[activeSlide];
 
-function stopTimer() {
-  clearInterval(state.timerId);
-  state.timerId = null;
-  state.isRunning = false;
-}
+  currentSlide.textContent = slide.index;
+  orangeBlock.style.background = slide.accent;
+  orangeBlock.style.transform = slide.shift;
+  figureCard.style.transform = slide.figure;
+});
 
-function completeSprint() {
-  stopTimer();
+projectCards.forEach((card) => {
+  card.addEventListener("click", () => {
+    projectCards.forEach((item) => item.classList.remove("active"));
+    card.classList.add("active");
+  });
+});
 
-  const completedTask = state.task || "Focus sprint";
-
-  state.completed += 1;
-  state.minutes += 25;
-  state.streak = Math.max(1, state.streak);
-  state.wins.unshift(completedTask);
-  state.wins = state.wins.slice(0, 5);
-
-  state.task = "";
-  state.secondsLeft = FOCUS_SECONDS;
-
-  saveState();
-  setFeedback("Sprint complete. That is real momentum.", "success");
-  timerLabel.textContent = "Mission complete";
-  render();
-}
-
-function tick() {
-  if (state.secondsLeft <= 1) {
-    completeSprint();
-    return;
-  }
-
-  state.secondsLeft -= 1;
-  render();
-}
-
-function startFocus(taskText) {
-  stopTimer();
-
-  state.task = taskText;
-  state.secondsLeft = FOCUS_SECONDS;
-  state.isRunning = true;
-  timerLabel.textContent = "Focus sprint";
-
-  state.timerId = setInterval(tick, 1000);
-
-  setFeedback("Focus sprint started. Keep the orbit clean.", "success");
-  render();
-}
-
-taskForm.addEventListener("submit", (event) => {
+signupForm.addEventListener("submit", (event) => {
   event.preventDefault();
 
-  const taskText = taskInput.value.trim();
+  const email = emailInput.value.trim();
 
-  if (taskText.length < 2) {
-    setFeedback("Add a real mission first.", "error");
-    taskInput.focus();
+  if (!email || !email.includes("@")) {
+    formMessage.textContent = "Enter a valid email to request access.";
     return;
   }
 
-  taskInput.value = "";
-  startFocus(taskText);
+  formMessage.textContent = "Access requested. Field signal received.";
+  emailInput.value = "";
 });
 
-pauseBtn.addEventListener("click", () => {
-  if (!state.task) {
-    setFeedback("Start a mission before pausing.", "error");
-    return;
-  }
+const revealElements = document.querySelectorAll(
+  ".project-card, .systems, .shop-card, .drop-card"
+);
 
-  if (state.isRunning) {
-    stopTimer();
-    setFeedback("Paused. Your mission is saved on screen.");
-  } else {
-    state.isRunning = true;
-    state.timerId = setInterval(tick, 1000);
-    setFeedback("Back in motion.", "success");
-  }
+const observer = new IntersectionObserver(
+  (entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.animate(
+          [
+            { opacity: 0, transform: "translateY(24px)" },
+            { opacity: 1, transform: "translateY(0)" }
+          ],
+          {
+            duration: 600,
+            easing: "cubic-bezier(.2,.8,.2,1)",
+            fill: "forwards"
+          }
+        );
 
-  render();
+        observer.unobserve(entry.target);
+      }
+    });
+  },
+  { threshold: 0.16 }
+);
+
+revealElements.forEach((element) => {
+  element.style.opacity = "0";
+  observer.observe(element);
 });
-
-resetBtn.addEventListener("click", () => {
-  stopTimer();
-
-  state.task = "";
-  state.secondsLeft = FOCUS_SECONDS;
-  timerLabel.textContent = "Focus sprint";
-
-  setFeedback("Reset complete. Choose the next mission.");
-  render();
-});
-
-themeBtn.addEventListener("click", () => {
-  document.body.classList.toggle("light");
-
-  const isLight = document.body.classList.contains("light");
-  localStorage.setItem("orbitFocusTheme", isLight ? "light" : "dark");
-
-  setFeedback(isLight ? "Light mood activated." : "Dark mood activated.", "success");
-});
-
-function loadTheme() {
-  const theme = localStorage.getItem("orbitFocusTheme");
-
-  if (theme === "light") {
-    document.body.classList.add("light");
-  }
-}
-
-loadTheme();
-loadState();
-render();
