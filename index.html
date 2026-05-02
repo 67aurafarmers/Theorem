@@ -3,99 +3,206 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Orbit Focus</title>
+  <title>LAB-01 / Field Systems</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <main class="app">
+  <div class="grain"></div>
+
+  <header class="site-header">
+    <a href="#" class="mark">+1</a>
+
+    <nav class="desktop-nav">
+      <a href="#projects">Projects</a>
+      <a href="#systems">Systems</a>
+      <a href="#shop">Shop</a>
+    </nav>
+
+    <div class="header-right">
+      <a href="#drop">New Arrivals</a>
+      <button class="menu-button" id="menuButton" aria-label="Open menu">
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#projects">Projects</a>
+    <a href="#systems">Systems</a>
+    <a href="#shop">Shop</a>
+    <a href="#drop">New Arrivals</a>
+  </div>
+
+  <main>
     <section class="hero">
-      <nav class="nav">
-        <div class="brand">
-          <span class="brand-mark"></span>
-          Orbit Focus
-        </div>
-        <button id="themeBtn" class="ghost-btn">Switch mood</button>
-      </nav>
+      <div class="hero-left">
+        <p class="eyebrow">X-LAB / Materials of Creation</p>
+        <h1>lab.</h1>
+        <p class="hero-copy">
+          Experimental outerwear, field objects, and protective systems built for future environments.
+        </p>
 
-      <div class="hero-grid">
-        <div class="hero-copy">
-          <p class="eyebrow">Focus launcher</p>
-          <h1>Turn scattered energy into one clean mission.</h1>
-          <p class="subtext">
-            Choose one task, start a focus sprint, and watch your progress build.
+        <div class="hero-actions">
+          <a href="#projects" class="primary-button">Enter Lab</a>
+          <button class="icon-button" id="nextHero" aria-label="Next slide">→</button>
+        </div>
+      </div>
+
+      <div class="hero-stage">
+        <div class="orange-block"></div>
+
+        <div class="figure-card">
+          <div class="figure-head"></div>
+          <div class="figure-body"></div>
+          <div class="figure-arm"></div>
+        </div>
+
+        <div class="vertical-label">
+          <span>X-LAB</span>
+          <span>MATERIALS</span>
+          <span>OF CREATION</span>
+        </div>
+
+        <div class="slide-index">
+          <span id="currentSlide">01</span>
+          <span>/</span>
+          <span>03</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="ticker" aria-label="Brand statement">
+      <span>CREATED ELEMENTS</span>
+      <span>FIELD LANGUAGE</span>
+      <span>OBJECT SYSTEMS</span>
+      <span>SURVIVALIST FORM</span>
+    </section>
+
+    <section class="projects" id="projects">
+      <div class="section-label">
+        <span>Projects</span>
+        <span>01</span>
+      </div>
+
+      <div class="project-grid">
+        <article class="project-card active" data-project="0">
+          <span class="project-number">01</span>
+          <h2>Survivalist Shell</h2>
+          <p>
+            A weather-resistant uniform system designed around movement, heat control, and visual command.
           </p>
+          <button>View System</button>
+        </article>
 
-          <form id="taskForm" class="task-form">
-            <input
-              id="taskInput"
-              type="text"
-              placeholder="What is your one mission?"
-              maxlength="70"
-              autocomplete="off"
-            />
-            <button type="submit">Start Focus</button>
-          </form>
+        <article class="project-card" data-project="1">
+          <span class="project-number">02</span>
+          <h2>Signal Glove</h2>
+          <p>
+            A tactical interface object with gesture-first interactions and high-contrast orange markers.
+          </p>
+          <button>View Object</button>
+        </article>
 
-          <p id="feedback" class="feedback">Ready when you are.</p>
+        <article class="project-card" data-project="2">
+          <span class="project-number">03</span>
+          <h2>Black Field Kit</h2>
+          <p>
+            Modular storage, strap language, and utility forms for daily urban navigation.
+          </p>
+          <button>View Kit</button>
+        </article>
+      </div>
+    </section>
+
+    <section class="systems" id="systems">
+      <div class="visual-object">
+        <div class="hand-palm"></div>
+        <div class="hand-finger finger-one"></div>
+        <div class="hand-finger finger-two"></div>
+        <div class="hand-finger finger-three"></div>
+        <div class="signal-panel">
+          <span>EXP-09</span>
+          <strong>Gesture Index</strong>
+          <small>Activated</small>
         </div>
+      </div>
 
-        <div class="focus-card">
-          <div class="timer-ring">
-            <svg viewBox="0 0 220 220">
-              <circle class="track" cx="110" cy="110" r="96"></circle>
-              <circle id="progressCircle" class="progress" cx="110" cy="110" r="96"></circle>
-            </svg>
-            <div class="timer-content">
-              <span id="timer">25:00</span>
-              <small id="timerLabel">Focus sprint</small>
-            </div>
+      <div class="systems-copy">
+        <p class="eyebrow">Survivalist / Created Elements</p>
+        <h2>Objects that feel engineered, not decorated.</h2>
+        <p>
+          LAB-01 uses contrast, material discipline, and strict spatial systems to create products that feel
+          immediate, functional, and impossible to mistake.
+        </p>
+
+        <div class="stats">
+          <div>
+            <strong>14</strong>
+            <span>Prototypes</span>
           </div>
-
-          <div class="controls">
-            <button id="pauseBtn" class="secondary-btn" type="button">Pause</button>
-            <button id="resetBtn" class="secondary-btn" type="button">Reset</button>
+          <div>
+            <strong>03</strong>
+            <span>Field Drops</span>
+          </div>
+          <div>
+            <strong>99</strong>
+            <span>Unit Index</span>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="dashboard">
-      <article class="panel mission-panel">
-        <div class="panel-header">
-          <h2>Current mission</h2>
-          <span id="statusPill" class="pill">Idle</span>
-        </div>
-        <p id="currentTask" class="empty-state">
-          No mission yet. Type one task above to begin.
+    <section class="shop" id="shop">
+      <div>
+        <p class="eyebrow">Drop 01</p>
+        <h2>New arrivals built for motion.</h2>
+      </div>
+
+      <div class="shop-row">
+        <article class="shop-card">
+          <div class="product-shape jacket"></div>
+          <h3>Red Utility Shell</h3>
+          <p>$180</p>
+        </article>
+
+        <article class="shop-card">
+          <div class="product-shape glove"></div>
+          <h3>Signal Glove</h3>
+          <p>$74</p>
+        </article>
+
+        <article class="shop-card">
+          <div class="product-shape pack"></div>
+          <h3>Black Field Pack</h3>
+          <p>$120</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="drop" id="drop">
+      <div class="drop-card">
+        <span class="drop-number">01</span>
+        <h2>Join the next experiment.</h2>
+        <p>
+          Get field notes, prototype drops, and private release signals.
         </p>
-      </article>
 
-      <article class="panel">
-        <h2>Momentum</h2>
-        <div class="stats">
-          <div>
-            <strong id="completedCount">0</strong>
-            <span>sprints finished</span>
-          </div>
-          <div>
-            <strong id="streakCount">0</strong>
-            <span>day streak</span>
-          </div>
-          <div>
-            <strong id="minutesCount">0</strong>
-            <span>focus minutes</span>
-          </div>
-        </div>
-      </article>
+        <form id="signupForm">
+          <input id="emailInput" type="email" placeholder="email@domain.com" required />
+          <button type="submit">Request Access</button>
+        </form>
 
-      <article class="panel">
-        <h2>Recent wins</h2>
-        <ul id="winsList" class="wins-list">
-          <li class="empty-state">Completed missions will appear here.</li>
-        </ul>
-      </article>
+        <p class="form-message" id="formMessage"></p>
+      </div>
     </section>
   </main>
+
+  <footer>
+    <strong>lab.</strong>
+    <span>FIELD SYSTEMS / 2026</span>
+    <a href="#">Back to top ↑</a>
+  </footer>
 
   <script src="script.js"></script>
 </body>
