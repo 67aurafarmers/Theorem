@@ -1,164 +1,310 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Orbit — Turn homework chaos into tonight’s study plan</title>
   <meta
     name="description"
-    content="Theorem turns pasted homework, notes, study guides, and assignment text into a clean study path."
+    content="Orbit helps students brain dump homework, notes, and tasks, then turns them into a clear study plan for the night."
   />
-  <title>Theorem — StudyPath Engine</title>
   <link rel="stylesheet" href="style.css" />
-  <script src="script.js" defer></script>
 </head>
 
 <body>
-  <div id="loadingScreen" class="loading-screen" aria-live="polite">
-    <div class="loading-card">
-      <div class="brand-lockup">
-        <span class="brand-mark">∴</span>
-        <span>Theorem</span>
-      </div>
+  <a class="skip-link" href="#planner">Skip to planner</a>
 
-      <p class="eyebrow">StudyPath Engine</p>
-      <h1>Organizing your study path…</h1>
-      <p id="loadingPhrase">Reading the material…</p>
+  <div class="page-glow page-glow-one" aria-hidden="true"></div>
+  <div class="page-glow page-glow-two" aria-hidden="true"></div>
 
-      <div class="loading-bar" aria-hidden="true">
+  <header class="site-header" data-header>
+    <nav class="nav" aria-label="Main navigation">
+      <a class="brand" href="#top" aria-label="Orbit home">
+        <span class="brand-mark" aria-hidden="true">
+          <span class="brand-core"></span>
+        </span>
+        <span>Orbit</span>
+      </a>
+
+      <button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" data-menu-toggle>
         <span></span>
+        <span></span>
+      </button>
+
+      <div class="nav-links" data-nav-links>
+        <a href="#planner">Planner</a>
+        <a href="#how">How it works</a>
+        <a href="#features">Features</a>
+        <button class="theme-toggle" type="button" data-theme-toggle aria-label="Toggle color theme">
+          <span data-theme-icon>☾</span>
+          <span data-theme-label>Dark</span>
+        </button>
       </div>
-    </div>
-  </div>
+    </nav>
+  </header>
 
-  <main class="app-shell">
-    <section class="hero">
-      <nav class="topbar" aria-label="Theorem">
-        <div class="brand-lockup">
-          <span class="brand-mark">∴</span>
-          <span>Theorem</span>
+  <main id="top">
+    <section class="hero section">
+      <div class="hero-copy reveal">
+        <p class="eyebrow">
+          <span class="pulse-dot" aria-hidden="true"></span>
+          After-school planning for tired brains
+        </p>
+
+        <h1>Come home. Dump the chaos. Know what to do tonight.</h1>
+
+        <p class="hero-text">
+          Orbit turns homework, notes, readings, and loose reminders into a calm study path with time blocks,
+          breaks, and a realistic finish line.
+        </p>
+
+        <div class="hero-actions" aria-label="Primary actions">
+          <a class="button button-primary" href="#planner">Build my plan</a>
+          <a class="button button-secondary" href="#how">See how it works</a>
         </div>
 
-        <span class="local-pill">Text-only V1</span>
-      </nav>
-
-      <div class="hero-grid">
-        <div class="hero-copy">
-          <p class="eyebrow">Rule-based StudyPath Engine</p>
-          <h1>Paste the assignment. Theorem organizes the mess.</h1>
-          <p>
-            Theorem detects the subject, extracts questions and keywords, sorts the material
-            into study folders, and suggests the best way to start studying.
-          </p>
+        <div class="hero-proof" aria-label="Orbit benefits">
+          <div>
+            <strong>3-step</strong>
+            <span>night reset</span>
+          </div>
+          <div>
+            <strong>Local</strong>
+            <span>browser save</span>
+          </div>
+          <div>
+            <strong>Mobile</strong>
+            <span>ready</span>
+          </div>
         </div>
+      </div>
 
-        <aside class="promise-card">
-          <h2>What Theorem does</h2>
-          <ul>
-            <li>Extracts keywords and questions</li>
-            <li>Detects the subject</li>
-            <li>Builds study folders</li>
-            <li>Generates study tools</li>
-          </ul>
-        </aside>
+      <div class="hero-visual reveal" aria-label="Orbit app preview">
+        <div class="orbit-shell">
+          <div class="orbit-ring ring-one" aria-hidden="true"></div>
+          <div class="orbit-ring ring-two" aria-hidden="true"></div>
+
+          <div class="mock-app">
+            <div class="mock-topbar">
+              <div>
+                <span class="tiny-label">Tonight</span>
+                <strong>Study Orbit</strong>
+              </div>
+              <span class="status-pill">Ready</span>
+            </div>
+
+            <div class="focus-card">
+              <div>
+                <span class="tiny-label">First move</span>
+                <h2>Math worksheet</h2>
+              </div>
+              <span class="time-chip">25m</span>
+            </div>
+
+            <div class="mini-timeline" aria-hidden="true">
+              <span style="--w: 38%"></span>
+              <span style="--w: 62%"></span>
+              <span style="--w: 46%"></span>
+            </div>
+
+            <div class="mini-cards">
+              <article>
+                <span>01</span>
+                <p>Sort tasks</p>
+              </article>
+              <article>
+                <span>02</span>
+                <p>Place breaks</p>
+              </article>
+              <article>
+                <span>03</span>
+                <p>Start focused</p>
+              </article>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
-    <section class="input-card" aria-labelledby="inputTitle">
-      <div class="section-heading">
-        <p class="eyebrow">Start here</p>
-        <h2 id="inputTitle">Paste written homework, notes, or a study guide.</h2>
+    <section id="planner" class="planner-section section">
+      <div class="section-heading reveal">
+        <p class="eyebrow">Try the planner</p>
+        <h2>Drop in everything on your mind.</h2>
         <p>
-          No images yet. No PDFs yet. No AI API. This version runs fully in your browser.
+          Add one task per line. Orbit will estimate a practical study plan using your available time and energy level.
         </p>
       </div>
 
-      <label class="sr-only" for="materialInput">Paste study material</label>
-      <textarea
-        id="materialInput"
-        spellcheck="true"
-        placeholder="Paste homework, notes, study guides, or assignment text here.
+      <div class="planner-grid">
+        <form class="planner-card input-card reveal" data-planner-form>
+          <div class="card-header">
+            <div>
+              <p class="eyebrow">Brain dump</p>
+              <h3>Homework, notes, tasks</h3>
+            </div>
+            <span class="save-state" data-save-state>Auto-saved locally</span>
+          </div>
 
-Example:
-American Revolution Study Guide.
-Explain taxation without representation.
-Vocabulary: boycott, colony, representation.
-Important event: Boston Tea Party, 1773."
-      ></textarea>
+          <label class="sr-only" for="taskDump">Enter homework, notes, and tasks</label>
+          <textarea
+            id="taskDump"
+            name="taskDump"
+            data-task-dump
+            rows="10"
+            placeholder="Example:
+Math worksheet due tomorrow
+Read chapter 8 for history
+Study biology quiz notes
+English essay outline 45 min
+Pack gym clothes"
+          ></textarea>
 
-      <div class="action-row">
-        <button class="btn btn-primary" id="buildPathBtn" type="button">
-          Build study path
-        </button>
-        <p id="statusMessage" class="status-message" role="status" aria-live="polite"></p>
+          <div class="controls-grid">
+            <label class="field">
+              <span>Energy tonight</span>
+              <select data-energy>
+                <option value="low">Low — keep it gentle</option>
+                <option value="medium" selected>Medium — balanced pace</option>
+                <option value="high">High — deeper focus</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span>Start time</span>
+              <input type="time" value="18:30" data-start-time />
+            </label>
+
+            <label class="field range-field">
+              <span>
+                Available time
+                <strong data-time-label>120 min</strong>
+              </span>
+              <input type="range" min="45" max="240" step="15" value="120" data-available-time />
+            </label>
+          </div>
+
+          <div class="planner-actions">
+            <button class="button button-primary" type="submit">Generate tonight’s plan</button>
+            <button class="button button-ghost" type="button" data-sample-button>Use sample</button>
+            <button class="button button-ghost danger" type="button" data-clear-button>Clear</button>
+          </div>
+
+          <p class="privacy-note">
+            This demo runs fully in your browser. It does not send your homework anywhere.
+          </p>
+        </form>
+
+        <section class="planner-card result-card reveal" aria-live="polite" aria-label="Generated study plan">
+          <div class="card-header">
+            <div>
+              <p class="eyebrow">Tonight’s orbit</p>
+              <h3>Your plan</h3>
+            </div>
+            <button class="copy-button" type="button" data-copy-plan disabled>Copy plan</button>
+          </div>
+
+          <div class="plan-stats" data-plan-stats>
+            <div>
+              <span>Tasks</span>
+              <strong>0</strong>
+            </div>
+            <div>
+              <span>Focus</span>
+              <strong>0m</strong>
+            </div>
+            <div>
+              <span>Finish</span>
+              <strong>—</strong>
+            </div>
+          </div>
+
+          <div class="empty-state" data-empty-state>
+            <div class="empty-orbit" aria-hidden="true"></div>
+            <h4>No plan yet</h4>
+            <p>Paste your homework list, choose your energy, then generate a clear path for the night.</p>
+          </div>
+
+          <div class="timeline" data-timeline hidden></div>
+        </section>
       </div>
-
-      <p class="safe-note">
-        Theorem does not claim perfect understanding. It uses rule-based JavaScript to organize
-        the material you provide.
-      </p>
     </section>
 
-    <section id="resultPanel" class="result-panel hidden" aria-live="polite">
-      <div class="result-header">
+    <section id="how" class="how-section section">
+      <div class="section-heading reveal">
+        <p class="eyebrow">How it works</p>
+        <h2>A simple reset after school.</h2>
+      </div>
+
+      <div class="steps-grid">
+        <article class="step-card reveal">
+          <span>01</span>
+          <h3>Dump everything</h3>
+          <p>No perfect formatting. Write the homework, reminders, notes, and due-soon stuff taking up space in your head.</p>
+        </article>
+
+        <article class="step-card reveal">
+          <span>02</span>
+          <h3>Orbit sorts the night</h3>
+          <p>The planner estimates time, prioritizes urgent study work, and fits tasks into the time you actually have.</p>
+        </article>
+
+        <article class="step-card reveal">
+          <span>03</span>
+          <h3>Start with one move</h3>
+          <p>You get a first task, a rhythm of breaks, and a clear finish point so the night feels possible.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="features" class="features-section section">
+      <div class="feature-panel reveal">
         <div>
-          <p class="eyebrow">Result</p>
-          <h2>Theorem detected your material and built a study path.</h2>
-          <p id="confidenceMessage">
-            Based on your material, review the folders before studying.
-          </p>
+          <p class="eyebrow">Why students use it</p>
+          <h2>Built for the moment when school follows you home.</h2>
         </div>
 
-        <div class="subject-card">
-          <span id="detectedSubject">General Study</span>
-          <strong id="confidenceValue">0%</strong>
-          <small>confidence</small>
+        <div class="feature-list">
+          <article>
+            <span aria-hidden="true">✦</span>
+            <div>
+              <h3>Messy input friendly</h3>
+              <p>Orbit works with natural task lists instead of forcing you into a complicated system.</p>
+            </div>
+          </article>
+
+          <article>
+            <span aria-hidden="true">◐</span>
+            <div>
+              <h3>Energy-aware planning</h3>
+              <p>Low-energy nights get shorter focus blocks and more breathing room.</p>
+            </div>
+          </article>
+
+          <article>
+            <span aria-hidden="true">⌁</span>
+            <div>
+              <h3>Honest static demo</h3>
+              <p>This version is frontend-only and ready for GitHub Pages. Real accounts or AI sync would need a backend.</p>
+            </div>
+          </article>
         </div>
       </div>
+    </section>
 
-      <div class="summary-grid">
-        <article class="summary-card">
-          <h3>Study strategy</h3>
-          <p id="strategyText"></p>
-        </article>
-
-        <article class="summary-card">
-          <h3>Recommended first action</h3>
-          <p id="firstActionText"></p>
-        </article>
-      </div>
-
-      <section class="output-section">
-        <div class="output-heading">
-          <h3>Subject score breakdown</h3>
-          <p>Theorem scores subjects with simple keyword and pattern rules.</p>
-        </div>
-        <div id="scoreGrid" class="score-grid"></div>
-      </section>
-
-      <section class="output-section">
-        <div class="output-heading">
-          <h3>Extracted keywords</h3>
-          <p>Important words Theorem found in the material.</p>
-        </div>
-        <div id="keywordChips" class="chip-row"></div>
-      </section>
-
-      <section class="output-section">
-        <div class="output-heading">
-          <h3>Study folders</h3>
-          <p>Theorem sorted the material into folders before building tools.</p>
-        </div>
-        <div id="folderGrid" class="folder-grid"></div>
-      </section>
-
-      <section class="output-section">
-        <div class="output-heading">
-          <h3>Generated study tools</h3>
-          <p>Based on the subject and folders, Theorem suggests these tools.</p>
-        </div>
-        <div id="toolsGrid" class="tools-grid"></div>
-      </section>
+    <section class="final-cta section reveal">
+      <p class="eyebrow">Ready when the backpack hits the floor</p>
+      <h2>Give tonight a path before it becomes a spiral.</h2>
+      <a class="button button-primary" href="#planner">Plan tonight</a>
     </section>
   </main>
+
+  <footer class="footer">
+    <p>© <span data-year></span> Orbit. A calm study-planning concept for students.</p>
+    <a href="#top">Back to top</a>
+  </footer>
+
+  <div class="toast" role="status" aria-live="polite" data-toast hidden></div>
+
+  <script src="script.js"></script>
 </body>
 </html>
